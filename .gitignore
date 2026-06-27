@@ -1,0 +1,40 @@
+# Dépendances
+node_modules/
+.pnpm-store/
+
+# Env (ne jamais committer)
+.env
+.env.local
+.env.*.local
+
+# Build Next.js
+apps/web/.next/
+apps/web/out/
+
+# Build bot
+apps/bot/dist/
+
+# Build packages
+packages/db/dist/
+packages/shared/dist/
+
+# Turbo cache
+.turbo/
+
+# Prisma generated (regénéré à l'install)
+packages/db/prisma/generated/
+
+# PM2 logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Claude
+.claude/

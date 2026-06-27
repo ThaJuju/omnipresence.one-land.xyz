@@ -1,0 +1,376 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────
+// SUPERADMIN / PLATEFORME
+// ─────────────────────────────────────────
+
+model GuildInstance {
+  id               String   @id @default(cuid())
+  discordGuildId   String   @unique
+  discordGuildName String
+  discordGuildIcon String?
+  ownerId          String
+  isActive         Boolean  @default(true)
+  isBanned         Boolean  @default(false)
+  banReason        String?
+  plan             String   @default("free")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  config              GuildConfig?
+  members             Member[]
+  grades              Grade[]
+  gradeCategories     GradeCategory[]
+  absences            Absence[]
+  warnings            Warning[]
+  contributions       Contribution[]
+  accountingEntries   AccountingEntry[]
+  vdaCards            VdaCard[]
+  presenceLogs        PresenceLog[]
+  notifications       Notification[]
+  auditLogs           AuditLog[]
+  roleBindings        DiscordRoleBinding[]
+  warningThresholds   WarningThreshold[]
+}
+
+model GuildConfig {
+  id      String        @id @default(cuid())
+  guildId String        @unique
+  guild   GuildInstance @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  presenceChannelId     String?
+  warningChannelId      String?
+  notificationChannelId String?
+  logChannelId          String?
+
+  warningRoleId String?
+
+  presencePingRoleId String?
+  embedTitle         String  @default("✅ Confirmation de présence")
+  embedDescription   String?
+  embedColor         String  @default("#5865F2")
+
+  presenceMessageTime String @default("08:00")
+  reminderTime        String @default("18:00")
+  warningCheckTime    String @default("22:00")
+  timezone            String @default("Europe/Paris")
+
+  reportChannelId      String?
+  dailyReportEnabled   Boolean @default(false)
+  weeklyReportEnabled  Boolean @default(false)
+  monthlyReportEnabled Boolean @default(false)
+
+  presenceEnabled     Boolean @default(true)
+  reminderEnabled     Boolean @default(true)
+  warningCheckEnabled Boolean @default(true)
+  absenceEnabled      Boolean @default(true)
+  warningEnabled      Boolean @default(true)
+  autoWarningEnabled  Boolean @default(true)
+  contributionEnabled Boolean @default(true)
+  accountingEnabled   Boolean @default(true)
+  vdaEnabled          Boolean @default(false)
+
+  panelName   String  @default("Panel de gestion")
+  panelLogo   String?
+  accentColor String  @default("#5865F2")
+
+  absenceChannelId      String?
+  absenceEmbedMessageId String?
+  absenceEmbedTitle     String?
+  absenceEmbedBody      String?
+  absenceEmbedLang      String  @default("fr")
+  absenceNotifChannelId String?
+
+  contributionAmount   Float?
+  contributionCurrency String @default("EUR")
+  contributionPeriod   String @default("monthly")
+  botLanguage          String @default("fr")
+
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────
+// BINDING RÔLES DISCORD → RÔLES PANEL
+// ─────────────────────────────────────────
+
+model DiscordRoleBinding {
+  id            String        @id @default(cuid())
+  guildId       String
+  guild         GuildInstance @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  discordRoleId String
+  panelRole     PanelRole
+  createdAt     DateTime      @default(now())
+
+  @@unique([guildId, discordRoleId])
+}
+
+enum PanelRole {
+  ADMIN
+  DIRECTION
+  RESPONSABLE
+  MODERATEUR
+  MEMBRE
+}
+
+// ─────────────────────────────────────────
+// GRADES
+// ─────────────────────────────────────────
+
+model GradeCategory {
+  id       String        @id @default(cuid())
+  guildId  String
+  guild    GuildInstance @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  name     String
+  color    String        @default("#6B7280")
+  position Int           @default(0)
+  grades   Grade[]
+}
+
+model Grade {
+  id            String         @id @default(cuid())
+  guildId       String
+  guild         GuildInstance  @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  categoryId    String?
+  category      GradeCategory? @relation(fields: [categoryId], references: [id])
+  name          String
+  discordRoleId String?
+  color         String         @default("#6B7280")
+  position      Int            @default(0)
+  members       Member[]
+  gradeHistory  GradeHistory[]
+}
+
+// ─────────────────────────────────────────
+// MEMBRES
+// ─────────────────────────────────────────
+
+model Member {
+  id              String        @id @default(cuid())
+  guildId         String
+  guild           GuildInstance @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  discordUserId   String
+  discordUsername String
+  discordAvatar   String?
+  discordNickname String?
+
+  gradeId String?
+  grade   Grade?  @relation(fields: [gradeId], references: [id])
+
+  panelRole PanelRole @default(MEMBRE)
+  notes     String?
+
+  joinedAt   DateTime  @default(now())
+  lastSeenAt DateTime?
+  isActive   Boolean   @default(true)
+
+  absences       Absence[]
+  warnings       Warning[]
+  contributions  Contribution[]
+  presenceLogs   PresenceLog[]
+  gradeHistory   GradeHistory[]
+  actionsAsAdmin AuditLog[]     @relation("AdminActions")
+
+  @@unique([guildId, discordUserId])
+}
+
+model GradeHistory {
+  id         String   @id @default(cuid())
+  memberId   String
+  member     Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  gradeId    String
+  grade      Grade    @relation(fields: [gradeId], references: [id])
+  assignedBy String?
+  assignedAt DateTime @default(now())
+  note       String?
+}
+
+// ─────────────────────────────────────────
+// PRÉSENCES
+// ─────────────────────────────────────────
+
+model PresenceLog {
+  id           String         @id @default(cuid())
+  guildId      String
+  guild        GuildInstance  @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  memberId     String
+  member       Member         @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  date         DateTime       @db.Date
+  status       PresenceStatus
+  delayMinutes Int?
+  source       String         @default("discord")
+  createdAt    DateTime       @default(now())
+
+  @@unique([memberId, date])
+}
+
+enum PresenceStatus {
+  PRESENT
+  ABSENT
+  PENDING
+  LATE
+}
+
+// ─────────────────────────────────────────
+// ABSENCES
+// ─────────────────────────────────────────
+
+model Absence {
+  id         String        @id @default(cuid())
+  guildId    String
+  guild      GuildInstance @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  memberId   String
+  member     Member        @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  reason     String
+  startDate  DateTime      @db.Date
+  endDate    DateTime      @db.Date
+  status     AbsenceStatus @default(PENDING)
+  source     String        @default("discord")
+  reviewedBy String?
+  reviewedAt DateTime?
+  createdAt  DateTime      @default(now())
+}
+
+enum AbsenceStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ─────────────────────────────────────────
+// AVERTISSEMENTS
+// ─────────────────────────────────────────
+
+model Warning {
+  id         String        @id @default(cuid())
+  guildId    String
+  guild      GuildInstance @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  memberId   String
+  member     Member        @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  reason     String
+  isAuto     Boolean       @default(false)
+  isActive   Boolean       @default(true)
+  revokedBy  String?
+  revokedAt  DateTime?
+  revokeNote String?
+  issuedBy   String?
+  createdAt  DateTime      @default(now())
+}
+
+// ─────────────────────────────────────────
+// WARNING THRESHOLDS
+// ─────────────────────────────────────────
+
+model WarningThreshold {
+  id            String        @id @default(cuid())
+  guildId       String
+  guild         GuildInstance @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  threshold     Int
+  discordRoleId String
+
+  @@unique([guildId, threshold])
+}
+
+// ─────────────────────────────────────────
+// COTISATIONS
+// ─────────────────────────────────────────
+
+model Contribution {
+  id        String        @id @default(cuid())
+  guildId   String
+  guild     GuildInstance @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  memberId  String
+  member    Member        @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  amount     Float
+  currency   String        @default("EUR")
+  periodType String        @default("monthly")
+  month      Int
+  year       Int
+  week       Int?
+  day        Int?
+  note       String?
+  createdBy String?
+  createdAt DateTime      @default(now())
+}
+
+// ─────────────────────────────────────────
+// COMPTABILITÉ
+// ─────────────────────────────────────────
+
+model AccountingEntry {
+  id        String         @id @default(cuid())
+  guildId   String
+  guild     GuildInstance  @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  type      AccountingType
+  category  String
+  label     String
+  amount    Float
+  currency  String         @default("EUR")
+  date      DateTime       @db.Date
+  note      String?
+  createdBy String?
+  createdAt DateTime       @default(now())
+}
+
+enum AccountingType {
+  INCOME
+  EXPENSE
+}
+
+// ─────────────────────────────────────────
+// MODULE VDA
+// ─────────────────────────────────────────
+
+model VdaCard {
+  id         String        @id @default(cuid())
+  guildId    String
+  guild      GuildInstance @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  title      String
+  category   String?
+  content    Json
+  isArchived Boolean       @default(false)
+  createdBy  String?
+  updatedBy  String?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+}
+
+// ─────────────────────────────────────────
+// NOTIFICATIONS
+// ─────────────────────────────────────────
+
+model Notification {
+  id        String        @id @default(cuid())
+  guildId   String
+  guild     GuildInstance @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  userId    String
+  type      String
+  title     String
+  body      String
+  isRead    Boolean       @default(false)
+  createdAt DateTime      @default(now())
+}
+
+// ─────────────────────────────────────────
+// AUDIT LOG
+// ─────────────────────────────────────────
+
+model AuditLog {
+  id         String        @id @default(cuid())
+  guildId    String
+  guild      GuildInstance @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  adminId    String?
+  admin      Member?       @relation("AdminActions", fields: [adminId], references: [id])
+  action     String
+  targetId   String?
+  targetType String?
+  before     Json?
+  after      Json?
+  createdAt  DateTime      @default(now())
+}

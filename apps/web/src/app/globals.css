@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg:          #060a0e;
+  --surface:     #0d1117;
+  --surface-2:   #161b22;
+  --border:      rgba(255,255,255,0.07);
+  --border-mid:  rgba(255,255,255,0.12);
+
+  --guild-accent: #6366f1;
+  --accent:       var(--guild-accent);
+  --accent-dim:   rgba(99,102,241,0.12);
+
+  --text:    #f0f0f0;
+  --text-2:  #8b8fa8;
+  --text-3:  #4a4f63;
+
+  --success: #22c55e;
+  --warning: #eab308;
+  --warn:    #f59e0b;
+  --danger:  #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fadeUp 0.18s ease-out; }
+
+/* FullCalendar overrides */
+.fc .fc-toolbar-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+}
+.fc .fc-button {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text-2);
+  font-family: 'Inter', sans-serif;
+}
+.fc .fc-button:hover { background: var(--surface-2); }
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+.fc-theme-standard td,
+.fc-theme-standard th,
+.fc-theme-standard .fc-scrollgrid { border-color: rgba(255,255,255,0.07); }
+.fc .fc-daygrid-day-number { color: var(--text-2); }
+.fc .fc-col-header-cell-cushion {
+  color: var(--text-3);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.fc-daygrid-day.fc-day-today {
+  background: color-mix(in srgb, var(--guild-accent) 6%, transparent) !important;
+}

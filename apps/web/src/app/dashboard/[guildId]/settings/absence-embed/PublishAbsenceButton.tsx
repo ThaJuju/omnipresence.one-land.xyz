@@ -1,0 +1,53 @@
+'use client'
+
+import { useState, useTransition } from 'react'
+
+export default function PublishAbsenceButton({
+  publishAction,
+  disabled,
+}: {
+  publishAction: () => Promise<{ success: boolean; error?: string }>
+  disabled: boolean
+}) {
+  const [isPending, startTransition] = useTransition()
+  const [result, setResult] = useState<{ success: boolean; error?: string } | null>(null)
+
+  function handleClick() {
+    setResult(null)
+    startTransition(async () => {
+      const r = await publishAction()
+      setResult(r)
+    })
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={disabled || isPending}
+        className="px-4 py-2 bg-[var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-80 hover:bg-[var(--accent)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+      >
+        {isPending ? (
+          <>
+            <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+            </svg>
+            Publication…
+          </>
+        ) : (
+          'Publier dans Discord'
+        )}
+      </button>
+      {result && (
+        <span className={`text-xs font-medium ${result.success ? 'text-[#22c55e]' : 'text-[#ef4444]'}`}>
+          {result.success ? '✓ Embed publié !' : `✗ ${result.error}`}
+        </span>
+      )}
+      {disabled && !result && (
+        <span className="text-xs text-[var(--text-3)]">Sélectionnez un canal d&apos;abord</span>
+      )}
+    </div>
+  )
+}
