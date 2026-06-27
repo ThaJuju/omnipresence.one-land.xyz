@@ -5,6 +5,7 @@ import { prisma } from '@repo/db'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { getGuildMember, requirePermission } from '@/lib/api'
+import ResetWarningsButton from './ResetWarningsButton'
 
 type DiscordRole = { id: string; name: string; color: number; position: number; managed: boolean }
 
@@ -84,6 +85,12 @@ export default async function WarningsSettingsPage({ params }: { params: { guild
     include: { config: true },
   })
   if (!guild) redirect('/dashboard')
+
+  const currentMember = await prisma.member.findUnique({
+    where: { guildId_discordUserId: { guildId, discordUserId: session.user.discordId } },
+    select: { panelRole: true },
+  })
+  const isAdmin = currentMember?.panelRole === 'ADMIN'
 
   const [thresholds, discordRoles] = await Promise.all([
     prisma.warningThreshold.findMany({ where: { guildId }, orderBy: { threshold: 'asc' } }),
@@ -246,6 +253,25 @@ export default async function WarningsSettingsPage({ params }: { params: { guild
           </button>
         </div>
       </form>
+
+      {/* Zone danger — ADMIN uniquement */}
+      {isAdmin && (
+        <div className="bg-[var(--surface)] rounded-md border border-[#ef4444]/20 p-5 space-y-3">
+          <div>
+            <h3 className="font-semibold text-[#ef4444]">Zone danger</h3>
+            <p className="text-xs text-[var(--text-3)] mt-0.5">
+              Actions irréversibles réservées aux administrateurs
+            </p>
+          </div>
+          <div className="border-t border-white/[0.07] pt-4 space-y-2">
+            <p className="text-sm text-[var(--text)]">Réinitialisation des avertissements</p>
+            <p className="text-xs text-[var(--text-3)]">
+              Révoque tous les avertissements actifs et retire les rôles Discord associés de chaque membre.
+            </p>
+            <ResetWarningsButton guildId={guildId} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
