@@ -3,24 +3,62 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
+type Step = 'idle' | 'confirm' | 'loading' | 'done'
+
 export default function ResetWarningsButton({ guildId }: { guildId: string }) {
-  const [step, setStep] = useState<'idle' | 'confirm' | 'loading'>('idle')
+  const [step, setStep] = useState<Step>('idle')
+  const [progress, setProgress] = useState({ done: 0, total: 0 })
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   async function handleReset() {
     setStep('loading')
     setError(null)
+    setProgress({ done: 0, total: 0 })
+
     try {
       const res = await fetch(`/api/guilds/${guildId}/warnings/reset`, { method: 'DELETE' })
-      const data = await res.json() as { data?: { reset: number }; error?: string }
-      if (!res.ok) {
+
+      if (!res.ok || !res.body) {
+        const data = await res.json() as { error?: string }
         setError(data.error ?? 'Erreur inconnue')
         setStep('confirm')
         return
       }
-      setStep('idle')
-      router.refresh()
+
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const text = decoder.decode(value)
+        for (const line of text.split('\n')) {
+          if (!line.startsWith('data: ')) continue
+          try {
+            const event = JSON.parse(line.slice(6)) as {
+              type: string
+              total?: number
+              done?: number
+              reset?: number
+              message?: string
+            }
+
+            if (event.type === 'start') {
+              setProgress({ done: 0, total: event.total ?? 0 })
+            } else if (event.type === 'progress') {
+              setProgress({ done: event.done ?? 0, total: event.total ?? 0 })
+            } else if (event.type === 'done') {
+              setStep('done')
+              router.refresh()
+            } else if (event.type === 'error') {
+              setError(event.message ?? 'Erreur inconnue')
+              setStep('confirm')
+            }
+          } catch { /* ligne SSE incomplète */ }
+        }
+      }
     } catch {
       setError('Erreur réseau')
       setStep('confirm')
@@ -38,6 +76,33 @@ export default function ResetWarningsButton({ guildId }: { guildId: string }) {
     )
   }
 
+  if (step === 'done') {
+    return (
+      <p className="text-sm text-[var(--text-2)]">
+        ✅ Réinitialisation terminée — tous les avertissements ont été révoqués.
+      </p>
+    )
+  }
+
+  if (step === 'loading') {
+    const pct = progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : 0
+    return (
+      <div className="space-y-2">
+        <p className="text-sm text-[var(--text-2)]">
+          Retrait des rôles Discord… {progress.done}/{progress.total} membres
+        </p>
+        <div className="w-full h-2 bg-[var(--bg)] rounded-full overflow-hidden border border-white/[0.07]">
+          <div
+            className="h-full bg-[#ef4444] rounded-full transition-all duration-300"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <p className="text-xs text-[var(--text-3)]">{pct}%</p>
+      </div>
+    )
+  }
+
+  // step === 'confirm'
   return (
     <div className="space-y-3">
       <div className="bg-[#ef4444]/10 border border-[#ef4444]/30 rounded-md p-4 text-sm text-[#ef4444] space-y-1">
@@ -48,15 +113,13 @@ export default function ResetWarningsButton({ guildId }: { guildId: string }) {
       <div className="flex gap-3">
         <button
           onClick={handleReset}
-          disabled={step === 'loading'}
-          className="px-4 py-2 bg-[#ef4444] text-white rounded-lg text-sm font-medium hover:bg-[#dc2626] transition-colors disabled:opacity-50"
+          className="px-4 py-2 bg-[#ef4444] text-white rounded-lg text-sm font-medium hover:bg-[#dc2626] transition-colors"
         >
-          {step === 'loading' ? 'Réinitialisation…' : 'Confirmer la réinitialisation'}
+          Confirmer la réinitialisation
         </button>
         <button
           onClick={() => { setStep('idle'); setError(null) }}
-          disabled={step === 'loading'}
-          className="px-4 py-2 bg-[var(--surface)] border border-white/[0.07] text-[var(--text-2)] rounded-lg text-sm hover:text-[var(--text)] transition-colors disabled:opacity-50"
+          className="px-4 py-2 bg-[var(--surface)] border border-white/[0.07] text-[var(--text-2)] rounded-lg text-sm hover:text-[var(--text)] transition-colors"
         >
           Annuler
         </button>
