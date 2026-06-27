@@ -19,13 +19,14 @@ function loadEnv(filePath) {
   return env
 }
 
-const envVars = loadEnv('/var/www/omnipresence.one-land.xyz/.env')
+const root = __dirname
+const envVars = loadEnv(path.join(root, '.env'))
 
 module.exports = {
   apps: [
     {
       name: 'discordpanel-web',
-      cwd: '/var/www/omnipresence.one-land.xyz/apps/web/.next/standalone/apps/web',
+      cwd: path.join(root, 'apps/web/.next/standalone/apps/web'),
       script: 'node',
       args: 'server.js',
       env: { ...envVars, PORT: 3003 },
@@ -36,7 +37,7 @@ module.exports = {
     },
     {
       name: 'discordpanel-bot',
-      cwd: '/var/www/omnipresence.one-land.xyz/apps/bot',
+      cwd: path.join(root, 'apps/bot'),
       script: 'node',
       args: 'dist/apps/bot/src/index.js',
       env: envVars,
