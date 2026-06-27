@@ -43,13 +43,12 @@ export const DELETE = withApiHandler(async (req, { params }) => {
 
   if (roleIdsToRemove.length > 0 && affectedMembers.length > 0) {
     const { botClient } = await import('@/lib/bot-client')
-    for (const m of affectedMembers) {
-      for (const roleId of roleIdsToRemove) {
-        try {
-          await botClient.removeRole(discordGuildId, m.discordUserId, roleId)
-        } catch { /* bot offline or member left */ }
-      }
-    }
+    const calls = affectedMembers.flatMap((m) =>
+      roleIdsToRemove.map((roleId) =>
+        botClient.removeRole(discordGuildId, m.discordUserId, roleId).catch(() => null)
+      )
+    )
+    await Promise.allSettled(calls)
   }
 
   await prisma.auditLog.create({
