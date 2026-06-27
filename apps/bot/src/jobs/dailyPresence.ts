@@ -19,7 +19,11 @@ export async function runDailyPresence(guildId: string) {
     today.setUTCHours(0, 0, 0, 0)
 
     const members = await prisma.member.findMany({
-      where: { guildId, isActive: true },
+      where: {
+        guildId,
+        isActive: true,
+        grade: { discordRoleId: { not: null } },
+      },
     })
 
     const approvedAbsences = await prisma.absence.findMany({

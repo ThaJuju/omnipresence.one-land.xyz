@@ -18,7 +18,7 @@ export async function runWarningCheck(guildId: string) {
 
     const pendingLogs = await prisma.presenceLog.findMany({
       where: { guildId, date: today, status: 'PENDING' },
-      include: { member: true },
+      include: { member: { include: { grade: true } } },
     })
 
     if (pendingLogs.length === 0) return
@@ -37,6 +37,7 @@ export async function runWarningCheck(guildId: string) {
     const absentMemberIds = new Set(approvedAbsences.map((a) => a.memberId))
 
     const memberIds = pendingLogs
+      .filter((l) => l.member.grade?.discordRoleId != null)
       .map((l) => l.member.id)
       .filter((id) => !absentMemberIds.has(id))
 
