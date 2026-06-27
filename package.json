@@ -20,6 +20,15 @@
     "db:seed": "turbo db:seed --filter=@repo/db",
     "db:reset": "turbo db:reset --filter=@repo/db"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "esbuild",
+      "prisma",
+      "unrs-resolver"
+    ]
+  },
   "devDependencies": {
     "turbo": "^2.0.0",
     "typescript": "^5.4.0"

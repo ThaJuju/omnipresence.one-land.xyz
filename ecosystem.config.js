@@ -19,13 +19,13 @@ function loadEnv(filePath) {
   return env
 }
 
-const envVars = loadEnv('/var/www/blackmdt/.env')
+const envVars = loadEnv('/var/www/omnipresence.one-land.xyz/.env')
 
 module.exports = {
   apps: [
     {
       name: 'discordpanel-web',
-      cwd: '/var/www/blackmdt/apps/web/.next/standalone/apps/web',
+      cwd: '/var/www/omnipresence.one-land.xyz/apps/web/.next/standalone/apps/web',
       script: 'node',
       args: 'server.js',
       env: { ...envVars, PORT: 3003 },
@@ -36,7 +36,7 @@ module.exports = {
     },
     {
       name: 'discordpanel-bot',
-      cwd: '/var/www/blackmdt/apps/bot',
+      cwd: '/var/www/omnipresence.one-land.xyz/apps/bot',
       script: 'node',
       args: 'dist/apps/bot/src/index.js',
       env: envVars,
