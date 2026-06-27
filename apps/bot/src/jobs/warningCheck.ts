@@ -23,7 +23,24 @@ export async function runWarningCheck(guildId: string) {
 
     if (pendingLogs.length === 0) return
 
-    const memberIds = pendingLogs.map((l) => l.member.id)
+    const approvedAbsences = await prisma.absence.findMany({
+      where: {
+        guildId,
+        status: 'APPROVED',
+        startDate: { lte: today },
+        endDate: { gte: today },
+        memberId: { in: pendingLogs.map((l) => l.member.id) },
+      },
+      select: { memberId: true },
+    })
+
+    const absentMemberIds = new Set(approvedAbsences.map((a) => a.memberId))
+
+    const memberIds = pendingLogs
+      .map((l) => l.member.id)
+      .filter((id) => !absentMemberIds.has(id))
+
+    if (memberIds.length === 0) return
 
     await callWeb('/api/internal/warning/bulk', {
       discordGuildId: guild.discordGuildId,

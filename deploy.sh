@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-cd /var/www/blackmdt
+cd "$(dirname "$0")"
 
 echo "==> Build web..."
 pnpm --filter web build
