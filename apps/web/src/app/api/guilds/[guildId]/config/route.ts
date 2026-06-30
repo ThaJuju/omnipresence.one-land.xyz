@@ -1,5 +1,6 @@
 import { prisma } from '@repo/db'
 import { ok, err, getSessionOrThrow, getGuildMember, requirePermission, withApiHandler } from '@/lib/api'
+import { botClient } from '@/lib/bot-client'
 import { z } from 'zod'
 
 const patchSchema = z.object({
@@ -53,6 +54,8 @@ export const PATCH = withApiHandler(async (req, { params }) => {
       after: data as never,
     },
   })
+
+  await botClient.reloadConfig(member.guild.discordGuildId).catch(() => {})
 
   return ok(config)
 })

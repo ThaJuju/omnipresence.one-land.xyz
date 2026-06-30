@@ -1,4 +1,5 @@
 import { Client, REST, Routes } from 'discord.js'
+import { prisma } from '@repo/db'
 import { logger } from '../logger'
 import { initScheduler } from '../jobs/scheduler'
 import { onGuildCreate } from './guildCreate'
@@ -33,6 +34,20 @@ export async function onReady(client: Client) {
     await onGuildCreate(guild).catch((error) =>
       logger.error({ error, guildId: guild.id }, 'Failed to sync existing guild on ready')
     )
+  }
+
+  // Deactivate guilds the bot was removed from while offline (GUILD_DELETE isn't replayed on reconnect)
+  try {
+    const currentGuildIds = [...client.guilds.cache.keys()]
+    const { count } = await prisma.guildInstance.updateMany({
+      where: { isActive: true, discordGuildId: { notIn: currentGuildIds } },
+      data: { isActive: false },
+    })
+    if (count > 0) {
+      logger.info({ count }, 'Deactivated stale guilds the bot is no longer a member of')
+    }
+  } catch (error) {
+    logger.error({ error }, 'Failed to reconcile stale guilds on ready')
   }
 
   await initScheduler()

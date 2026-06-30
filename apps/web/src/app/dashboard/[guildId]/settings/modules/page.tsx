@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import { getGuildMember, requirePermission } from '@/lib/api'
+import { botClient } from '@/lib/bot-client'
 import type { GuildConfig } from '@repo/db'
 
 async function toggleOption(guildId: string, key: keyof GuildConfig, currentValue: boolean) {
@@ -20,6 +21,8 @@ async function toggleOption(guildId: string, key: keyof GuildConfig, currentValu
     update: { [key]: !currentValue },
     create: { guildId, [key]: !currentValue },
   })
+
+  await botClient.reloadConfig(member.guild.discordGuildId).catch(() => {})
 
   revalidatePath(`/dashboard/${guildId}/settings/modules`)
 }

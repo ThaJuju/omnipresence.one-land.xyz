@@ -5,6 +5,7 @@ import { prisma } from '@repo/db'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { getGuildMember, requirePermission } from '@/lib/api'
+import { botClient } from '@/lib/bot-client'
 
 type DiscordChannel = { id: string; name: string; type: number; parent_id: string | null; position: number }
 
@@ -49,6 +50,8 @@ async function saveDiscordConfig(guildId: string, formData: FormData) {
     update: data,
     create: { guildId, ...data },
   })
+
+  await botClient.reloadConfig(member.guild.discordGuildId).catch(() => {})
 
   revalidatePath(`/dashboard/${guildId}/settings/discord`)
 }
