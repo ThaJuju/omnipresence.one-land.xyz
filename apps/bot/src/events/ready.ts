@@ -41,7 +41,7 @@ export async function onReady(client: Client) {
     const currentGuildIds = [...client.guilds.cache.keys()]
     const { count } = await prisma.guildInstance.updateMany({
       where: { isActive: true, discordGuildId: { notIn: currentGuildIds } },
-      data: { isActive: false },
+      data: { isActive: false, deactivatedAt: new Date() },
     })
     if (count > 0) {
       logger.info({ count }, 'Deactivated stale guilds the bot is no longer a member of')

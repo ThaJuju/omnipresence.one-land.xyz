@@ -1,14 +1,24 @@
 import { prisma } from '@repo/db'
+import { auth } from '@/lib/auth'
+import { getSuperAdminAccess } from '@/lib/superadmin-access'
+import { redirect } from 'next/navigation'
 
 export default async function SuperadminDashboard() {
-  const [totalGuilds, activeGuilds, bannedGuilds, totalMembers] = await Promise.all([
-    prisma.guildInstance.count(),
-    prisma.guildInstance.count({ where: { isActive: true } }),
-    prisma.guildInstance.count({ where: { isBanned: true } }),
-    prisma.member.count(),
+  const session = await auth()
+  const access = await getSuperAdminAccess(session?.user?.discordId)
+  if (!access) redirect('/dashboard')
+
+  const scopeWhere = access.isDev ? {} : { id: { in: access.guildIds } }
+  const guildWhere = { ...scopeWhere, isActive: true }
+
+  const [totalGuilds, bannedGuilds, totalMembers] = await Promise.all([
+    prisma.guildInstance.count({ where: guildWhere }),
+    prisma.guildInstance.count({ where: { ...guildWhere, isBanned: true } }),
+    prisma.member.count({ where: { guild: guildWhere } }),
   ])
 
   const recentGuilds = await prisma.guildInstance.findMany({
+    where: guildWhere,
     orderBy: { createdAt: 'desc' },
     take: 5,
     include: { _count: { select: { members: true } } },
@@ -18,14 +28,10 @@ export default async function SuperadminDashboard() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-[var(--text)]">Superadmin Dashboard</h1>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4 text-center">
           <p className="text-3xl font-bold text-[var(--text)]">{totalGuilds}</p>
-          <p className="text-xs text-[var(--text-2)] mt-1">Instances totales</p>
-        </div>
-        <div className="bg-[var(--surface)] rounded-md border border-[#22c55e30] p-4 text-center">
-          <p className="text-3xl font-bold text-[#22c55e]">{activeGuilds}</p>
-          <p className="text-xs text-[var(--text-2)] mt-1">Actives</p>
+          <p className="text-xs text-[var(--text-2)] mt-1">Instances avec le bot</p>
         </div>
         <div className="bg-[var(--surface)] rounded-md border border-[#ef444430] p-4 text-center">
           <p className="text-3xl font-bold text-[#ef4444]">{bannedGuilds}</p>

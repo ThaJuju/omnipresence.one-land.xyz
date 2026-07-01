@@ -1,27 +1,34 @@
 import { prisma } from '@repo/db'
+import { auth } from '@/lib/auth'
+import { getSuperAdminAccess } from '@/lib/superadmin-access'
+import { redirect } from 'next/navigation'
 
 export default async function SuperadminStatsPage() {
+  const session = await auth()
+  const access = await getSuperAdminAccess(session?.user?.discordId)
+  if (!access) redirect('/dashboard')
+
+  const scopeWhere = access.isDev ? {} : { id: { in: access.guildIds } }
+  const guildWhere = { ...scopeWhere, isActive: true }
+
   const [
     totalGuilds,
-    activeGuilds,
     totalMembers,
     totalPresences,
     totalWarnings,
     totalAbsences,
     totalContributions,
   ] = await Promise.all([
-    prisma.guildInstance.count(),
-    prisma.guildInstance.count({ where: { isActive: true } }),
-    prisma.member.count(),
-    prisma.presenceLog.count(),
-    prisma.warning.count(),
-    prisma.absence.count(),
-    prisma.contribution.aggregate({ _sum: { amount: true } }),
+    prisma.guildInstance.count({ where: guildWhere }),
+    prisma.member.count({ where: { guild: guildWhere } }),
+    prisma.presenceLog.count({ where: { guild: guildWhere } }),
+    prisma.warning.count({ where: { guild: guildWhere } }),
+    prisma.absence.count({ where: { guild: guildWhere } }),
+    prisma.contribution.aggregate({ where: { guild: guildWhere }, _sum: { amount: true } }),
   ])
 
   const stats = [
-    { label: 'Instances totales', value: totalGuilds, icon: '🌐' },
-    { label: 'Instances actives', value: activeGuilds, icon: '✅', color: 'text-[#22c55e]' },
+    { label: 'Instances avec le bot', value: totalGuilds, icon: '🌐' },
     { label: 'Membres', value: totalMembers, icon: '👥' },
     { label: 'Logs présence', value: totalPresences, icon: '📅' },
     { label: 'Avertissements', value: totalWarnings, icon: '⚠️', color: 'text-[#eab308]' },

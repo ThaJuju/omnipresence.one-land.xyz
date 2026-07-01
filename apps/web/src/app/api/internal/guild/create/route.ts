@@ -1,5 +1,6 @@
 import { prisma } from '@repo/db'
 import { ok, verifyInternalSecret, withApiHandler } from '@/lib/api'
+import { autoLinkGuildToMatchingGroups } from '@/lib/superadmin-group-match'
 import { z } from 'zod'
 
 const schema = z.object({
@@ -15,6 +16,11 @@ export const POST = withApiHandler(async (req) => {
   const body = await req.json() as unknown
   const data = schema.parse(body)
 
+  const existing = await prisma.guildInstance.findUnique({
+    where: { discordGuildId: data.discordGuildId },
+    select: { id: true },
+  })
+
   const guild = await prisma.guildInstance.upsert({
     where: { discordGuildId: data.discordGuildId },
     update: {
@@ -22,6 +28,7 @@ export const POST = withApiHandler(async (req) => {
       discordGuildIcon: data.discordGuildIcon ?? null,
       ownerId: data.ownerId,
       isActive: true,
+      deactivatedAt: null,
       isBanned: false,
     },
     create: {
@@ -37,6 +44,10 @@ export const POST = withApiHandler(async (req) => {
     update: {},
     create: { guildId: guild.id },
   })
+
+  if (!existing) {
+    await autoLinkGuildToMatchingGroups(guild.id, guild.discordGuildName)
+  }
 
   return ok(guild, 201)
 })

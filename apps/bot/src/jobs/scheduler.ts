@@ -8,8 +8,11 @@ import { runWarningCheck } from './warningCheck'
 import { runDailyReport } from './dailyReport'
 import { runWeeklyReport } from './weeklyReport'
 import { runMonthlyReport } from './monthlyReport'
+import { runSuperAdminGroupSync } from './superAdminGroupSync'
+import { runCleanupStaleGuilds } from './cleanupStaleGuilds'
 
 const scheduledTasks = new Map<string, cron.ScheduledTask[]>()
+let globalTasks: cron.ScheduledTask[] = []
 
 function destroyGuildTasks(discordGuildId: string) {
   const tasks = scheduledTasks.get(discordGuildId) ?? []
@@ -65,6 +68,13 @@ export async function initScheduler() {
   for (const config of configs) {
     scheduleForGuild(config)
   }
+
+  globalTasks.forEach((t) => t.stop())
+  globalTasks = [
+    cron.schedule('0 4 * * *', () => runSuperAdminGroupSync()),
+    cron.schedule('30 4 * * *', () => runCleanupStaleGuilds()),
+  ]
+  logger.info('Scheduled global superadmin group sync (daily 04:00) and stale guild cleanup (daily 04:30)')
 
   logger.info(`Scheduler initialized for ${configs.length} guild(s)`)
 }

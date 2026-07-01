@@ -12,7 +12,7 @@ export const POST = withApiHandler(async (req) => {
 
   await prisma.guildInstance.updateMany({
     where: { discordGuildId },
-    data: { isActive: false },
+    data: { isActive: false, deactivatedAt: new Date() },
   })
 
   return ok({ deactivated: true })

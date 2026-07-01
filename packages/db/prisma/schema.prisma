@@ -17,12 +17,13 @@ model GuildInstance {
   discordGuildName String
   discordGuildIcon String?
   ownerId          String
-  isActive         Boolean  @default(true)
-  isBanned         Boolean  @default(false)
+  isActive         Boolean   @default(true)
+  deactivatedAt    DateTime?
+  isBanned         Boolean   @default(false)
   banReason        String?
-  plan             String   @default("free")
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  plan             String    @default("free")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   config              GuildConfig?
   members             Member[]
@@ -38,6 +39,39 @@ model GuildInstance {
   auditLogs           AuditLog[]
   roleBindings        DiscordRoleBinding[]
   warningThresholds   WarningThreshold[]
+  superAdminGroups    SuperAdminGroupGuild[]
+}
+
+model SuperAdminGroup {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  guilds  SuperAdminGroupGuild[]
+  members SuperAdminGroupMember[]
+}
+
+model SuperAdminGroupGuild {
+  id      String @id @default(cuid())
+  groupId String
+  guildId String
+
+  group SuperAdminGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  guild GuildInstance   @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, guildId])
+}
+
+model SuperAdminGroupMember {
+  id            String   @id @default(cuid())
+  groupId       String
+  discordUserId String
+  createdAt     DateTime @default(now())
+
+  group SuperAdminGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, discordUserId])
 }
 
 model GuildConfig {

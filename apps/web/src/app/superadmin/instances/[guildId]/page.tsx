@@ -3,6 +3,8 @@
 import { prisma } from '@repo/db'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { auth } from '@/lib/auth'
+import { getSuperAdminAccess } from '@/lib/superadmin-access'
 import { formatDateTime } from '@/lib/utils'
 import ResetGuildButton from '@/components/ResetGuildButton'
 import GuildAbsenceCalendar, { type SAAbsenceItem } from '@/components/superadmin/GuildAbsenceCalendar'
@@ -10,6 +12,10 @@ import GuildPresenceHeatmap from '@/components/superadmin/GuildPresenceHeatmap'
 
 async function resetGuild(guildId: string) {
   'use server'
+  const session = await auth()
+  const access = await getSuperAdminAccess(session?.user?.discordId)
+  if (!access?.isDev) return
+
   await prisma.$transaction([
     prisma.presenceLog.deleteMany({ where: { guildId } }),
     prisma.absence.deleteMany({ where: { guildId } }),
@@ -49,6 +55,11 @@ export default async function InstanceDetailPage({
   searchParams: { month?: string }
 }) {
   const { guildId } = params
+
+  const session = await auth()
+  const access = await getSuperAdminAccess(session?.user?.discordId)
+  if (!access) redirect('/dashboard')
+  if (!access.isDev && !access.guildIds.includes(guildId)) redirect('/superadmin/instances')
 
   // Parse requested month for the calendar
   const now = new Date()
@@ -569,14 +580,16 @@ export default async function InstanceDetailPage({
       </div>
 
       {/* ── Zone dangereuse ── */}
-      <div className="bg-[var(--surface)] rounded-md border border-[#ef444430] p-5">
-        <h2 className="font-semibold text-[#ef4444] mb-1">Zone dangereuse</h2>
-        <p className="text-xs text-[var(--text-2)] mb-4">Ces actions sont irréversibles. Procéder avec précaution.</p>
-        <ResetGuildButton
-          guildName={guild.discordGuildName}
-          resetAction={resetGuild.bind(null, guildId)}
-        />
-      </div>
+      {access.isDev && (
+        <div className="bg-[var(--surface)] rounded-md border border-[#ef444430] p-5">
+          <h2 className="font-semibold text-[#ef4444] mb-1">Zone dangereuse</h2>
+          <p className="text-xs text-[var(--text-2)] mb-4">Ces actions sont irréversibles. Procéder avec précaution.</p>
+          <ResetGuildButton
+            guildName={guild.discordGuildName}
+            resetAction={resetGuild.bind(null, guildId)}
+          />
+        </div>
+      )}
     </div>
   )
 }

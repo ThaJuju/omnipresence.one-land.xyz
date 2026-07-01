@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@repo/db'
+import { getSuperAdminAccess } from '@/lib/superadmin-access'
 
 export async function GET(req: NextRequest, { params }: { params: { guildId: string } }) {
   const session = await auth()
   if (!session?.user?.discordId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
-  if (session.user.discordId !== process.env['SUPERADMIN_DISCORD_ID']) {
+  const access = await getSuperAdminAccess(session.user.discordId)
+  if (!access || (!access.isDev && !access.guildIds.includes(params.guildId))) {
     return NextResponse.json({ error: 'Interdit' }, { status: 403 })
   }
 
