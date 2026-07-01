@@ -290,16 +290,16 @@ export default async function InstanceDetailPage({
           <div className="flex items-center gap-2 mb-1">
             <a href="/superadmin/instances" className="text-xs text-[var(--text-3)] hover:text-[var(--text-2)]">← Instances</a>
           </div>
-          <h1 className="text-2xl font-bold text-[var(--text)]">{guild.discordGuildName}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">{guild.discordGuildName}</h1>
           <p className="text-[var(--text-3)] font-mono text-xs mt-1">{guild.discordGuildId}</p>
         </div>
         <div className="flex gap-2 flex-wrap">
           {guild.isBanned ? (
-            <span className="px-3 py-1 bg-[#ef444420] text-[#ef4444] rounded-full text-xs font-medium">Banni</span>
+            <span className="px-3 py-1 bg-[#ef444420] text-[var(--danger)] rounded-full text-xs font-medium">Banni</span>
           ) : guild.isActive ? (
-            <span className="px-3 py-1 bg-[#22c55e20] text-[#22c55e] rounded-full text-xs font-medium">Actif</span>
+            <span className="px-3 py-1 bg-[#22c55e20] text-[var(--success)] rounded-full text-xs font-medium">Actif</span>
           ) : (
-            <span className="px-3 py-1 bg-[#38386520] text-[var(--text-3)] rounded-full text-xs font-medium">Inactif</span>
+            <span className="px-3 py-1 bg-[var(--hover)] text-[var(--text-3)] rounded-full text-xs font-medium">Inactif</span>
           )}
           <span className="px-3 py-1 bg-[#5865F220] text-[var(--accent)] rounded-full text-xs font-medium capitalize">{guild.plan}</span>
         </div>
@@ -307,22 +307,22 @@ export default async function InstanceDetailPage({
 
       {/* ── KPI Row 1 ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4">
+        <div className="card p-4">
           <p className="text-[10px] text-[var(--text-3)] uppercase tracking-wider mb-1">Membres</p>
-          <p className="text-2xl font-bold text-[var(--text)]">{membersActive}</p>
+          <p className="text-2xl font-bold tracking-tight text-[var(--text)]">{membersActive}</p>
           <p className="text-[11px] text-[var(--text-3)] mt-0.5">{membersInactive} inactif{membersInactive !== 1 ? 's' : ''}</p>
         </div>
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4">
+        <div className="card p-4">
           <p className="text-[10px] text-[var(--text-3)] uppercase tracking-wider mb-1">Absents aujourd&apos;hui</p>
-          <p className="text-2xl font-bold text-[#eab308]">{absencesToday.length}</p>
+          <p className="text-2xl font-bold text-[var(--warning)]">{absencesToday.length}</p>
           <p className="text-[11px] text-[var(--text-3)] mt-0.5">{absencesPending.length} en attente</p>
         </div>
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4">
+        <div className="card p-4">
           <p className="text-[10px] text-[var(--text-3)] uppercase tracking-wider mb-1">Avert. actifs</p>
-          <p className="text-2xl font-bold text-[#ef4444]">{warningActive}</p>
+          <p className="text-2xl font-bold text-[var(--danger)]">{warningActive}</p>
           <p className="text-[11px] text-[var(--text-3)] mt-0.5">{warningAuto} auto</p>
         </div>
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4">
+        <div className="card p-4">
           <p className="text-[10px] text-[var(--text-3)] uppercase tracking-wider mb-1">Taux présence 30j</p>
           {presenceRate !== null ? (
             <>
@@ -339,34 +339,34 @@ export default async function InstanceDetailPage({
 
       {/* ── KPI Row 2 ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4">
+        <div className="card p-4">
           <p className="text-[10px] text-[var(--text-3)] uppercase tracking-wider mb-1">Total absences</p>
-          <p className="text-2xl font-bold text-[var(--text)]">{guild._count.absences}</p>
+          <p className="text-2xl font-bold tracking-tight text-[var(--text)]">{guild._count.absences}</p>
           <p className="text-[11px] text-[var(--text-3)] mt-0.5">{calAbsences.length} ce mois</p>
         </div>
         <div className="bg-[var(--surface)] rounded-md border border-[#22c55e30] p-4">
           <p className="text-[10px] text-[var(--text-3)] uppercase tracking-wider mb-1">Cotisations</p>
-          <p className="text-2xl font-bold text-[#22c55e]">
+          <p className="text-2xl font-bold text-[var(--success)]">
             {(contributionThisMonth._sum?.amount ?? 0).toFixed(0)}{guild.config?.contributionCurrency ? ` ${guild.config.contributionCurrency}` : '€'}
           </p>
           <p className="text-[11px] text-[var(--text-3)] mt-0.5">
             Total : {(contributionTotal._sum?.amount ?? 0).toFixed(0)}{guild.config?.contributionCurrency ? ` ${guild.config.contributionCurrency}` : '€'}
           </p>
         </div>
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4">
+        <div className="card p-4">
           <p className="text-[10px] text-[var(--text-3)] uppercase tracking-wider mb-1">Comptabilité</p>
-          <p className="text-2xl font-bold text-[#22c55e]">+{income.toFixed(0)}€</p>
-          <p className="text-[11px] text-[#ef4444] mt-0.5">-{expense.toFixed(0)}€ dépenses</p>
+          <p className="text-2xl font-bold text-[var(--success)]">+{income.toFixed(0)}€</p>
+          <p className="text-[11px] text-[var(--danger)] mt-0.5">-{expense.toFixed(0)}€ dépenses</p>
         </div>
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4">
+        <div className="card p-4">
           <p className="text-[10px] text-[var(--text-3)] uppercase tracking-wider mb-1">Activité</p>
-          <p className="text-2xl font-bold text-[var(--text)]">{guild._count.auditLogs}</p>
+          <p className="text-2xl font-bold tracking-tight text-[var(--text)]">{guild._count.auditLogs}</p>
           <p className="text-[11px] text-[var(--text-3)] mt-0.5">{vdaCount} VDA actives</p>
         </div>
       </div>
 
       {/* ── Présence heatmap 30 jours ── */}
-      <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5">
+      <div className="card p-5">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="font-semibold text-[var(--text)]">Présence — 30 derniers jours</h2>
@@ -387,7 +387,7 @@ export default async function InstanceDetailPage({
       </div>
 
       {/* ── Calendrier des absences ── */}
-      <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5">
+      <div className="card p-5">
         <h2 className="font-semibold text-[var(--text)] mb-4">Calendrier des absences</h2>
         <GuildAbsenceCalendar
           absences={calAbsences}
@@ -401,15 +401,15 @@ export default async function InstanceDetailPage({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
         {/* Absents aujourd'hui */}
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
-          <div className="px-4 py-3 border-b border-white/[0.07] flex items-center justify-between">
+        <div className="card overflow-hidden">
+          <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
             <h2 className="font-semibold text-[var(--text)] text-sm">Absents aujourd&apos;hui</h2>
             <span className="text-xs text-[var(--text-3)]">{absencesToday.length} membre{absencesToday.length !== 1 ? 's' : ''}</span>
           </div>
           {absencesToday.length === 0 ? (
             <div className="px-4 py-8 text-center text-xs text-[var(--text-3)]">Aucun membre absent aujourd&apos;hui</div>
           ) : (
-            <ul className="divide-y divide-[#1a1a40]">
+            <ul className="divide-y divide-[var(--border)]">
               {absencesToday.map(a => (
                 <li key={a.id} className="px-4 py-3">
                   <p className="text-sm font-medium text-[var(--text)]">{a.member.discordNickname ?? a.member.discordUsername}</p>
@@ -424,19 +424,19 @@ export default async function InstanceDetailPage({
         </div>
 
         {/* Top membres avertis */}
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
-          <div className="px-4 py-3 border-b border-white/[0.07]">
+        <div className="card overflow-hidden">
+          <div className="px-4 py-3 border-b border-[var(--border)]">
             <h2 className="font-semibold text-[var(--text)] text-sm">Top avertissements actifs</h2>
           </div>
           {topWarnedRaw.length === 0 ? (
             <div className="px-4 py-8 text-center text-xs text-[var(--text-3)]">Aucun avertissement actif</div>
           ) : (
-            <ul className="divide-y divide-[#1a1a40]">
+            <ul className="divide-y divide-[var(--border)]">
               {topWarnedRaw.map((r, i) => (
                 <li key={r.memberId} className="px-4 py-3 flex items-center gap-3">
                   <span className="text-[11px] text-[var(--text-3)] w-4 text-center font-mono">{i + 1}</span>
                   <span className="flex-1 text-sm text-[var(--text)]">{memberNameMap.get(r.memberId) ?? r.memberId}</span>
-                  <span className="text-sm font-bold text-[#ef4444]">{r._count.id}</span>
+                  <span className="text-sm font-bold text-[var(--danger)]">{r._count.id}</span>
                   <span className="text-[10px] text-[var(--text-3)]">avert.</span>
                 </li>
               ))}
@@ -450,10 +450,10 @@ export default async function InstanceDetailPage({
         <div className="bg-[var(--surface)] rounded-md border border-[#eab30830] overflow-hidden">
           <div className="px-4 py-3 border-b border-[#eab30830] flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#eab308]" />
-            <h2 className="font-semibold text-[#eab308] text-sm">Absences en attente</h2>
+            <h2 className="font-semibold text-[var(--warning)] text-sm">Absences en attente</h2>
             <span className="ml-auto text-xs text-[var(--text-3)]">{absencesPending.length}</span>
           </div>
-          <ul className="divide-y divide-[#1a1a40]">
+          <ul className="divide-y divide-[var(--border)]">
             {absencesPending.map(a => (
               <li key={a.id} className="px-4 py-3 flex items-center gap-3">
                 <div className="flex-1 min-w-0">
@@ -475,15 +475,15 @@ export default async function InstanceDetailPage({
       )}
 
       {/* ── Activité récente (Audit log) ── */}
-      <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
-        <div className="px-4 py-3 border-b border-white/[0.07]">
+      <div className="card overflow-hidden">
+        <div className="px-4 py-3 border-b border-[var(--border)]">
           <h2 className="font-semibold text-[var(--text)]">Activité récente</h2>
           <p className="text-xs text-[var(--text-3)] mt-0.5">{guild._count.auditLogs} entrées au total</p>
         </div>
         {recentAuditLogs.length === 0 ? (
           <div className="px-4 py-8 text-center text-xs text-[var(--text-3)]">Aucune activité enregistrée</div>
         ) : (
-          <div className="divide-y divide-[#1a1a40]">
+          <div className="divide-y divide-[var(--border)]">
             {recentAuditLogs.map(log => (
               <div key={log.id} className="px-4 py-3 flex items-center gap-3">
                 <div className="flex-1 min-w-0">
@@ -503,7 +503,7 @@ export default async function InstanceDetailPage({
 
       {/* ── Modules actifs ── */}
       {guild.config && (
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5">
+        <div className="card p-5">
           <h2 className="font-semibold text-[var(--text)] mb-3">Modules</h2>
           <div className="flex gap-2 flex-wrap">
             {MODULE_FLAGS.map(({ key, label }) => {
@@ -527,12 +527,12 @@ export default async function InstanceDetailPage({
 
       {/* ── Statut bot + Infos ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5">
+        <div className="card p-5">
           <h2 className="font-semibold text-[var(--text)] mb-3">Statut du bot</h2>
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <span className={`w-2 h-2 rounded-full ${botOnline ? 'bg-[#22c55e]' : 'bg-[#ef4444]'}`} />
-              <span className={`text-sm font-semibold ${botOnline ? 'text-[#22c55e]' : 'text-[#ef4444]'}`}>
+              <span className={`text-sm font-semibold ${botOnline ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
                 {botOnline ? 'En ligne' : 'Hors ligne'}
               </span>
               {botOnline && botUptime !== null && (
@@ -542,7 +542,7 @@ export default async function InstanceDetailPage({
           </div>
         </div>
 
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5">
+        <div className="card p-5">
           <h2 className="font-semibold text-[var(--text)] mb-3">Informations</h2>
           <div className="space-y-1.5 text-sm">
             <div className="flex justify-between gap-2">
@@ -572,7 +572,7 @@ export default async function InstanceDetailPage({
             {guild.isBanned && guild.banReason && (
               <div className="flex justify-between gap-2">
                 <span className="text-[var(--text-2)]">Raison ban</span>
-                <span className="text-[#ef4444]">{guild.banReason}</span>
+                <span className="text-[var(--danger)]">{guild.banReason}</span>
               </div>
             )}
           </div>
@@ -582,7 +582,7 @@ export default async function InstanceDetailPage({
       {/* ── Zone dangereuse ── */}
       {access.isDev && (
         <div className="bg-[var(--surface)] rounded-md border border-[#ef444430] p-5">
-          <h2 className="font-semibold text-[#ef4444] mb-1">Zone dangereuse</h2>
+          <h2 className="font-semibold text-[var(--danger)] mb-1">Zone dangereuse</h2>
           <p className="text-xs text-[var(--text-2)] mb-4">Ces actions sont irréversibles. Procéder avec précaution.</p>
           <ResetGuildButton
             guildName={guild.discordGuildName}

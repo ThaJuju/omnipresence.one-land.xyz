@@ -80,10 +80,10 @@ export default function SettingsNav({
 
   return (
     <div className="w-full overflow-x-auto">
-      <nav className="flex items-center gap-0 border-b border-white/[0.07] min-w-max">
+      <nav className="flex items-center gap-0 border-b border-[var(--border)] min-w-max">
         {groups.map((group, gi) => (
           <div key={group.group} className="flex items-center">
-            {gi > 0 && <div className="w-px h-4 bg-[#1a1a40] mx-2 flex-shrink-0" />}
+            {gi > 0 && <div className="w-px h-4 bg-[var(--surface-2)] mx-2 flex-shrink-0" />}
             <div className="flex items-center">
               {group.items.map((item) => (
                 <Link

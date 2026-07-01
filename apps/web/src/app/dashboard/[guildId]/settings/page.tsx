@@ -97,7 +97,7 @@ export default async function SettingsPage({ params }: { params: { guildId: stri
         <p className="text-sm text-[var(--text-2)] mt-0.5">{tr.settings.appearanceDesc}</p>
       </div>
 
-      <form action={saveConfig} className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5 space-y-5">
+      <form action={saveConfig} className="card p-5 space-y-5">
         <div>
           <label className="block text-sm font-medium text-[var(--text)] mb-1">{tr.settings.panelName}</label>
           <p className="text-xs text-[var(--text-3)] mb-2">{tr.settings.panelNameDesc}</p>
@@ -105,7 +105,7 @@ export default async function SettingsPage({ params }: { params: { guildId: stri
             name="panelName"
             defaultValue={guild.config?.panelName ?? 'Panel de gestion'}
             maxLength={50}
-            className="w-full max-w-sm bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+            className="w-full max-w-sm input px-3 py-2 text-sm"
           />
         </div>
 
@@ -117,7 +117,7 @@ export default async function SettingsPage({ params }: { params: { guildId: stri
               type="color"
               name="accentColor"
               defaultValue={guild.config?.accentColor ?? '#6366f1'}
-              className="h-10 w-14 bg-[var(--bg)] border border-white/[0.07] rounded-lg cursor-pointer p-1"
+              className="h-10 w-14 bg-[var(--bg)] border border-[var(--border)] rounded-lg cursor-pointer p-1"
             />
             <span className="text-sm text-[var(--text-2)] font-mono">
               {guild.config?.accentColor ?? '#6366f1'}
@@ -131,7 +131,7 @@ export default async function SettingsPage({ params }: { params: { guildId: stri
           <select
             name="timezone"
             defaultValue={guild.config?.timezone ?? 'Europe/Paris'}
-            className="w-full max-w-sm bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+            className="w-full max-w-sm input px-3 py-2 text-sm"
           >
             {timezones.map((tz) => (
               <option key={tz} value={tz}>{tz}</option>
@@ -139,10 +139,10 @@ export default async function SettingsPage({ params }: { params: { guildId: stri
           </select>
         </div>
 
-        <div className="pt-1 border-t border-white/[0.07]">
+        <div className="pt-1 border-t border-[var(--border)]">
           <button
             type="submit"
-            className="px-4 py-2 bg-[var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-80 hover:bg-[var(--accent)] transition-colors"
+            className="px-4 py-2 btn-primary text-sm"
           >
             {tr.common.save}
           </button>
@@ -155,7 +155,7 @@ export default async function SettingsPage({ params }: { params: { guildId: stri
         <p className="text-sm text-[var(--text-2)] mt-0.5">{tr.settings.panelLanguageDesc}</p>
       </div>
 
-      <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5">
+      <div className="card p-5">
         <label className="block text-sm font-medium text-[var(--text)] mb-1">{tr.settings.panelLanguage}</label>
         <p className="text-xs text-[var(--text-3)] mb-3">{tr.settings.botLanguageDesc}</p>
         <LanguageSwitcherSettings locale={locale} saveAction={saveLang} />
@@ -163,7 +163,7 @@ export default async function SettingsPage({ params }: { params: { guildId: stri
 
       {/* Danger zone */}
       <div>
-        <h2 className="text-lg font-semibold text-[#ef4444]">Zone dangereuse</h2>
+        <h2 className="text-lg font-semibold text-[var(--danger)]">Zone dangereuse</h2>
         <p className="text-sm text-[var(--text-2)] mt-0.5">Ces actions sont irréversibles. Procéder avec précaution.</p>
       </div>
 

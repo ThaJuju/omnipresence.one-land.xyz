@@ -2,6 +2,7 @@ import { prisma } from '@repo/db'
 import { auth } from '@/lib/auth'
 import { getSuperAdminAccess } from '@/lib/superadmin-access'
 import { redirect } from 'next/navigation'
+import { AlertTriangle, CalendarX, CheckSquare, Globe, Users, Wallet } from 'lucide-react'
 
 export default async function SuperadminStatsPage() {
   const session = await auth()
@@ -28,28 +29,28 @@ export default async function SuperadminStatsPage() {
   ])
 
   const stats = [
-    { label: 'Instances avec le bot', value: totalGuilds, icon: '🌐' },
-    { label: 'Membres', value: totalMembers, icon: '👥' },
-    { label: 'Logs présence', value: totalPresences, icon: '📅' },
-    { label: 'Avertissements', value: totalWarnings, icon: '⚠️', color: 'text-[#eab308]' },
-    { label: 'Absences', value: totalAbsences, icon: '🛌' },
-    { label: 'Total cotisations', value: `${(totalContributions._sum.amount ?? 0).toFixed(2)} €`, icon: '💰', color: 'text-[#22c55e]' },
+    { label: 'Instances avec le bot', value: totalGuilds, icon: Globe },
+    { label: 'Membres', value: totalMembers, icon: Users },
+    { label: 'Logs présence', value: totalPresences, icon: CheckSquare },
+    { label: 'Avertissements', value: totalWarnings, icon: AlertTriangle, color: 'text-[var(--warning)]' },
+    { label: 'Absences', value: totalAbsences, icon: CalendarX },
+    { label: 'Total cotisations', value: `${(totalContributions._sum.amount ?? 0).toFixed(2)} €`, icon: Wallet, color: 'text-[var(--success)]' },
   ]
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--text)]">Statistiques globales</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">Statistiques globales</h1>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         {stats.map((s) => (
-          <div key={s.label} className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5">
+          <div key={s.label} className="card card-hover p-5">
             <div className="flex items-center gap-2 mb-3">
-              <span>{s.icon}</span>
-              <span className="text-xs text-[var(--text-2)]">{s.label}</span>
+              <s.icon size={15} className="text-[var(--text-3)]" strokeWidth={1.8} />
+              <span className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-3)]">{s.label}</span>
             </div>
-            <p className={`text-3xl font-bold ${s.color ?? 'text-[var(--text)]'}`}>
+            <p className={`text-3xl font-bold tabular-nums tracking-tight ${s.color ?? 'text-[var(--text)]'}`}>
               {typeof s.value === 'number' ? s.value.toLocaleString('fr-FR') : s.value}
             </p>
           </div>

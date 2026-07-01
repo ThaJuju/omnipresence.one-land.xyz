@@ -71,7 +71,7 @@ function ChannelSelect({
         name={name}
         defaultValue={defaultValue ?? ''}
         placeholder="ID du canal Discord"
-        className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] font-mono placeholder-[#383865] focus:outline-none focus:border-[var(--accent)]"
+        className="w-full input px-3 py-2 text-sm font-mono"
       />
     )
   }
@@ -79,7 +79,7 @@ function ChannelSelect({
     <select
       name={name}
       defaultValue={defaultValue ?? ''}
-      className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+      className="w-full input px-3 py-2 text-sm"
     >
       <option value="">— Aucun —</option>
       {channels.map((ch) => (
@@ -93,14 +93,14 @@ function ChannelSelect({
 
 function Toggle({ name, checked, label, desc }: { name: string; checked: boolean; label: string; desc?: string }) {
   return (
-    <div className="flex items-center justify-between gap-4 p-3 rounded-lg bg-[var(--bg)] border border-white/[0.07]">
+    <div className="flex items-center justify-between gap-4 p-3 rounded-lg bg-[var(--bg)] border border-[var(--border)]">
       <div>
         <p className="text-sm text-[var(--text)]">{label}</p>
         {desc && <p className="text-xs text-[var(--text-3)] mt-0.5">{desc}</p>}
       </div>
       <label className="relative cursor-pointer flex-shrink-0">
         <input type="checkbox" name={name} defaultChecked={checked} className="sr-only peer" />
-        <div className="relative w-9 h-5 rounded-full bg-[#1a1a40] peer-checked:bg-[var(--accent)] transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-[#383865] after:transition-all peer-checked:after:translate-x-4 peer-checked:after:bg-white" />
+        <div className="relative w-9 h-5 rounded-full bg-[var(--surface-2)] peer-checked:bg-[var(--accent)] transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-[var(--text-3)] after:transition-all peer-checked:after:translate-x-4 peer-checked:after:bg-white" />
       </label>
     </div>
   )
@@ -139,7 +139,7 @@ export default async function DiscordSettingsPage({ params }: { params: { guildI
 
       <form action={saveConfig} className="space-y-6">
         {/* Canaux */}
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5 space-y-5">
+        <div className="card p-5 space-y-5">
           <h3 className="font-semibold text-[var(--text)]">Canaux textuels</h3>
           <div className="space-y-4">
             {channelFields.map((field) => (
@@ -157,7 +157,7 @@ export default async function DiscordSettingsPage({ params }: { params: { guildI
         </div>
 
         {/* Horaires de présence */}
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5 space-y-4">
+        <div className="card p-5 space-y-4">
           <div>
             <h3 className="font-semibold text-[var(--text)]">Horaires de présence</h3>
             <p className="text-xs text-[var(--text-3)] mt-0.5">
@@ -177,14 +177,14 @@ export default async function DiscordSettingsPage({ params }: { params: { guildI
             ).map(({ key, label, defaultTime }) => (
               <div
                 key={key}
-                className="flex items-center justify-between gap-4 p-3 rounded-lg bg-[var(--bg)] border border-white/[0.07]"
+                className="flex items-center justify-between gap-4 p-3 rounded-lg bg-[var(--bg)] border border-[var(--border)]"
               >
                 <span className="text-sm text-[var(--text)]">{label}</span>
                 <input
                   type="time"
                   name={key}
                   defaultValue={config?.[key] ?? defaultTime}
-                  className="bg-[var(--surface)] border border-white/[0.07] rounded-lg px-3 py-1.5 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+                  className="bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
                 />
               </div>
             ))}
@@ -192,7 +192,7 @@ export default async function DiscordSettingsPage({ params }: { params: { guildI
         </div>
 
         {/* Rapports automatiques */}
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5 space-y-4">
+        <div className="card p-5 space-y-4">
           <div>
             <h3 className="font-semibold text-[var(--text)]">Rapports automatiques</h3>
             <p className="text-xs text-[var(--text-3)] mt-0.5">
@@ -224,7 +224,7 @@ export default async function DiscordSettingsPage({ params }: { params: { guildI
         <div className="flex justify-end">
           <button
             type="submit"
-            className="px-4 py-2 bg-[var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-80 hover:bg-[var(--accent)] transition-colors"
+            className="px-4 py-2 btn-primary text-sm"
           >
             Sauvegarder
           </button>

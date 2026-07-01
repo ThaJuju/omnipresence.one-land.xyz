@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { getGuildMember, requirePermission } from '@/lib/api'
 import { botClient } from '@/lib/bot-client'
 import type { GuildConfig } from '@repo/db'
+import { AlertTriangle, BookOpen, CalendarX, CheckSquare, FolderKanban, Wallet } from 'lucide-react'
 
 async function toggleOption(guildId: string, key: keyof GuildConfig, currentValue: boolean) {
   'use server'
@@ -55,7 +56,7 @@ function Toggle({ enabled, action }: { enabled: boolean; action: () => Promise<v
       <button
         type="submit"
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-          enabled ? 'bg-[#22c55e]' : 'bg-[#1a1a40]'
+          enabled ? 'bg-[#22c55e]' : 'bg-[var(--surface-2)]'
         }`}
       >
         <span
@@ -72,20 +73,20 @@ function SubOption({ label, desc, enabled, action, disabled = false }: {
   label: string; desc: string; enabled: boolean; action: () => Promise<void>; disabled?: boolean
 }) {
   return (
-    <div className={`flex items-center justify-between py-2.5 pl-4 border-l-2 ${disabled ? 'border-white/[0.07] opacity-40' : 'border-white/[0.07]'}`}>
+    <div className={`flex items-center justify-between py-2.5 pl-4 border-l-2 ${disabled ? 'border-[var(--border)] opacity-40' : 'border-[var(--border)]'}`}>
       <div>
         <p className="text-sm text-[var(--text)]">{label}</p>
         <p className="text-xs text-[var(--text-3)]">{desc}</p>
       </div>
       {disabled ? (
-        <div className="relative inline-flex h-5 w-9 items-center rounded-full bg-[#1a1a40] opacity-50 cursor-not-allowed">
+        <div className="relative inline-flex h-5 w-9 items-center rounded-full bg-[var(--surface-2)] opacity-50 cursor-not-allowed">
           <span className="inline-block h-3.5 w-3.5 transform rounded-full bg-white translate-x-1" />
         </div>
       ) : (
         <form action={action}>
           <button
             type="submit"
-            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${enabled ? 'bg-[var(--accent)]' : 'bg-[#1a1a40]'}`}
+            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${enabled ? 'bg-[var(--accent)]' : 'bg-[var(--surface-2)]'}`}
           >
             <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${enabled ? 'translate-x-4' : 'translate-x-1'}`} />
           </button>
@@ -125,10 +126,10 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
       <div className="space-y-3">
 
         {/* ── PRÉSENCES ── */}
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <span className="text-xl">✅</span>
+              <span className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}><CheckSquare size={17} /></span>
               <div>
                 <p className="font-medium text-[var(--text)]">Présences</p>
                 <p className="text-sm text-[var(--text-2)]">Suivi quotidien via boutons Discord</p>
@@ -137,7 +138,7 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
             <Toggle enabled={c.presenceEnabled} action={toggleOption.bind(null, guildId, 'presenceEnabled', c.presenceEnabled)} />
           </div>
           {c.presenceEnabled && (
-            <div className="px-4 pb-3 space-y-1 border-t border-white/[0.07] pt-3">
+            <div className="px-4 pb-3 space-y-1 border-t border-[var(--border)] pt-3">
               <SubOption
                 label="Rappel de présence"
                 desc="Mentionne les membres en attente à l'heure du rappel"
@@ -149,10 +150,10 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
         </div>
 
         {/* ── ABSENCES ── */}
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <span className="text-xl">📅</span>
+              <span className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}><CalendarX size={17} /></span>
               <div>
                 <p className="font-medium text-[var(--text)]">Absences</p>
                 <p className="text-sm text-[var(--text-2)]">Déclaration et validation des absences</p>
@@ -163,10 +164,10 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
         </div>
 
         {/* ── AVERTISSEMENTS ── */}
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <span className="text-xl">⚠️</span>
+              <span className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}><AlertTriangle size={17} /></span>
               <div>
                 <p className="font-medium text-[var(--text)]">Avertissements</p>
                 <p className="text-sm text-[var(--text-2)]">Avertissements manuels et automatiques</p>
@@ -175,7 +176,7 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
             <Toggle enabled={c.warningEnabled} action={toggleOption.bind(null, guildId, 'warningEnabled', c.warningEnabled)} />
           </div>
           {c.warningEnabled && (
-            <div className="px-4 pb-3 space-y-1 border-t border-white/[0.07] pt-3">
+            <div className="px-4 pb-3 space-y-1 border-t border-[var(--border)] pt-3">
               <SubOption
                 label="Auto-avertissement sur absence"
                 desc="Génère automatiquement un avertissement si la présence n'est pas confirmée"
@@ -200,10 +201,10 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
         </div>
 
         {/* ── COTISATIONS ── */}
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <span className="text-xl">💰</span>
+              <span className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}><Wallet size={17} /></span>
               <div>
                 <p className="font-medium text-[var(--text)]">Cotisations</p>
                 <p className="text-sm text-[var(--text-2)]">Suivi des paiements des membres</p>
@@ -212,14 +213,14 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
             <Toggle enabled={c.contributionEnabled} action={toggleOption.bind(null, guildId, 'contributionEnabled', c.contributionEnabled)} />
           </div>
           {c.contributionEnabled && (
-            <div className="px-4 pb-4 border-t border-white/[0.07] pt-4">
+            <div className="px-4 pb-4 border-t border-[var(--border)] pt-4">
               <form action={saveContribConfigAction} className="space-y-3">
                 <div>
                   <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">Périodicité</label>
                   <select
                     name="contributionPeriod"
                     defaultValue={config?.contributionPeriod ?? 'monthly'}
-                    className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+                    className="w-full input px-3 py-2 text-sm"
                   >
                     <option value="daily">Quotidienne — 1 cotisation par jour</option>
                     <option value="weekly">Hebdomadaire — 1 cotisation par semaine</option>
@@ -236,7 +237,7 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
                       min="0"
                       defaultValue={config?.contributionAmount ?? ''}
                       placeholder="Ex : 10.00"
-                      className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] placeholder-[#383865] focus:outline-none focus:border-[var(--accent)]"
+                      className="w-full input px-3 py-2 text-sm"
                     />
                   </div>
                   <div className="w-24">
@@ -245,13 +246,13 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
                       name="contributionCurrency"
                       defaultValue={config?.contributionCurrency ?? 'EUR'}
                       maxLength={4}
-                      className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] uppercase focus:outline-none focus:border-[var(--accent)]"
+                      className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] uppercase focus:outline-none focus:border-[var(--accent)]"
                     />
                   </div>
                 </div>
                 <button
                   type="submit"
-                  className="px-3 py-1.5 bg-[var(--accent)] text-white rounded-lg text-xs font-medium hover:opacity-80 hover:bg-[var(--accent)] transition-colors"
+                  className="px-3 py-1.5 btn-primary text-xs"
                 >
                   Sauvegarder
                 </button>
@@ -261,10 +262,10 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
         </div>
 
         {/* ── COMPTABILITÉ ── */}
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <span className="text-xl">📒</span>
+              <span className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}><BookOpen size={17} /></span>
               <div>
                 <p className="font-medium text-[var(--text)]">Comptabilité</p>
                 <p className="text-sm text-[var(--text-2)]">Recettes, dépenses, balance</p>
@@ -275,10 +276,10 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
         </div>
 
         {/* ── VDA ── */}
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <span className="text-xl">🗂️</span>
+              <span className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}><FolderKanban size={17} /></span>
               <div>
                 <p className="font-medium text-[var(--text)]">VDA</p>
                 <p className="text-sm text-[var(--text-2)]">Fiches VDA (désactivé par défaut)</p>

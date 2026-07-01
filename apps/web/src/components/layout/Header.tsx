@@ -8,6 +8,7 @@ import type { Session } from 'next-auth'
 import MobileSidebar from './MobileSidebar'
 import GlobalSearch from '@/components/dashboard/GlobalSearch'
 import LocaleSwitcher from '@/components/LocaleSwitcher'
+import ThemeToggle from '@/components/ThemeToggle'
 import type { Locale } from '@/i18n/translations'
 import { getT } from '@/i18n/translations'
 
@@ -30,7 +31,7 @@ export default async function Header({ guild, member, session, locale }: Props) 
     <header
       className="h-12 px-5 flex items-center justify-between gap-3 sticky top-0 z-20"
       style={{
-        background: 'rgba(13,17,23,0.9)',
+        background: 'var(--glass)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         borderBottom: '1px solid var(--border)',
@@ -46,11 +47,12 @@ export default async function Header({ guild, member, session, locale }: Props) 
       <GlobalSearch guildId={guild.id} locale={locale} />
 
       <div className="flex items-center gap-1">
+        <ThemeToggle />
         <LocaleSwitcher locale={locale} />
 
         <Link
           href={`/dashboard/${guild.id}/notifications`}
-          className="relative w-8 h-8 flex items-center justify-center rounded-md hover:bg-white/[0.06] transition-colors"
+          className="relative w-8 h-8 flex items-center justify-center rounded-md hover:bg-[var(--hover)] transition-colors"
           style={{ color: 'var(--text-3)' }}
           title={tr.nav.settings}
         >
@@ -78,7 +80,7 @@ export default async function Header({ guild, member, session, locale }: Props) 
         >
           <button
             type="submit"
-            className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white/[0.06] hover:text-[#ef4444] transition-colors text-[var(--text-3)]"
+            className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-[var(--hover)] hover:text-[var(--danger)] transition-colors text-[var(--text-3)]"
             title={tr.common.logout}
           >
             <LogOut size={14} />

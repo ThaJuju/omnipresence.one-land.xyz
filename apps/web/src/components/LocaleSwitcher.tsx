@@ -21,7 +21,7 @@ export default function LocaleSwitcher({ locale, variant = 'header' }: { locale:
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
               locale === l
                 ? 'bg-[var(--accent)] border-[var(--accent)] text-white'
-                : 'bg-[var(--bg)] border-white/[0.07] text-[var(--text-2)] hover:text-[var(--text)] hover:border-white/[0.12]'
+                : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text)] hover:border-[var(--border-mid)]'
             }`}
           >
             {l === 'fr' ? '🇫🇷 Français' : '🇬🇧 English'}
@@ -37,7 +37,7 @@ export default function LocaleSwitcher({ locale, variant = 'header' }: { locale:
     <button
       onClick={toggle}
       title={locale === 'fr' ? 'Switch to English' : 'Passer en français'}
-      className="flex items-center gap-1 text-xs font-medium text-[var(--text-2)] hover:text-[var(--text)] transition-colors px-2 py-1 rounded-lg hover:bg-white/[0.03]"
+      className="flex items-center gap-1 text-xs font-medium text-[var(--text-2)] hover:text-[var(--text)] transition-colors px-2 py-1 rounded-lg hover:bg-[var(--hover)]"
     >
       {locale === 'fr' ? '🇫🇷' : '🇬🇧'}
       <span className="hidden sm:inline">{locale.toUpperCase()}</span>

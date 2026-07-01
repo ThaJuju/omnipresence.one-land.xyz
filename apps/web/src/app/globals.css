@@ -1,28 +1,90 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --bg:          #060a0e;
-  --surface:     #0d1117;
-  --surface-2:   #161b22;
-  --border:      rgba(255,255,255,0.07);
-  --border-mid:  rgba(255,255,255,0.12);
+/* ---------------------------------------------------------------------------
+   Design tokens — dark (default) & light themes.
+   Everything in the app reads these vars; the theme class on <html> flips them.
+--------------------------------------------------------------------------- */
+
+:root,
+html.dark {
+  color-scheme: dark;
+
+  --bg:          #08090d;
+  --surface:     #0e1016;
+  --surface-2:   #151824;
+  --hover:       rgba(255, 255, 255, 0.05);
+  --glass:       rgba(10, 12, 18, 0.72);
+
+  --border:      rgba(255, 255, 255, 0.08);
+  --border-mid:  rgba(255, 255, 255, 0.14);
 
   --guild-accent: #6366f1;
   --accent:       var(--guild-accent);
-  --accent-dim:   rgba(99,102,241,0.12);
+  --accent-dim:   color-mix(in srgb, var(--accent) 13%, transparent);
+  --accent-soft:  color-mix(in srgb, var(--accent) 22%, transparent);
+  --accent-2:     color-mix(in srgb, var(--accent) 55%, #a855f7);
+  --accent-grad:  linear-gradient(135deg, var(--accent), var(--accent-2));
+  --on-accent:    #ffffff;
 
-  --text:    #f0f0f0;
-  --text-2:  #8b8fa8;
-  --text-3:  #4a4f63;
+  --text:    #f4f5f9;
+  --text-2:  #9598ad;
+  --text-3:  #5d6071;
 
-  --success: #22c55e;
+  --success: #2fd979;
   --warning: #eab308;
   --warn:    #f59e0b;
-  --danger:  #ef4444;
+  --danger:  #f4506a;
+
+  --shadow-sm:   0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+  --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.4), 0 16px 40px -16px rgba(0, 0, 0, 0.65);
+  --shadow-pop:  0 8px 16px rgba(0, 0, 0, 0.45), 0 24px 60px -12px rgba(0, 0, 0, 0.7);
+  --glow-accent: 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent),
+                 0 4px 24px -4px color-mix(in srgb, var(--accent) 50%, transparent);
+  --card-inner:  inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  --ambient-1: color-mix(in srgb, var(--accent) 7%, transparent);
+  --ambient-2: color-mix(in srgb, #a855f7 5%, transparent);
+}
+
+html.light {
+  color-scheme: light;
+
+  --bg:          #f5f6f9;
+  --surface:     #ffffff;
+  --surface-2:   #f3f4f8;
+  --hover:       rgba(18, 22, 48, 0.045);
+  --glass:       rgba(255, 255, 255, 0.78);
+
+  --border:      rgba(18, 22, 48, 0.09);
+  --border-mid:  rgba(18, 22, 48, 0.16);
+
+  --accent-dim:  color-mix(in srgb, var(--accent) 10%, transparent);
+  --accent-soft: color-mix(in srgb, var(--accent) 18%, transparent);
+
+  --text:    #171923;
+  --text-2:  #5c6172;
+  --text-3:  #9298a8;
+
+  --success: #16a34a;
+  --warning: #ca8a04;
+  --warn:    #d97706;
+  --danger:  #dc2626;
+
+  --shadow-sm:   0 1px 2px rgba(18, 22, 48, 0.06);
+  --shadow-card: 0 1px 2px rgba(18, 22, 48, 0.05), 0 8px 24px -12px rgba(18, 22, 48, 0.12);
+  --shadow-lift: 0 2px 4px rgba(18, 22, 48, 0.06), 0 16px 40px -16px rgba(18, 22, 48, 0.18);
+  --shadow-pop:  0 8px 16px rgba(18, 22, 48, 0.1), 0 24px 60px -12px rgba(18, 22, 48, 0.25);
+  --glow-accent: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent),
+                 0 4px 24px -4px color-mix(in srgb, var(--accent) 35%, transparent);
+  --card-inner:  inset 0 1px 0 rgba(255, 255, 255, 0.8);
+
+  --ambient-1: color-mix(in srgb, var(--accent) 5%, transparent);
+  --ambient-2: color-mix(in srgb, #a855f7 4%, transparent);
 }
 
 * {
@@ -38,12 +100,128 @@ html, body {
   color: var(--text);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'cv11', 'ss01';
 }
 
-::-webkit-scrollbar { width: 4px; height: 4px; }
+body {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Ambient radial glow behind the whole app, tinted by the accent color */
+.app-ambient {
+  position: relative;
+  isolation: isolate;
+}
+.app-ambient::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 500px at 15% -10%, var(--ambient-1), transparent 60%),
+    radial-gradient(700px 400px at 90% 0%, var(--ambient-2), transparent 55%);
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
+::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------------------------------------------------------------------------
+   Reusable surfaces & controls
+--------------------------------------------------------------------------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-card), var(--card-inner);
+}
+
+.card-hover {
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+.card-hover:hover {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  box-shadow: var(--shadow-lift), var(--card-inner),
+    0 0 24px -8px color-mix(in srgb, var(--accent) 30%, transparent);
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: var(--accent-grad);
+  color: var(--on-accent);
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 4px 16px -4px color-mix(in srgb, var(--accent) 55%, transparent);
+  transition: filter 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  cursor: pointer;
+}
+.btn-primary:hover { filter: brightness(1.1); box-shadow: var(--glow-accent); }
+.btn-primary:active { transform: translateY(1px); filter: brightness(0.97); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
+}
+.btn-ghost:hover {
+  background: var(--hover);
+  color: var(--text);
+  border-color: var(--border-mid);
+}
+
+.input {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.input::placeholder { color: var(--text-3); }
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  letter-spacing: 0.01em;
+}
+
+/* Gradient text for hero headings */
+.text-gradient {
+  background: linear-gradient(120deg, var(--text) 30%, color-mix(in srgb, var(--text) 55%, var(--accent)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(6px); }
@@ -51,7 +229,20 @@ html, body {
 }
 .animate-fade-in { animation: fadeUp 0.18s ease-out; }
 
-/* FullCalendar overrides */
+@keyframes floatIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-float-in { animation: floatIn 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in, .animate-float-in { animation: none; }
+  .card-hover, .btn-primary, body { transition: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   FullCalendar overrides
+--------------------------------------------------------------------------- */
 .fc .fc-toolbar-title {
   font-size: 1rem;
   font-weight: 600;
@@ -69,11 +260,11 @@ html, body {
 .fc .fc-button-primary:not(:disabled):active {
   background: var(--accent);
   border-color: var(--accent);
-  color: white;
+  color: var(--on-accent);
 }
 .fc-theme-standard td,
 .fc-theme-standard th,
-.fc-theme-standard .fc-scrollgrid { border-color: rgba(255,255,255,0.07); }
+.fc-theme-standard .fc-scrollgrid { border-color: var(--border); }
 .fc .fc-daygrid-day-number { color: var(--text-2); }
 .fc .fc-col-header-cell-cushion {
   color: var(--text-3);

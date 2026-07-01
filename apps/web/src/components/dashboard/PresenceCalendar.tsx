@@ -101,7 +101,7 @@ export default function PresenceCalendar({ events, guildId, locale }: Props) {
       {/* Navigation */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-1">
-          <button onClick={prevMonth} className="p-2 rounded-lg hover:bg-[#1a1a40] text-[var(--text-2)] hover:text-[var(--text)] transition-colors">
+          <button onClick={prevMonth} className="p-2 rounded-lg hover:bg-[var(--hover)] text-[var(--text-2)] hover:text-[var(--text)] transition-colors">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -109,7 +109,7 @@ export default function PresenceCalendar({ events, guildId, locale }: Props) {
           <span className="text-base font-semibold text-[var(--text)] w-44 text-center">
             {tr.time.monthsFull[viewMonth]} {viewYear}
           </span>
-          <button onClick={nextMonth} className="p-2 rounded-lg hover:bg-[#1a1a40] text-[var(--text-2)] hover:text-[var(--text)] transition-colors">
+          <button onClick={nextMonth} className="p-2 rounded-lg hover:bg-[var(--hover)] text-[var(--text-2)] hover:text-[var(--text)] transition-colors">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
@@ -117,7 +117,7 @@ export default function PresenceCalendar({ events, guildId, locale }: Props) {
         </div>
         <button
           onClick={() => { setViewYear(today.getFullYear()); setViewMonth(today.getMonth()); setTooltip(null) }}
-          className="px-3 py-1.5 text-xs font-medium text-[var(--text-2)] border border-white/[0.07] rounded-lg hover:bg-[#1a1a40] hover:text-[var(--text)] transition-colors"
+          className="px-3 py-1.5 text-xs font-medium text-[var(--text-2)] border border-[var(--border)] rounded-lg hover:bg-[var(--hover)] hover:text-[var(--text)] transition-colors"
         >
           {tr.common.today}
         </button>
@@ -184,7 +184,7 @@ export default function PresenceCalendar({ events, guildId, locale }: Props) {
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-5 pt-4 border-t border-white/[0.07] text-xs text-[var(--text-3)]">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-5 pt-4 border-t border-[var(--border)] text-xs text-[var(--text-3)]">
         <span className="flex items-center gap-1.5"><span className="inline-block w-4 h-[3px] rounded-full bg-[#22c55e]" />{tr.stats.legendGood} {tr.presences.present.toLowerCase()}</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-4 h-[3px] rounded-full bg-[#eab308]" />{tr.stats.legendOk}</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-4 h-[3px] rounded-full bg-[#ef4444]" />{tr.stats.legendBad}</span>
@@ -196,7 +196,7 @@ export default function PresenceCalendar({ events, guildId, locale }: Props) {
         <div
           onMouseEnter={handleTooltipEnter}
           onMouseLeave={handleTooltipLeave}
-          className="absolute z-50 w-64 bg-[var(--surface-2)] border border-white/[0.07] rounded-md shadow-xl shadow-black/40 overflow-hidden pointer-events-auto"
+          className="absolute z-50 w-64 bg-[var(--surface-2)] border border-[var(--border)] rounded-md shadow-xl shadow-black/40 overflow-hidden pointer-events-auto"
           style={{
             left: tooltip.alignRight ? undefined : tooltip.x,
             right: tooltip.alignRight ? `calc(100% - ${tooltip.x}px)` : undefined,
@@ -207,18 +207,18 @@ export default function PresenceCalendar({ events, guildId, locale }: Props) {
               : `translateX(-50%) translateY(${tooltip.alignBottom ? '-8px' : '8px'})`,
           }}
         >
-          <div className="px-4 py-3 border-b border-white/[0.07] bg-[var(--surface)]">
+          <div className="px-4 py-3 border-b border-[var(--border)] bg-[var(--surface)]">
             <p className="text-xs font-semibold text-[var(--text)] capitalize">{formatDateLocale(tooltip.key)}</p>
             <div className="flex gap-3 mt-1.5 text-xs">
-              <span className="text-[#22c55e]">✓ {tooltip.data.present} {tr.presences.present.toLowerCase()}</span>
-              {tooltip.data.absent > 0 && <span className="text-[#ef4444]">✗ {tooltip.data.absent} {tr.presences.absent.toLowerCase()}</span>}
-              {tooltip.data.pending > 0 && <span className="text-[#eab308]">⏳ {tooltip.data.pending} {tr.presences.pending.toLowerCase()}</span>}
+              <span className="text-[var(--success)]">✓ {tooltip.data.present} {tr.presences.present.toLowerCase()}</span>
+              {tooltip.data.absent > 0 && <span className="text-[var(--danger)]">✗ {tooltip.data.absent} {tr.presences.absent.toLowerCase()}</span>}
+              {tooltip.data.pending > 0 && <span className="text-[var(--warning)]">⏳ {tooltip.data.pending} {tr.presences.pending.toLowerCase()}</span>}
             </div>
           </div>
 
           {tooltip.data.members.absent.length > 0 && (
             <div className="px-4 py-2.5">
-              <p className="text-[10px] font-semibold text-[#ef4444] uppercase tracking-wider mb-1.5">{tr.presences.absent}</p>
+              <p className="text-[10px] font-semibold text-[var(--danger)] uppercase tracking-wider mb-1.5">{tr.presences.absent}</p>
               <ul className="space-y-1">
                 {tooltip.data.members.absent.slice(0, 8).map((name, i) => (
                   <li key={i} className="flex items-center gap-2 text-xs text-[var(--text)]">
@@ -234,8 +234,8 @@ export default function PresenceCalendar({ events, guildId, locale }: Props) {
           )}
 
           {tooltip.data.members.pending.length > 0 && (
-            <div className={`px-4 py-2.5 ${tooltip.data.members.absent.length > 0 ? 'border-t border-white/[0.07]' : ''}`}>
-              <p className="text-[10px] font-semibold text-[#eab308] uppercase tracking-wider mb-1.5">{tr.presences.pending}</p>
+            <div className={`px-4 py-2.5 ${tooltip.data.members.absent.length > 0 ? 'border-t border-[var(--border)]' : ''}`}>
+              <p className="text-[10px] font-semibold text-[var(--warning)] uppercase tracking-wider mb-1.5">{tr.presences.pending}</p>
               <ul className="space-y-1">
                 {tooltip.data.members.pending.slice(0, 5).map((name, i) => (
                   <li key={i} className="flex items-center gap-2 text-xs text-[var(--text)]">
@@ -251,8 +251,8 @@ export default function PresenceCalendar({ events, guildId, locale }: Props) {
           )}
 
           {tooltip.data.members.present.length > 0 && (
-            <div className="px-4 py-2.5 border-t border-white/[0.07]">
-              <p className="text-[10px] font-semibold text-[#22c55e] uppercase tracking-wider mb-1.5">{tr.presences.present}</p>
+            <div className="px-4 py-2.5 border-t border-[var(--border)]">
+              <p className="text-[10px] font-semibold text-[var(--success)] uppercase tracking-wider mb-1.5">{tr.presences.present}</p>
               <ul className="space-y-1">
                 {tooltip.data.members.present.slice(0, 5).map((name, i) => (
                   <li key={i} className="flex items-center gap-2 text-xs text-[var(--text-2)]">
@@ -267,7 +267,7 @@ export default function PresenceCalendar({ events, guildId, locale }: Props) {
             </div>
           )}
 
-          <div className="px-4 py-2 border-t border-white/[0.07] bg-[var(--bg)]">
+          <div className="px-4 py-2 border-t border-[var(--border)] bg-[var(--bg)]">
             <p className="text-[10px] text-[var(--text-3)]">{locale === 'en' ? 'Click for full details' : 'Cliquer pour voir le détail complet'}</p>
           </div>
         </div>

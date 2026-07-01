@@ -91,7 +91,7 @@ function ChannelSelect({
         name={name}
         defaultValue={defaultValue ?? ''}
         placeholder="ID du canal Discord"
-        className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] font-mono placeholder-[#383865] focus:outline-none focus:border-[var(--accent)]"
+        className="w-full input px-3 py-2 text-sm font-mono"
       />
     )
   }
@@ -99,7 +99,7 @@ function ChannelSelect({
     <select
       name={name}
       defaultValue={defaultValue ?? ''}
-      className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+      className="w-full input px-3 py-2 text-sm"
     >
       <option value="">— Aucun —</option>
       {channels.map((ch) => (
@@ -148,8 +148,8 @@ export default async function AbsenceEmbedPage({ params }: { params: { guildId: 
       </div>
 
       {/* Status */}
-      <div className={`rounded-md border p-4 flex items-center gap-3 ${isPublished ? 'bg-[#0d1f14] border-[#22c55e30]' : 'bg-[var(--surface)] border-white/[0.07]'}`}>
-        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${isPublished ? 'bg-[#22c55e]' : 'bg-[#383865]'}`} />
+      <div className={`rounded-md border p-4 flex items-center gap-3 ${isPublished ? 'bg-[#0d1f14] border-[#22c55e30]' : 'bg-[var(--surface)] border-[var(--border)]'}`}>
+        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${isPublished ? 'bg-[#22c55e]' : 'bg-[var(--text-3)]'}`} />
         <div>
           <p className="text-sm font-medium text-[var(--text)]">
             {isPublished ? 'Embed publié' : 'Embed non publié'}
@@ -167,7 +167,7 @@ export default async function AbsenceEmbedPage({ params }: { params: { guildId: 
 
       <form action={saveAction} className="space-y-5">
         {/* Canaux */}
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5 space-y-5">
+        <div className="card p-5 space-y-5">
           <h3 className="font-semibold text-[var(--text)]">Canaux</h3>
 
           <div>
@@ -189,7 +189,7 @@ export default async function AbsenceEmbedPage({ params }: { params: { guildId: 
         </div>
 
         {/* Personnalisation */}
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5 space-y-5">
+        <div className="card p-5 space-y-5">
           <div>
             <h3 className="font-semibold text-[var(--text)]">Personnalisation</h3>
             <p className="text-xs text-[var(--text-3)] mt-0.5">Laissez vide pour utiliser le texte par défaut selon la langue</p>
@@ -201,7 +201,7 @@ export default async function AbsenceEmbedPage({ params }: { params: { guildId: 
               name="absenceEmbedTitle"
               defaultValue={config?.absenceEmbedTitle ?? ''}
               placeholder={defaultTitle}
-              className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] placeholder-[#383865] focus:outline-none focus:border-[var(--accent)]"
+              className="w-full input px-3 py-2 text-sm"
             />
           </div>
 
@@ -212,7 +212,7 @@ export default async function AbsenceEmbedPage({ params }: { params: { guildId: 
               defaultValue={config?.absenceEmbedBody ?? ''}
               placeholder={defaultBody}
               rows={4}
-              className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] placeholder-[#383865] focus:outline-none focus:border-[var(--accent)] resize-y"
+              className="w-full input px-3 py-2 text-sm resize-y"
             />
           </div>
         </div>
@@ -221,7 +221,7 @@ export default async function AbsenceEmbedPage({ params }: { params: { guildId: 
           <PublishAbsenceButton publishAction={publishAction} disabled={!hasChannel} />
           <button
             type="submit"
-            className="px-4 py-2 bg-[#1a1a40] text-[var(--text)] rounded-lg text-sm font-medium hover:bg-[#2a2a55] transition-colors border border-[#2a2a55]"
+            className="px-4 py-2 bg-[var(--surface-2)] text-[var(--text)] rounded-lg text-sm font-medium hover:bg-[var(--hover)] transition-colors border border-[var(--border-mid)]"
           >
             Sauvegarder
           </button>

@@ -22,7 +22,7 @@ function BarChart({ bars }: { bars: { label: string; value: number; max: number 
                 className="w-full rounded-t transition-all"
                 style={{ height: `${height}%`, backgroundColor: color }}
               />
-              <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-[var(--bg)] border border-white/[0.07] rounded px-2 py-1 text-[10px] text-[var(--text)] whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10 transition-opacity">
+              <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-[var(--bg)] border border-[var(--border)] rounded px-2 py-1 text-[10px] text-[var(--text)] whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-10 transition-opacity">
                 {b.label}: {rate}% ({b.value}/{b.max})
               </div>
             </div>
@@ -161,13 +161,13 @@ export default async function StatsPage({
     month: tr.stats.monthBtn,
   }
 
-  const rateColor = globalRate >= 80 ? 'text-[#22c55e]' : globalRate >= 50 ? 'text-[#eab308]' : 'text-[#ef4444]'
+  const rateColor = globalRate >= 80 ? 'text-[var(--success)]' : globalRate >= 50 ? 'text-[var(--warning)]' : 'text-[var(--danger)]'
 
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text)]">{tr.stats.title}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">{tr.stats.title}</h1>
           <p className="text-[var(--text-2)] text-sm mt-1">{periodLabel}</p>
         </div>
         <div className="flex gap-1">
@@ -188,24 +188,24 @@ export default async function StatsPage({
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4 text-center">
+        <div className="card p-4 text-center">
           <p className={`text-3xl font-bold ${rateColor}`}>{globalRate}%</p>
           <p className="text-xs text-[var(--text-2)] mt-1">{tr.stats.presenceRate}</p>
           <p className="text-[11px] text-[var(--text-3)] mt-0.5">{totalPresent}/{totalLogs} {tr.stats.expected}</p>
         </div>
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4 text-center">
+        <div className="card p-4 text-center">
           <p className="text-3xl font-bold text-[var(--text)]">{membersCount}</p>
           <p className="text-xs text-[var(--text-2)] mt-1">{tr.stats.activeMembers}</p>
         </div>
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4 text-center">
-          <p className={`text-3xl font-bold ${absences.filter((a) => a.status === 'PENDING').length > 0 ? 'text-[#eab308]' : 'text-[#22c55e]'}`}>
+        <div className="card p-4 text-center">
+          <p className={`text-3xl font-bold ${absences.filter((a) => a.status === 'PENDING').length > 0 ? 'text-[var(--warning)]' : 'text-[var(--success)]'}`}>
             {absences.filter((a) => a.status === 'PENDING').length}
           </p>
           <p className="text-xs text-[var(--text-2)] mt-1">{tr.stats.pendingAbsences}</p>
           <p className="text-[11px] text-[var(--text-3)] mt-0.5">{absences.length} {tr.members.total}</p>
         </div>
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4 text-center">
-          <p className={`text-3xl font-bold ${warnings.length > 0 ? 'text-[#eab308]' : 'text-[#22c55e]'}`}>
+        <div className="card p-4 text-center">
+          <p className={`text-3xl font-bold ${warnings.length > 0 ? 'text-[var(--warning)]' : 'text-[var(--success)]'}`}>
             {warnings.length}
           </p>
           <p className="text-xs text-[var(--text-2)] mt-1">{tr.stats.warningsIssued}</p>
@@ -214,7 +214,7 @@ export default async function StatsPage({
       </div>
 
       {period !== 'day' && chartBars.length > 0 && (
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5">
+        <div className="card p-5">
           <h2 className="font-semibold text-[var(--text)] mb-4">
             {period === 'week' ? tr.stats.byDay : tr.stats.byDate}
           </h2>
@@ -228,11 +228,11 @@ export default async function StatsPage({
       )}
 
       {ranking.length > 0 && (
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
-          <div className="px-5 py-4 border-b border-white/[0.07]">
+        <div className="card overflow-hidden">
+          <div className="px-5 py-4 border-b border-[var(--border)]">
             <h2 className="font-semibold text-[var(--text)]">{tr.stats.ranking}</h2>
           </div>
-          <ul className="divide-y divide-[#1a1a40]">
+          <ul className="divide-y divide-[var(--border)]">
             {ranking.map((m, i) => {
               const rate = Math.round((m.present / m.total) * 100)
               const color = rate >= 80 ? '#22c55e' : rate >= 50 ? '#eab308' : '#ef4444'
@@ -241,7 +241,7 @@ export default async function StatsPage({
                   <span className="text-sm font-bold text-[var(--text-3)] w-5 text-center">#{i + 1}</span>
                   <span className="flex-1 text-sm text-[var(--text)]">{m.name}</span>
                   <div className="flex items-center gap-3">
-                    <div className="hidden sm:block w-24 bg-[#1a1a40] rounded-full h-1.5">
+                    <div className="hidden sm:block w-24 bg-[var(--surface-2)] rounded-full h-1.5">
                       <div className="h-1.5 rounded-full" style={{ width: `${rate}%`, backgroundColor: color }} />
                     </div>
                     <span className="text-sm font-medium" style={{ color }}>{rate}%</span>

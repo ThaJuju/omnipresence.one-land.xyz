@@ -103,13 +103,13 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
         <p className="text-[var(--text-2)] text-sm mt-1">Lier les rôles Discord aux rôles panel</p>
       </div>
 
-      <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4 text-sm text-[var(--text-2)]">
+      <div className="card p-4 text-sm text-[var(--text-2)]">
         ℹ️ Le propriétaire du serveur Discord est automatiquement{' '}
-        <span className="font-semibold" style={{ color: '#ef4444' }}>ADMIN</span> sans binding.
+        <span className="font-semibold" style={{ color: 'var(--danger)' }}>ADMIN</span> sans binding.
         Un membre peut avoir plusieurs rôles Discord — le rôle panel le plus élevé s&apos;applique.
       </div>
 
-      <form action={addBindingAction} className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5 space-y-4">
+      <form action={addBindingAction} className="card p-5 space-y-4">
         <h2 className="font-semibold text-[var(--text)]">Ajouter un binding</h2>
 
         {discordRoles.length > 0 ? (
@@ -117,7 +117,7 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
             <select
               name="discordRoleId"
               required
-              className="flex-1 bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+              className="flex-1 input px-3 py-2 text-sm"
             >
               <option value="">— Sélectionner un rôle Discord —</option>
               {discordRoles.map((role) => {
@@ -132,7 +132,7 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
             <select
               name="panelRole"
               defaultValue="MODERATEUR"
-              className="bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+              className="input px-3 py-2 text-sm"
             >
               {panelRoleOrder.map((r) => (
                 <option key={r} value={r}>{r}</option>
@@ -140,7 +140,7 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
             </select>
             <button
               type="submit"
-              className="px-4 py-2 bg-[var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-80 hover:bg-[var(--accent)] transition-colors whitespace-nowrap"
+              className="px-4 py-2 btn-primary text-sm whitespace-nowrap"
             >
               + Ajouter
             </button>
@@ -152,12 +152,12 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
               placeholder="ID du rôle Discord"
               required
               pattern="\d+"
-              className="flex-1 bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] font-mono placeholder-[#383865] focus:outline-none focus:border-[var(--accent)]"
+              className="flex-1 input px-3 py-2 text-sm font-mono"
             />
             <select
               name="panelRole"
               defaultValue="MODERATEUR"
-              className="bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+              className="input px-3 py-2 text-sm"
             >
               {panelRoleOrder.map((r) => (
                 <option key={r} value={r}>{r}</option>
@@ -165,7 +165,7 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
             </select>
             <button
               type="submit"
-              className="px-4 py-2 bg-[var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-80 hover:bg-[var(--accent)] transition-colors whitespace-nowrap"
+              className="px-4 py-2 btn-primary text-sm whitespace-nowrap"
             >
               + Ajouter
             </button>
@@ -179,7 +179,7 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
             </summary>
             <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
               {discordRoles.map((role) => (
-                <div key={role.id} className="flex items-center gap-2 px-2 py-1 bg-[var(--bg)] rounded border border-white/[0.07]">
+                <div key={role.id} className="flex items-center gap-2 px-2 py-1 bg-[var(--bg)] rounded border border-[var(--border)]">
                   <span
                     className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                     style={{ backgroundColor: intToHex(role.color) }}
@@ -194,8 +194,8 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
 
       <div className="space-y-4">
         {panelRoleOrder.map((panelRole) => (
-          <div key={panelRole} className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
-            <div className="px-4 py-3 border-b border-white/[0.07] flex items-center gap-2">
+          <div key={panelRole} className="card overflow-hidden">
+            <div className="px-4 py-3 border-b border-[var(--border)] flex items-center gap-2">
               <span
                 className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                 style={{ backgroundColor: panelRoleColors[panelRole] }}
@@ -204,7 +204,7 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
               <span className="text-xs text-[var(--text-3)]">{byRole[panelRole]?.length ?? 0} binding(s)</span>
             </div>
             {byRole[panelRole] && byRole[panelRole]!.length > 0 ? (
-              <ul className="divide-y divide-[#1a1a40]">
+              <ul className="divide-y divide-[var(--border)]">
                 {byRole[panelRole]!.map((binding) => {
                   const discordRole = roleMap.get(binding.discordRoleId)
                   const remove = removeBinding.bind(null, guildId, binding.discordRoleId)
@@ -227,7 +227,7 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
                       <form action={remove}>
                         <button
                           type="submit"
-                          className="text-xs text-[#ef4444] hover:text-[#ff6b81] transition-colors px-2 py-1"
+                          className="text-xs text-[var(--danger)] hover:text-[#ff6b81] transition-colors px-2 py-1"
                         >
                           Supprimer
                         </button>

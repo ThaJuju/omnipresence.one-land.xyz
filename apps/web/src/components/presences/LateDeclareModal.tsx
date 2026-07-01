@@ -34,10 +34,10 @@ export default function LateDeclareModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-[var(--surface)] border border-white/[0.07] rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+      <div className="relative bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 w-full max-w-sm shadow-2xl">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
-            <Clock size={16} className="text-[#eab308]" />
+            <Clock size={16} className="text-[var(--warning)]" />
             <h2 className="font-bold text-[var(--text)]">Déclarer un retard</h2>
           </div>
           <button onClick={onClose} className="text-[var(--text-3)] hover:text-[var(--text)] transition-colors">
@@ -59,19 +59,19 @@ export default function LateDeclareModal({
                 value={delay}
                 onChange={(e) => setDelay(e.target.value)}
                 placeholder="Ex: 30"
-                className="flex-1 bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] placeholder-[#383865] focus:outline-none focus:border-[#eab308] transition-colors"
+                className="flex-1 bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] placeholder-[var(--text-3)] focus:outline-none focus:border-[#eab308] transition-colors"
               />
               <span className="text-sm text-[var(--text-2)] whitespace-nowrap">minutes</span>
             </div>
           </div>
 
-          {error && <p className="text-xs text-[#ef4444]">{error}</p>}
+          {error && <p className="text-xs text-[var(--danger)]">{error}</p>}
 
           <div className="flex gap-3 pt-1">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 text-sm font-medium text-[var(--text-2)] border border-white/[0.07] rounded-lg hover:bg-white/5 transition-colors"
+              className="flex-1 px-4 py-2 text-sm font-medium text-[var(--text-2)] border border-[var(--border)] rounded-lg hover:bg-white/5 transition-colors"
             >
               Annuler
             </button>

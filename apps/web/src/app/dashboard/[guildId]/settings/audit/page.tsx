@@ -3,14 +3,15 @@ import { prisma } from '@repo/db'
 import { redirect } from 'next/navigation'
 import { getGuildMember, requirePermission } from '@/lib/api'
 import { avatarUrl } from '@/lib/utils'
+import { AlertTriangle, BookOpen, CalendarX, CircleDot, ClipboardList, Settings, User, Wallet } from 'lucide-react'
 
-const TYPE_ICON: Record<string, string> = {
-  Member: '👤',
-  Absence: '📅',
-  Warning: '⚠️',
-  Contribution: '💰',
-  AccountingEntry: '📒',
-  Guild: '⚙️',
+const TYPE_ICON: Record<string, typeof User> = {
+  Member: User,
+  Absence: CalendarX,
+  Warning: AlertTriangle,
+  Contribution: Wallet,
+  AccountingEntry: BookOpen,
+  Guild: Settings,
 }
 
 function timeAgo(date: Date): string {
@@ -78,33 +79,41 @@ export default async function AuditLogPage({ params, searchParams }: {
         >
           Tout
         </a>
-        {TYPES.map((t) => (
-          <a
-            key={t}
-            href={`/dashboard/${guildId}/settings/audit?type=${t}`}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              typeFilter === t ? 'bg-[var(--guild-accent)] text-white' : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-[var(--text)]'
-            }`}
-          >
-            {TYPE_ICON[t] ?? '•'} {t}
-          </a>
-        ))}
+        {TYPES.map((t) => {
+          const Icon = TYPE_ICON[t] ?? CircleDot
+          return (
+            <a
+              key={t}
+              href={`/dashboard/${guildId}/settings/audit?type=${t}`}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                typeFilter === t ? 'bg-[var(--guild-accent)] text-white' : 'bg-[var(--surface-2)] text-[var(--text-2)] hover:text-[var(--text)]'
+              }`}
+            >
+              <Icon size={12} strokeWidth={2} /> {t}
+            </a>
+          )
+        })}
       </div>
 
       {/* Log list */}
-      <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] divide-y divide-[#1a1a40] overflow-hidden">
+      <div className="card divide-y divide-[var(--border)] overflow-hidden">
         {logs.length === 0 ? (
           <div className="text-center py-16 text-[var(--text-2)]">
-            <div className="text-4xl mb-3">📋</div>
+            <div
+              className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4"
+              style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}
+            >
+              <ClipboardList size={24} strokeWidth={1.8} />
+            </div>
             <p>Aucune activité enregistrée.</p>
           </div>
         ) : (
           logs.map((log) => {
             const avatar = log.admin ? avatarUrl(log.admin.discordUserId, log.admin.discordAvatar) : null
-            const icon = TYPE_ICON[log.targetType ?? ''] ?? '•'
+            const Icon = TYPE_ICON[log.targetType ?? ''] ?? CircleDot
             return (
-              <div key={log.id} className="flex items-center gap-3 px-4 py-3 hover:bg-[#131335] transition-colors">
-                <span className="text-base w-6 text-center flex-shrink-0">{icon}</span>
+              <div key={log.id} className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--surface-2)] transition-colors">
+                <span className="w-6 flex justify-center flex-shrink-0 text-[var(--text-3)]"><Icon size={15} strokeWidth={1.8} /></span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-[var(--text)] truncate">{log.action}</p>
                   {log.admin && (
@@ -131,7 +140,7 @@ export default async function AuditLogPage({ params, searchParams }: {
           {page > 1 && (
             <a
               href={`/dashboard/${guildId}/settings/audit?page=${page - 1}${typeFilter ? `&type=${typeFilter}` : ''}`}
-              className="px-3 py-1.5 bg-[var(--surface-2)] border border-white/[0.07] text-[var(--text-2)] hover:text-[var(--text)] text-xs rounded-lg transition-colors"
+              className="px-3 py-1.5 bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text)] text-xs rounded-lg transition-colors"
             >
               ← Précédent
             </a>
@@ -140,7 +149,7 @@ export default async function AuditLogPage({ params, searchParams }: {
           {page < totalPages && (
             <a
               href={`/dashboard/${guildId}/settings/audit?page=${page + 1}${typeFilter ? `&type=${typeFilter}` : ''}`}
-              className="px-3 py-1.5 bg-[var(--surface-2)] border border-white/[0.07] text-[var(--text-2)] hover:text-[var(--text)] text-xs rounded-lg transition-colors"
+              className="px-3 py-1.5 bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text)] text-xs rounded-lg transition-colors"
             >
               Suivant →
             </a>

@@ -107,31 +107,31 @@ export default async function SuperAdminGroupDetailPage({ params }: { params: { 
     <div className="space-y-6">
       <div>
         <a href="/superadmin/groups" className="text-xs text-[var(--text-3)] hover:text-[var(--text-2)]">← Groupes</a>
-        <h1 className="text-2xl font-bold text-[var(--text)] mt-1">{group.name}</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--text)] mt-1">{group.name}</h1>
       </div>
 
-      <form action={renameAction} className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5 flex gap-3">
+      <form action={renameAction} className="card p-5 flex gap-3">
         <input
           name="name"
           defaultValue={group.name}
           required
-          className="flex-1 bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+          className="flex-1 input px-3 py-2 text-sm"
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-[var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-80 transition-colors whitespace-nowrap"
+          className="px-4 py-2 btn-primary text-sm whitespace-nowrap"
         >
           Renommer
         </button>
       </form>
 
-      <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5">
+      <div className="card p-5">
         <div className="flex items-start justify-between gap-3 mb-1">
           <h2 className="font-semibold text-[var(--text)]">Serveurs du groupe</h2>
           <form action={syncAction}>
             <button
               type="submit"
-              className="text-xs px-2.5 py-1 border border-white/[0.07] rounded-lg text-[var(--text-2)] hover:text-[var(--text)] hover:bg-white/5 transition-colors whitespace-nowrap"
+              className="text-xs px-2.5 py-1 border border-[var(--border)] rounded-lg text-[var(--text-2)] hover:text-[var(--text)] hover:bg-white/5 transition-colors whitespace-nowrap"
             >
               🔍 Rechercher les correspondances
             </button>
@@ -147,7 +147,7 @@ export default async function SuperAdminGroupDetailPage({ params }: { params: { 
             {allGuilds.map((g) => (
               <label
                 key={g.id}
-                className="flex items-center gap-2 px-3 py-2 bg-[var(--bg)] rounded-lg border border-white/[0.07] cursor-pointer"
+                className="flex items-center gap-2 px-3 py-2 bg-[var(--bg)] rounded-lg border border-[var(--border)] cursor-pointer"
               >
                 <input
                   type="checkbox"
@@ -162,14 +162,14 @@ export default async function SuperAdminGroupDetailPage({ params }: { params: { 
           </div>
           <button
             type="submit"
-            className="px-4 py-2 bg-[var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-80 transition-colors"
+            className="px-4 py-2 btn-primary text-sm"
           >
             Mettre à jour les serveurs
           </button>
         </form>
       </div>
 
-      <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5">
+      <div className="card p-5">
         <h2 className="font-semibold text-[var(--text)] mb-1">Membres autorisés</h2>
         <p className="text-xs text-[var(--text-2)] mb-4">
           Accès en lecture seule au superadmin, limité aux serveurs ci-dessus.
@@ -181,11 +181,11 @@ export default async function SuperAdminGroupDetailPage({ params }: { params: { 
             placeholder="Discord User ID"
             required
             pattern="\d+"
-            className="flex-1 bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] font-mono placeholder-[#383865] focus:outline-none focus:border-[var(--accent)]"
+            className="flex-1 input px-3 py-2 text-sm font-mono"
           />
           <button
             type="submit"
-            className="px-4 py-2 bg-[var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-80 transition-colors whitespace-nowrap"
+            className="px-4 py-2 btn-primary text-sm whitespace-nowrap"
           >
             + Ajouter
           </button>
@@ -194,7 +194,7 @@ export default async function SuperAdminGroupDetailPage({ params }: { params: { 
         {group.members.length === 0 ? (
           <p className="text-sm text-[var(--text-3)]">Aucun membre pour le moment.</p>
         ) : (
-          <ul className="divide-y divide-[#1a1a40]">
+          <ul className="divide-y divide-[var(--border)]">
             {group.members.map((m) => {
               const remove = removeGroupMember.bind(null, groupId, m.discordUserId)
               return (
@@ -203,7 +203,7 @@ export default async function SuperAdminGroupDetailPage({ params }: { params: { 
                   <form action={remove}>
                     <button
                       type="submit"
-                      className="text-xs text-[#ef4444] hover:text-[#ff6b81] transition-colors px-2 py-1"
+                      className="text-xs text-[var(--danger)] hover:text-[#ff6b81] transition-colors px-2 py-1"
                     >
                       Retirer
                     </button>

@@ -32,7 +32,7 @@ export default function LanguageSwitcherSettings({
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-colors disabled:opacity-50 ${
             locale === l
               ? 'bg-[var(--accent)] border-[var(--accent)] text-white'
-              : 'bg-[var(--bg)] border-white/[0.07] text-[var(--text-2)] hover:text-[var(--text)] hover:border-white/[0.12]'
+              : 'bg-[var(--bg)] border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text)] hover:border-[var(--border-mid)]'
           }`}
         >
           {l === 'fr' ? '🇫🇷 Français' : '🇬🇧 English'}

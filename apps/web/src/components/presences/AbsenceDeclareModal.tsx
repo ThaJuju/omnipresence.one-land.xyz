@@ -34,7 +34,7 @@ export default function AbsenceDeclareModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-[var(--surface)] border border-white/[0.07] rounded-2xl p-6 w-full max-w-md shadow-2xl">
+      <div className="relative bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 w-full max-w-md shadow-2xl">
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-bold text-[var(--text)]">Déclarer une absence</h2>
           <button onClick={onClose} className="text-[var(--text-3)] hover:text-[var(--text)] transition-colors">
@@ -51,7 +51,7 @@ export default function AbsenceDeclareModal({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Expliquez la raison de votre absence..."
-              className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] placeholder-[#383865] focus:outline-none focus:border-[var(--accent)] resize-none transition-colors"
+              className="w-full input px-3 py-2 text-sm resize-none transition-colors"
             />
           </div>
 
@@ -63,7 +63,7 @@ export default function AbsenceDeclareModal({
                 name="startDate"
                 value={startDate}
                 onChange={(e) => { setStartDate(e.target.value); if (endDate < e.target.value) setEndDate(e.target.value) }}
-                className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)] [color-scheme:dark]"
+                className="w-full input px-3 py-2 text-sm [color-scheme:dark]"
               />
             </div>
             <div>
@@ -74,25 +74,25 @@ export default function AbsenceDeclareModal({
                 value={endDate}
                 min={startDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)] [color-scheme:dark]"
+                className="w-full input px-3 py-2 text-sm [color-scheme:dark]"
               />
             </div>
           </div>
 
-          {error && <p className="text-xs text-[#ef4444]">{error}</p>}
+          {error && <p className="text-xs text-[var(--danger)]">{error}</p>}
 
           <div className="flex gap-3 pt-1">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 text-sm font-medium text-[var(--text-2)] border border-white/[0.07] rounded-lg hover:bg-white/5 transition-colors"
+              className="flex-1 px-4 py-2 text-sm font-medium text-[var(--text-2)] border border-[var(--border)] rounded-lg hover:bg-white/5 transition-colors"
             >
               Annuler
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="flex-1 px-4 py-2 text-sm font-medium text-white bg-[var(--accent)] rounded-lg hover:opacity-80 hover:bg-[var(--accent)] disabled:opacity-50 transition-colors"
+              className="flex-1 px-4 py-2 btn-primary text-sm disabled:opacity-50"
             >
               {isPending ? 'Enregistrement…' : "Déclarer l'absence"}
             </button>

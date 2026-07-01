@@ -3,7 +3,7 @@ import { prisma } from '@repo/db'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { guildIconUrl } from '@/lib/utils'
-import { ChevronRight } from 'lucide-react'
+import { Bot, ChevronRight } from 'lucide-react'
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -31,31 +31,31 @@ export default async function DashboardPage() {
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-lg font-semibold tracking-tight" style={{ color: 'var(--text)' }}>Mes serveurs</h1>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>Sélectionnez un serveur à gérer</p>
+            <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--text)' }}>Mes serveurs</h1>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>Sélectionnez un serveur à gérer</p>
           </div>
           {isSuperAdmin && (
-            <Link
-              href="/superadmin"
-              className="px-3 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-white/[0.04]"
-              style={{ color: 'var(--text-2)', border: '1px solid var(--border)' }}
-            >
+            <Link href="/superadmin" className="btn-ghost px-3 py-1.5 text-xs inline-block">
               Panel Superadmin
             </Link>
           )}
         </div>
 
         {members.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-3xl mb-4">🤖</div>
-            <h2 className="text-sm font-semibold mb-2" style={{ color: 'var(--text)' }}>Aucun serveur accessible</h2>
-            <p className="text-xs mb-6" style={{ color: 'var(--text-2)' }}>
+          <div className="card text-center py-16 px-6">
+            <div
+              className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-5"
+              style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}
+            >
+              <Bot size={24} strokeWidth={1.8} />
+            </div>
+            <h2 className="text-base font-semibold mb-2 tracking-tight" style={{ color: 'var(--text)' }}>Aucun serveur accessible</h2>
+            <p className="text-sm mb-6" style={{ color: 'var(--text-2)' }}>
               Invitez le bot sur votre serveur Discord pour commencer.
             </p>
             <a
               href={`https://discord.com/api/oauth2/authorize?client_id=${process.env['DISCORD_CLIENT_ID']}&permissions=268585984&scope=bot%20applications.commands`}
-              className="px-4 py-2 rounded-md text-sm font-medium text-white transition-opacity hover:opacity-80"
-              style={{ background: 'var(--guild-accent, #6366f1)' }}
+              className="btn-primary px-5 py-2.5 text-sm inline-block"
             >
               Inviter le bot
             </a>
@@ -68,23 +68,22 @@ export default async function DashboardPage() {
                 <Link
                   key={member.guild.id}
                   href={`/dashboard/${member.guild.id}`}
-                  className="p-4 rounded-md flex items-center gap-3 hover:bg-white/[0.02] transition-colors group"
-                  style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+                  className="card card-hover p-4 flex items-center gap-3 group"
                 >
                   {iconUrl ? (
-                    <img src={iconUrl} alt={member.guild.discordGuildName} className="w-9 h-9 rounded-md flex-shrink-0" />
+                    <img src={iconUrl} alt={member.guild.discordGuildName} className="w-10 h-10 rounded-lg flex-shrink-0" style={{ outline: '1px solid var(--border)' }} />
                   ) : (
-                    <div className="w-9 h-9 rounded-md flex items-center justify-center flex-shrink-0" style={{ background: 'var(--guild-accent, #6366f1)' }}>
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-grad)' }}>
                       <span className="text-white font-bold text-sm">{member.guild.discordGuildName[0]}</span>
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate" style={{ color: 'var(--text)' }}>
+                    <p className="text-sm font-semibold truncate tracking-tight" style={{ color: 'var(--text)' }}>
                       {member.guild.discordGuildName}
                     </p>
                     <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>{member.panelRole}</p>
                   </div>
-                  <ChevronRight size={14} className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--text-3)' }} />
+                  <ChevronRight size={15} className="flex-shrink-0 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all" style={{ color: 'var(--accent)' }} />
                 </Link>
               )
             })}

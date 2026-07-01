@@ -66,7 +66,7 @@ export default function MobileSidebar({ guild, member, locale }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="lg:hidden p-2 rounded-md hover:bg-white/[0.04] transition-colors"
+        className="lg:hidden p-2 rounded-md hover:bg-[var(--hover)] transition-colors"
         style={{ color: 'var(--text-2)' }}
         aria-label="Menu"
       >
@@ -77,15 +77,19 @@ export default function MobileSidebar({ guild, member, locale }: Props) {
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
           <aside
-            className="absolute left-0 top-0 bottom-0 w-[232px] flex flex-col shadow-2xl"
-            style={{ background: 'var(--surface)', borderRight: '1px solid var(--border)' }}
+            className="absolute left-0 top-0 bottom-0 w-[236px] flex flex-col animate-float-in"
+            style={{
+              background: 'linear-gradient(180deg, color-mix(in srgb, var(--guild-accent) 3%, var(--surface)), var(--surface) 220px)',
+              borderRight: '1px solid var(--border)',
+              boxShadow: 'var(--shadow-pop)',
+            }}
           >
             <div className="px-4 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid var(--border)' }}>
               <div className="flex items-center gap-2.5 min-w-0">
                 {iconUrl ? (
                   <img src={iconUrl} alt={guild.discordGuildName} className="w-7 h-7 rounded-md object-cover flex-shrink-0" style={{ outline: '1px solid var(--border)' }} />
                 ) : (
-                  <div className="w-7 h-7 rounded-md flex items-center justify-center text-white font-bold text-xs flex-shrink-0" style={{ background: 'var(--accent)' }}>
+                  <div className="w-7 h-7 rounded-md flex items-center justify-center text-white font-bold text-xs flex-shrink-0" style={{ background: 'var(--accent-grad)' }}>
                     {guild.discordGuildName[0]}
                   </div>
                 )}
@@ -95,7 +99,7 @@ export default function MobileSidebar({ guild, member, locale }: Props) {
               </div>
               <button
                 onClick={() => setOpen(false)}
-                className="p-1 rounded-md hover:bg-white/[0.04] transition-colors flex-shrink-0"
+                className="p-1 rounded-md hover:bg-[var(--hover)] transition-colors flex-shrink-0"
                 style={{ color: 'var(--text-3)' }}
               >
                 <X size={16} />
@@ -114,17 +118,17 @@ export default function MobileSidebar({ guild, member, locale }: Props) {
                     href={href}
                     className={cn(
                       'group flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 relative',
-                      isActive ? '' : 'hover:bg-white/[0.04]'
+                      isActive ? '' : 'hover:bg-[var(--hover)]'
                     )}
                     style={isActive
-                      ? { background: 'color-mix(in srgb, var(--guild-accent) 12%, transparent)', color: 'var(--guild-accent)' }
+                      ? { background: 'var(--accent-dim)', color: 'var(--guild-accent)' }
                       : { color: 'var(--text-2)' }
                     }
                   >
                     {isActive && (
                       <span
-                        className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r"
-                        style={{ background: 'var(--guild-accent)' }}
+                        className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r"
+                        style={{ background: 'var(--guild-accent)', boxShadow: '0 0 10px var(--guild-accent)' }}
                       />
                     )}
                     <Icon size={15} className="flex-shrink-0" />
@@ -143,17 +147,17 @@ export default function MobileSidebar({ guild, member, locale }: Props) {
                         href={`${base}/settings`}
                         className={cn(
                           'group flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 relative',
-                          isActive ? '' : 'hover:bg-white/[0.04]'
+                          isActive ? '' : 'hover:bg-[var(--hover)]'
                         )}
                         style={isActive
-                          ? { background: 'color-mix(in srgb, var(--guild-accent) 12%, transparent)', color: 'var(--guild-accent)' }
+                          ? { background: 'var(--accent-dim)', color: 'var(--guild-accent)' }
                           : { color: 'var(--text-2)' }
                         }
                       >
                         {isActive && (
                           <span
-                            className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r"
-                            style={{ background: 'var(--guild-accent)' }}
+                            className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r"
+                            style={{ background: 'var(--guild-accent)', boxShadow: '0 0 10px var(--guild-accent)' }}
                           />
                         )}
                         <Settings size={15} className="flex-shrink-0" />
@@ -166,7 +170,7 @@ export default function MobileSidebar({ guild, member, locale }: Props) {
             </nav>
 
             <div className="p-2" style={{ borderTop: '1px solid var(--border)' }}>
-              <Link href="/dashboard" className="flex items-center gap-2.5 px-2 py-2 rounded-md hover:bg-white/[0.04] transition-colors">
+              <Link href="/dashboard" className="flex items-center gap-2.5 px-2 py-2 rounded-md hover:bg-[var(--hover)] transition-colors">
                 <img src={userAvatar} alt={member.discordUsername} className="w-7 h-7 rounded-full flex-shrink-0" style={{ outline: '1px solid var(--border)' }} />
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-medium truncate leading-tight" style={{ color: 'var(--text)' }}>

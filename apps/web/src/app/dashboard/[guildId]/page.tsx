@@ -75,7 +75,7 @@ export default async function GuildDashboardPage({ params }: { params: { guildId
     return {
       label: d.toLocaleDateString(dateLocale, { weekday: 'short' }),
       rate,
-      color: rate >= 80 ? '#22c55e' : rate >= 50 ? '#eab308' : stats.total > 0 ? '#ef4444' : 'rgba(255,255,255,0.07)',
+      color: rate >= 80 ? '#22c55e' : rate >= 50 ? '#eab308' : stats.total > 0 ? '#ef4444' : 'var(--border)',
     }
   })
 
@@ -86,8 +86,8 @@ export default async function GuildDashboardPage({ params }: { params: { guildId
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
-        <h1 className="text-lg font-semibold tracking-tight" style={{ color: 'var(--text)' }}>{tr.dashboard.title}</h1>
-        <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>{formatDate(new Date())}</p>
+        <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--text)' }}>{tr.dashboard.title}</h1>
+        <p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>{formatDate(new Date())}</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -108,9 +108,9 @@ export default async function GuildDashboardPage({ params }: { params: { guildId
       {guild?.config?.accountingEnabled && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Link href={`/dashboard/${guildId}/accounting`} className="block">
-            <div className="rounded-md p-4 hover:bg-white/[0.02] transition-colors" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-              <p className="text-xs mb-1.5" style={{ color: 'var(--text-3)' }}>{tr.dashboard.accountingBalance}</p>
-              <p className="text-2xl font-semibold tabular-nums" style={{ color: balance >= 0 ? 'var(--success)' : 'var(--danger)' }}>
+            <div className="card card-hover p-4 h-full">
+              <p className="text-[11px] font-medium uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-3)' }}>{tr.dashboard.accountingBalance}</p>
+              <p className="text-2xl font-bold tabular-nums tracking-tight" style={{ color: balance >= 0 ? 'var(--success)' : 'var(--danger)' }}>
                 {balance >= 0 ? '+' : ''}{balance.toFixed(2)} €
               </p>
               <p className="text-[11px] mt-1" style={{ color: 'var(--text-3)' }}>
@@ -119,14 +119,14 @@ export default async function GuildDashboardPage({ params }: { params: { guildId
             </div>
           </Link>
           <Link href={`/dashboard/${guildId}/contributions`} className="block">
-            <div className="rounded-md p-4 hover:bg-white/[0.02] transition-colors" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-              <p className="text-xs mb-1.5" style={{ color: 'var(--text-3)' }}>{tr.dashboard.recordedContributions}</p>
-              <p className="text-2xl font-semibold tabular-nums" style={{ color: 'var(--text)' }}>{contributionsCount}</p>
+            <div className="card card-hover p-4 h-full">
+              <p className="text-[11px] font-medium uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-3)' }}>{tr.dashboard.recordedContributions}</p>
+              <p className="text-2xl font-bold tabular-nums tracking-tight" style={{ color: 'var(--text)' }}>{contributionsCount}</p>
             </div>
           </Link>
           <Link href={`/dashboard/${guildId}/stats`} className="block">
-            <div className="rounded-md p-4 hover:bg-white/[0.02] transition-colors" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-              <p className="text-xs mb-2" style={{ color: 'var(--text-3)' }}>{tr.dashboard.presences7days}</p>
+            <div className="card card-hover p-4 h-full">
+              <p className="text-[11px] font-medium uppercase tracking-wider mb-2" style={{ color: 'var(--text-3)' }}>{tr.dashboard.presences7days}</p>
               <div className="flex items-end gap-1 h-10">
                 {sparkBars.map((bar, i) => (
                   <div key={i} className="flex-1 flex flex-col items-center justify-end">
@@ -147,9 +147,9 @@ export default async function GuildDashboardPage({ params }: { params: { guildId
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="rounded-md" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+        <div className="card">
           <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
-            <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>{tr.dashboard.recentActivity}</p>
+            <p className="text-sm font-semibold tracking-tight" style={{ color: 'var(--text)' }}>{tr.dashboard.recentActivity}</p>
           </div>
           <div className="px-5 py-4">
             {recentAuditLogs.length === 0 ? (
@@ -172,9 +172,9 @@ export default async function GuildDashboardPage({ params }: { params: { guildId
           </div>
         </div>
 
-        <div className="rounded-md" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+        <div className="card">
           <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
-            <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>{tr.dashboard.activeModules}</p>
+            <p className="text-sm font-semibold tracking-tight" style={{ color: 'var(--text)' }}>{tr.dashboard.activeModules}</p>
           </div>
           <div className="px-5 py-4 space-y-3">
             <StatusRow label={tr.nav.presences} enabled={guild?.config?.presenceEnabled ?? false} href={`/dashboard/${guildId}/presences`} enabledLabel={tr.common.enabled} disabledLabel={tr.common.disabled} />
@@ -211,17 +211,19 @@ function StatCard({
   accent?: string
   sub?: string
 }) {
+  const tint = accent ?? 'var(--accent)'
   return (
-    <div
-      className="rounded-md p-4 flex flex-col gap-3 hover:bg-white/[0.02] transition-colors h-full"
-      style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
-    >
-      <p className="text-xs" style={{ color: 'var(--text-3)' }}>{label}</p>
+    <div className="card card-hover p-4 flex flex-col gap-3 h-full relative overflow-hidden">
+      <span
+        className="absolute inset-x-0 top-0 h-[2px] opacity-70"
+        style={{ background: `linear-gradient(90deg, transparent, ${tint}, transparent)` }}
+      />
+      <p className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-3)' }}>{label}</p>
       <div>
-        <p className="text-2xl font-semibold tabular-nums tracking-tight" style={{ color: accent ?? 'var(--text)' }}>
+        <p className="text-3xl font-bold tabular-nums tracking-tight" style={{ color: accent ?? 'var(--text)' }}>
           {value}
         </p>
-        {sub && <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-3)' }}>{sub}</p>}
+        {sub && <p className="text-[11px] mt-1" style={{ color: 'var(--text-3)' }}>{sub}</p>}
       </div>
     </div>
   )
@@ -231,7 +233,14 @@ function StatusRow({ label, enabled, href, enabledLabel, disabledLabel }: { labe
   return (
     <Link href={href} className="flex items-center justify-between hover:opacity-80 transition-opacity">
       <span className="text-sm" style={{ color: 'var(--text-2)' }}>{label}</span>
-      <span className="text-xs font-medium" style={{ color: enabled ? 'var(--success)' : 'var(--text-3)' }}>
+      <span
+        className="badge"
+        style={enabled
+          ? { background: 'color-mix(in srgb, var(--success) 12%, transparent)', color: 'var(--success)' }
+          : { background: 'var(--hover)', color: 'var(--text-3)' }
+        }
+      >
+        <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'currentColor' }} />
         {enabled ? enabledLabel : disabledLabel}
       </span>
     </Link>

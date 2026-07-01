@@ -175,14 +175,14 @@ function RoleSelect({ name, roles }: { name: string; roles: DiscordRole[] }) {
       <input
         name={name}
         placeholder="ID rôle Discord (optionnel)"
-        className="flex-1 bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-xs text-[var(--text)] font-mono placeholder-[#383865] focus:outline-none focus:border-[var(--accent)]"
+        className="flex-1 bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-xs text-[var(--text)] font-mono placeholder-[var(--text-3)] focus:outline-none focus:border-[var(--accent)]"
       />
     )
   }
   return (
     <select
       name={name}
-      className="flex-1 bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-xs text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+      className="flex-1 bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-xs text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
     >
       <option value="">— Aucun rôle —</option>
       {roles.map((r) => (
@@ -228,7 +228,7 @@ export default async function GradesSettingsPage({ params }: { params: { guildId
         <form action={syncAction}>
           <button
             type="submit"
-            className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-white/[0.06]"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-[var(--hover)]"
             style={{ color: 'var(--accent)', border: '1px solid color-mix(in srgb, var(--accent) 25%, transparent)' }}
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -240,7 +240,7 @@ export default async function GradesSettingsPage({ params }: { params: { guildId
       </div>
 
       {/* Nouvelle catégorie */}
-      <form action={createCategoryAction} className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4">
+      <form action={createCategoryAction} className="card p-4">
         <h2 className="font-semibold text-[var(--text)] mb-3">Nouvelle catégorie</h2>
         <div className="flex gap-3">
           <input
@@ -248,7 +248,7 @@ export default async function GradesSettingsPage({ params }: { params: { guildId
             placeholder="Nom de la catégorie"
             required
             maxLength={50}
-            className="flex-1 bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] placeholder-[#383865] focus:outline-none focus:border-[var(--accent)]"
+            className="flex-1 input px-3 py-2 text-sm"
           />
           <div className="flex items-center gap-2">
             <label className="text-xs text-[var(--text-2)]">Couleur</label>
@@ -256,12 +256,12 @@ export default async function GradesSettingsPage({ params }: { params: { guildId
               type="color"
               name="color"
               defaultValue="#5865F2"
-              className="h-9 w-10 bg-[var(--bg)] border border-white/[0.07] rounded cursor-pointer"
+              className="h-9 w-10 bg-[var(--bg)] border border-[var(--border)] rounded cursor-pointer"
             />
           </div>
           <button
             type="submit"
-            className="px-4 py-2 bg-[var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-80 hover:bg-[var(--accent)] transition-colors whitespace-nowrap"
+            className="px-4 py-2 btn-primary text-sm whitespace-nowrap"
           >
             + Créer
           </button>
@@ -274,20 +274,20 @@ export default async function GradesSettingsPage({ params }: { params: { guildId
         const createGradeInCat = createGrade.bind(null, guildId, cat.id)
 
         return (
-          <div key={cat.id} className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
-            <div className="px-4 py-3 border-b border-white/[0.07] flex items-center gap-3">
+          <div key={cat.id} className="card overflow-hidden">
+            <div className="px-4 py-3 border-b border-[var(--border)] flex items-center gap-3">
               <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: cat.color }} />
               <h2 className="font-semibold text-[var(--text)] flex-1">{cat.name}</h2>
               <span className="text-xs text-[var(--text-3)]">{cat.grades.length} grade(s)</span>
               <form action={deleteCategoryAction}>
-                <button type="submit" className="text-xs text-[#ef4444] hover:text-[#ff6b81] px-2 py-1 transition-colors">
+                <button type="submit" className="text-xs text-[var(--danger)] hover:text-[#ff6b81] px-2 py-1 transition-colors">
                   Supprimer catégorie
                 </button>
               </form>
             </div>
 
             {cat.grades.length > 0 && (
-              <ul className="divide-y divide-[#1a1a40]">
+              <ul className="divide-y divide-[var(--border)]">
                 {cat.grades.map((grade) => {
                   const deleteGradeAction = deleteGrade.bind(null, guildId, grade.id)
                   return (
@@ -300,7 +300,7 @@ export default async function GradesSettingsPage({ params }: { params: { guildId
                         </span>
                       )}
                       <form action={deleteGradeAction}>
-                        <button type="submit" className="text-xs text-[#ef4444] hover:text-[#ff6b81] px-2 py-1 transition-colors">
+                        <button type="submit" className="text-xs text-[var(--danger)] hover:text-[#ff6b81] px-2 py-1 transition-colors">
                           ✕
                         </button>
                       </form>
@@ -311,21 +311,21 @@ export default async function GradesSettingsPage({ params }: { params: { guildId
             )}
 
             {/* Ajouter un grade dans cette catégorie */}
-            <form action={createGradeInCat} className="px-4 py-3 border-t border-white/[0.07] bg-[var(--bg)]">
+            <form action={createGradeInCat} className="px-4 py-3 border-t border-[var(--border)] bg-[var(--bg)]">
               <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                 <input
                   name="name"
                   placeholder="Nom du grade"
                   required
                   maxLength={50}
-                  className="flex-1 bg-[var(--surface)] border border-white/[0.07] rounded-lg px-3 py-1.5 text-xs text-[var(--text)] placeholder-[#383865] focus:outline-none focus:border-[var(--accent)]"
+                  className="flex-1 bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-xs text-[var(--text)] placeholder-[var(--text-3)] focus:outline-none focus:border-[var(--accent)]"
                 />
                 <RoleSelect name="discordRoleId" roles={discordRoles} />
                 <input
                   type="color"
                   name="color"
                   defaultValue="#6868a8"
-                  className="h-8 w-9 bg-[var(--surface)] border border-white/[0.07] rounded cursor-pointer"
+                  className="h-8 w-9 bg-[var(--surface)] border border-[var(--border)] rounded cursor-pointer"
                 />
                 <button
                   type="submit"
@@ -341,11 +341,11 @@ export default async function GradesSettingsPage({ params }: { params: { guildId
 
       {/* Sans catégorie */}
       {uncategorized.length > 0 && (
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
-          <div className="px-4 py-3 border-b border-white/[0.07]">
+        <div className="card overflow-hidden">
+          <div className="px-4 py-3 border-b border-[var(--border)]">
             <h2 className="font-semibold text-[var(--text-2)]">Sans catégorie</h2>
           </div>
-          <ul className="divide-y divide-[#1a1a40]">
+          <ul className="divide-y divide-[var(--border)]">
             {uncategorized.map((grade) => {
               const deleteGradeAction = deleteGrade.bind(null, guildId, grade.id)
               return (
@@ -358,7 +358,7 @@ export default async function GradesSettingsPage({ params }: { params: { guildId
                     </span>
                   )}
                   <form action={deleteGradeAction}>
-                    <button type="submit" className="text-xs text-[#ef4444] hover:text-[#ff6b81] px-2 py-1 transition-colors">✕</button>
+                    <button type="submit" className="text-xs text-[var(--danger)] hover:text-[#ff6b81] px-2 py-1 transition-colors">✕</button>
                   </form>
                 </li>
               )
@@ -376,7 +376,7 @@ export default async function GradesSettingsPage({ params }: { params: { guildId
       )}
 
       {/* Grades sans catégorie — formulaire d'ajout */}
-      <form action={createUncategorizedGrade} className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4">
+      <form action={createUncategorizedGrade} className="card p-4">
         <h2 className="font-semibold text-[var(--text)] mb-3">Ajouter un grade sans catégorie</h2>
         <div className="flex gap-3 flex-wrap sm:flex-nowrap">
           <input
@@ -384,18 +384,18 @@ export default async function GradesSettingsPage({ params }: { params: { guildId
             placeholder="Nom du grade"
             required
             maxLength={50}
-            className="flex-1 bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] placeholder-[#383865] focus:outline-none focus:border-[var(--accent)]"
+            className="flex-1 input px-3 py-2 text-sm"
           />
           <RoleSelect name="discordRoleId" roles={discordRoles} />
           <input
             type="color"
             name="color"
             defaultValue="#6868a8"
-            className="h-9 w-10 bg-[var(--bg)] border border-white/[0.07] rounded cursor-pointer"
+            className="h-9 w-10 bg-[var(--bg)] border border-[var(--border)] rounded cursor-pointer"
           />
           <button
             type="submit"
-            className="px-4 py-2 bg-[var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-80 hover:bg-[var(--accent)] transition-colors whitespace-nowrap"
+            className="px-4 py-2 btn-primary text-sm whitespace-nowrap"
           >
             + Ajouter
           </button>

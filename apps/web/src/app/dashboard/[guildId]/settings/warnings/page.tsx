@@ -111,21 +111,21 @@ export default async function WarningsSettingsPage({ params }: { params: { guild
       </div>
 
       {!warningEnabled && (
-        <div className="bg-[#eab308]/10 border border-[#eab308]/30 rounded-md p-4 text-sm text-[#eab308]">
+        <div className="bg-[#eab308]/10 border border-[#eab308]/30 rounded-md p-4 text-sm text-[var(--warning)]">
           ⚠️ Le module Avertissements est désactivé.{' '}
           <a href={`/dashboard/${guildId}/settings/modules`} className="underline">Activer dans Modules →</a>
         </div>
       )}
 
       {/* Rôle immédiat + vérification quotidienne */}
-      <form action={saveConfig} className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5 space-y-5">
+      <form action={saveConfig} className="card p-5 space-y-5">
         <h3 className="font-semibold text-[var(--text)]">Configuration générale</h3>
 
         {/* Vérification quotidienne */}
         <div>
           <label className="block text-sm font-medium text-[var(--text)] mb-0.5">Vérification quotidienne des seuils</label>
           <p className="text-xs text-[var(--text-3)] mb-2">Le bot vérifie chaque nuit si des membres ont atteint un seuil et applique les rôles</p>
-          <div className="flex items-center justify-between gap-4 p-3 rounded-lg bg-[var(--bg)] border border-white/[0.07]">
+          <div className="flex items-center justify-between gap-4 p-3 rounded-lg bg-[var(--bg)] border border-[var(--border)]">
             <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
               <input
                 type="checkbox"
@@ -133,22 +133,22 @@ export default async function WarningsSettingsPage({ params }: { params: { guild
                 defaultChecked={guild.config?.warningCheckEnabled ?? true}
                 className="sr-only peer"
               />
-              <div className="relative w-9 h-5 rounded-full bg-[#1a1a40] peer-checked:bg-[var(--accent)] transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-[#383865] after:transition-all peer-checked:after:translate-x-4 peer-checked:after:bg-white" />
+              <div className="relative w-9 h-5 rounded-full bg-[var(--surface-2)] peer-checked:bg-[var(--accent)] transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:rounded-full after:bg-[var(--text-3)] after:transition-all peer-checked:after:translate-x-4 peer-checked:after:bg-white" />
             </label>
             <span className="text-sm text-[var(--text)] flex-1">Activée</span>
             <input
               type="time"
               name="warningCheckTime"
               defaultValue={guild.config?.warningCheckTime ?? '22:00'}
-              className="bg-[var(--surface)] border border-white/[0.07] rounded-lg px-3 py-1.5 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+              className="bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
             />
           </div>
         </div>
 
-        <div className="pt-1 border-t border-white/[0.07]">
+        <div className="pt-1 border-t border-[var(--border)]">
           <button
             type="submit"
-            className="px-4 py-2 bg-[var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-80 hover:bg-[var(--accent)] transition-colors"
+            className="px-4 py-2 btn-primary text-sm"
           >
             Sauvegarder
           </button>
@@ -156,8 +156,8 @@ export default async function WarningsSettingsPage({ params }: { params: { guild
       </form>
 
       {/* Seuils d'escalade */}
-      <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
-        <div className="px-5 py-4 border-b border-white/[0.07]">
+      <div className="card overflow-hidden">
+        <div className="px-5 py-4 border-b border-[var(--border)]">
           <h3 className="font-semibold text-[var(--text)]">Seuils d&apos;escalade</h3>
           <p className="text-xs text-[var(--text-3)] mt-0.5">Rôle attribué automatiquement quand un membre cumule N avertissements actifs</p>
         </div>
@@ -167,7 +167,7 @@ export default async function WarningsSettingsPage({ params }: { params: { guild
             Aucun seuil configuré. Ajoutez-en un ci-dessous.
           </div>
         ) : (
-          <ul className="divide-y divide-[#1a1a40]">
+          <ul className="divide-y divide-[var(--border)]">
             {thresholds.map((t) => {
               const role = roleMap.get(t.discordRoleId)
               const roleColor = role?.color ? `#${role.color.toString(16).padStart(6, '0')}` : 'var(--text-2)'
@@ -186,11 +186,11 @@ export default async function WarningsSettingsPage({ params }: { params: { guild
                       {role?.name ?? t.discordRoleId}
                     </span>
                     {!role && (
-                      <span className="text-[10px] text-[#ef4444] bg-[#ef4444]/10 px-1.5 py-0.5 rounded">introuvable</span>
+                      <span className="text-[10px] text-[var(--danger)] bg-[#ef4444]/10 px-1.5 py-0.5 rounded">introuvable</span>
                     )}
                   </div>
                   <form action={deleteAction} className="flex-shrink-0">
-                    <button type="submit" className="text-xs text-[#ef4444] hover:text-[#ff6b81] px-2 py-1 transition-colors">
+                    <button type="submit" className="text-xs text-[var(--danger)] hover:text-[#ff6b81] px-2 py-1 transition-colors">
                       Supprimer
                     </button>
                   </form>
@@ -202,7 +202,7 @@ export default async function WarningsSettingsPage({ params }: { params: { guild
       </div>
 
       {/* Ajouter un seuil */}
-      <form action={addAction} className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5 space-y-4">
+      <form action={addAction} className="card p-5 space-y-4">
         <h3 className="font-semibold text-[var(--text)]">Ajouter / modifier un seuil</h3>
         <p className="text-xs text-[var(--text-3)]">Si un seuil existe déjà pour ce nombre, le rôle sera mis à jour.</p>
         <div className="flex gap-3 flex-wrap sm:flex-nowrap items-end">
@@ -215,7 +215,7 @@ export default async function WarningsSettingsPage({ params }: { params: { guild
               max={99}
               required
               placeholder="1"
-              className="w-24 bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] text-center focus:outline-none focus:border-[var(--accent)]"
+              className="w-24 bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] text-center focus:outline-none focus:border-[var(--accent)]"
             />
           </div>
           <div className="flex-1 min-w-40">
@@ -224,7 +224,7 @@ export default async function WarningsSettingsPage({ params }: { params: { guild
               <select
                 name="discordRoleId"
                 required
-                className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+                className="w-full input px-3 py-2 text-sm"
               >
                 <option value="">— Choisir un rôle —</option>
                 {discordRoles.map((r) => {
@@ -241,13 +241,13 @@ export default async function WarningsSettingsPage({ params }: { params: { guild
                 name="discordRoleId"
                 required
                 placeholder="ID du rôle Discord"
-                className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] font-mono placeholder-[#383865] focus:outline-none focus:border-[var(--accent)]"
+                className="w-full input px-3 py-2 text-sm font-mono"
               />
             )}
           </div>
           <button
             type="submit"
-            className="px-4 py-2 bg-[var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-80 hover:bg-[var(--accent)] transition-colors whitespace-nowrap"
+            className="px-4 py-2 btn-primary text-sm whitespace-nowrap"
           >
             + Ajouter
           </button>
@@ -258,12 +258,12 @@ export default async function WarningsSettingsPage({ params }: { params: { guild
       {isAdmin && (
         <div className="bg-[var(--surface)] rounded-md border border-[#ef4444]/20 p-5 space-y-3">
           <div>
-            <h3 className="font-semibold text-[#ef4444]">Zone danger</h3>
+            <h3 className="font-semibold text-[var(--danger)]">Zone danger</h3>
             <p className="text-xs text-[var(--text-3)] mt-0.5">
               Actions irréversibles réservées aux administrateurs
             </p>
           </div>
-          <div className="border-t border-white/[0.07] pt-4 space-y-2">
+          <div className="border-t border-[var(--border)] pt-4 space-y-2">
             <p className="text-sm text-[var(--text)]">Réinitialisation des avertissements</p>
             <p className="text-xs text-[var(--text-3)]">
               Révoque tous les avertissements actifs et retire les rôles Discord associés de chaque membre.

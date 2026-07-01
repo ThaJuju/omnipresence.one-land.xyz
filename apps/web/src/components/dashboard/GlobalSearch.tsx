@@ -48,11 +48,11 @@ export default function GlobalSearch({ guildId, locale }: { guildId: string; loc
     <>
       <button
         onClick={() => { setOpen(true); setTimeout(() => inputRef.current?.focus(), 50) }}
-        className="flex items-center gap-2 px-3 py-1.5 bg-[#131335] border border-white/[0.07] rounded-lg text-xs text-[var(--text-3)] hover:text-[var(--text-2)] hover:border-white/[0.12] transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg text-xs text-[var(--text-3)] hover:text-[var(--text-2)] hover:border-[var(--border-mid)] transition-colors"
       >
         <span>🔍</span>
         <span className="hidden sm:inline">{tr.header.searchPlaceholder}</span>
-        <kbd className="hidden sm:inline text-[10px] px-1.5 py-0.5 bg-[#1a1a40] rounded font-mono">Ctrl K</kbd>
+        <kbd className="hidden sm:inline text-[10px] px-1.5 py-0.5 bg-[var(--surface-2)] rounded font-mono">Ctrl K</kbd>
       </button>
 
       {open && (
@@ -62,20 +62,20 @@ export default function GlobalSearch({ guildId, locale }: { guildId: string; loc
           onClick={() => { setOpen(false); setQuery('') }}
         >
           <div
-            className="w-full max-w-lg bg-[var(--surface)] border border-white/[0.07] rounded-md shadow-2xl overflow-hidden"
+            className="w-full max-w-lg bg-[var(--surface)] border border-[var(--border)] rounded-md shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.07]">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border)]">
               <span className="text-[var(--text-3)] flex-shrink-0">🔍</span>
               <input
                 ref={inputRef}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={tr.members.searchPlaceholder}
-                className="flex-1 bg-transparent text-[var(--text)] placeholder-[#383865] text-sm outline-none"
+                className="flex-1 bg-transparent text-[var(--text)] placeholder-[var(--text-3)] text-sm outline-none"
               />
               {loading && <span className="text-[10px] text-[var(--text-3)]">...</span>}
-              <kbd className="text-[10px] text-[var(--text-3)] px-1.5 py-0.5 bg-[#1a1a40] rounded font-mono flex-shrink-0">Esc</kbd>
+              <kbd className="text-[10px] text-[var(--text-3)] px-1.5 py-0.5 bg-[var(--surface-2)] rounded font-mono flex-shrink-0">Esc</kbd>
             </div>
 
             {results.length > 0 && (
@@ -85,12 +85,12 @@ export default function GlobalSearch({ guildId, locale }: { guildId: string; loc
                     <Link
                       href={`/dashboard/${guildId}/members/${r.id}`}
                       onClick={() => { setOpen(false); setQuery('') }}
-                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.03] transition-colors"
+                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--hover)] transition-colors"
                     >
                       {r.avatar ? (
                         <img src={r.avatar} alt="" className="w-7 h-7 rounded-full flex-shrink-0" />
                       ) : (
-                        <div className="w-7 h-7 rounded-full bg-[#1a1a40] flex-shrink-0" />
+                        <div className="w-7 h-7 rounded-full bg-[var(--surface-2)] flex-shrink-0" />
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-[var(--text)] truncate">{r.nickname ?? r.username}</p>

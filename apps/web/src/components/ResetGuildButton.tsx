@@ -26,7 +26,7 @@ export default function ResetGuildButton({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#ef4444] border border-[#ef444430] rounded-lg hover:bg-[#ef444410] transition-colors"
+        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[var(--danger)] border border-[#ef444430] rounded-lg hover:bg-[#ef444410] transition-colors"
       >
         <AlertTriangle size={14} />
         Réinitialiser la guild
@@ -38,7 +38,7 @@ export default function ResetGuildButton({
           <div className="relative bg-[var(--surface)] border border-[#ef444430] rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-[#ef444415] flex items-center justify-center flex-shrink-0">
-                <AlertTriangle size={20} className="text-[#ef4444]" />
+                <AlertTriangle size={20} className="text-[var(--danger)]" />
               </div>
               <div>
                 <h2 className="font-bold text-[var(--text)]">Réinitialiser la guild</h2>
@@ -59,21 +59,21 @@ export default function ResetGuildButton({
             </p>
 
             <p className="text-xs font-medium text-[var(--text)] mb-1.5 mt-4">
-              Tapez <span className="font-mono text-[#ef4444]">RESET</span> pour confirmer
+              Tapez <span className="font-mono text-[var(--danger)]">RESET</span> pour confirmer
             </p>
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="RESET"
-              className="w-full bg-[var(--bg)] border border-[#ef444430] rounded-lg px-3 py-2 text-sm text-[var(--text)] placeholder-[#383865] focus:outline-none focus:border-[#ef4444] transition-colors font-mono"
+              className="w-full bg-[var(--bg)] border border-[#ef444430] rounded-lg px-3 py-2 text-sm text-[var(--text)] placeholder-[var(--text-3)] focus:outline-none focus:border-[#ef4444] transition-colors font-mono"
               autoComplete="off"
             />
 
             <div className="flex gap-3 mt-4">
               <button
                 onClick={() => { setOpen(false); setInput('') }}
-                className="flex-1 px-4 py-2 text-sm font-medium text-[var(--text-2)] border border-white/[0.07] rounded-lg hover:bg-white/5 transition-colors"
+                className="flex-1 px-4 py-2 text-sm font-medium text-[var(--text-2)] border border-[var(--border)] rounded-lg hover:bg-white/5 transition-colors"
               >
                 Annuler
               </button>

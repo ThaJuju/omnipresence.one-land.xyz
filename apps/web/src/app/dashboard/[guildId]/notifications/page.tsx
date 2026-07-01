@@ -5,6 +5,7 @@ import { prisma } from '@repo/db'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { getGuildMember } from '@/lib/api'
+import { AlertTriangle, Bell, CalendarX, CheckCircle2, Wallet } from 'lucide-react'
 
 async function markAllRead(guildId: string, userId: string) {
   'use server'
@@ -24,12 +25,12 @@ async function markRead(guildId: string, notifId: string) {
   revalidatePath(`/dashboard/${guildId}/notifications`)
 }
 
-const TYPE_LABELS: Record<string, { label: string; icon: string; color: string }> = {
-  warning: { label: 'Avertissement', icon: '⚠️', color: '#eab308' },
-  absence: { label: 'Absence', icon: '📅', color: '#ef4444' },
-  presence: { label: 'Présence', icon: '✅', color: '#22c55e' },
-  contribution: { label: 'Cotisation', icon: '💰', color: 'var(--accent)' },
-  system: { label: 'Système', icon: '🔔', color: 'var(--text-2)' },
+const TYPE_LABELS: Record<string, { label: string; icon: typeof Bell; color: string }> = {
+  warning: { label: 'Avertissement', icon: AlertTriangle, color: 'var(--warning)' },
+  absence: { label: 'Absence', icon: CalendarX, color: 'var(--danger)' },
+  presence: { label: 'Présence', icon: CheckCircle2, color: 'var(--success)' },
+  contribution: { label: 'Cotisation', icon: Wallet, color: 'var(--accent)' },
+  system: { label: 'Système', icon: Bell, color: 'var(--text-2)' },
 }
 
 function formatRelative(date: Date) {
@@ -65,7 +66,7 @@ export default async function NotificationsPage({ params }: { params: { guildId:
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text)]">Notifications</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">Notifications</h1>
           <p className="text-[var(--text-2)] text-sm mt-1">
             {unreadCount > 0 ? `${unreadCount} non lue${unreadCount > 1 ? 's' : ''}` : 'Tout est à jour'}
           </p>
@@ -74,7 +75,7 @@ export default async function NotificationsPage({ params }: { params: { guildId:
           <form action={markAllReadAction}>
             <button
               type="submit"
-              className="px-3 py-1.5 text-xs font-medium text-[var(--text-2)] border border-white/[0.07] rounded-lg hover:bg-[#1a1a40] hover:text-[var(--text)] transition-colors"
+              className="px-3 py-1.5 text-xs font-medium text-[var(--text-2)] border border-[var(--border)] rounded-lg hover:bg-[var(--hover)] hover:text-[var(--text)] transition-colors"
             >
               Tout marquer comme lu
             </button>
@@ -83,13 +84,18 @@ export default async function NotificationsPage({ params }: { params: { guildId:
       </div>
 
       {notifications.length === 0 ? (
-        <div className="text-center py-20 text-[var(--text-2)]">
-          <div className="text-5xl mb-4">🔔</div>
+        <div className="card text-center py-16 px-6 text-[var(--text-2)]">
+          <div
+            className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4"
+            style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}
+          >
+            <Bell size={24} strokeWidth={1.8} />
+          </div>
           <p className="font-medium text-[var(--text)] mb-1">Aucune notification</p>
           <p className="text-sm">Vous serez notifié ici des événements importants.</p>
         </div>
       ) : (
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] divide-y divide-[#1a1a40] overflow-hidden">
+        <div className="card divide-y divide-[var(--border)] overflow-hidden">
           {notifications.map((notif) => {
             const meta = TYPE_LABELS[notif.type] ?? TYPE_LABELS['system']!
             const markReadAction = markRead.bind(null, guildId, notif.id)
@@ -97,15 +103,20 @@ export default async function NotificationsPage({ params }: { params: { guildId:
               <div
                 key={notif.id}
                 className={`flex items-start gap-4 px-5 py-4 transition-colors ${
-                  notif.isRead ? 'opacity-60' : 'bg-[#131338]'
+                  notif.isRead ? 'opacity-60' : 'bg-[var(--surface-2)]'
                 }`}
               >
-                <div className="flex-shrink-0 mt-0.5 text-xl">{meta.icon}</div>
+                <div
+                  className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center"
+                  style={{ color: meta.color, background: `color-mix(in srgb, ${meta.color} 12%, transparent)` }}
+                >
+                  <meta.icon size={16} strokeWidth={2} />
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span
                       className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded"
-                      style={{ color: meta.color, backgroundColor: `${meta.color}22` }}
+                      style={{ color: meta.color, backgroundColor: `color-mix(in srgb, ${meta.color} 13%, transparent)` }}
                     >
                       {meta.label}
                     </span>

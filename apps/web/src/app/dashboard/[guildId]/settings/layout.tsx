@@ -54,7 +54,7 @@ export default async function SettingsLayout({
         >
           ← {guild.discordGuildName}
         </Link>
-        <h1 className="text-2xl font-bold text-[var(--text)]">{tr.settings.title}</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">{tr.settings.title}</h1>
       </div>
 
       <SettingsNav guildId={guildId} modules={modules} locale={locale} />

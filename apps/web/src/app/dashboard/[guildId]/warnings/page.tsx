@@ -96,24 +96,24 @@ export default async function WarningsPage({ params }: { params: { guildId: stri
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--text)]">{tr.warnings.title}</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">{tr.warnings.title}</h1>
         <p className="text-[var(--text-2)] text-sm mt-1">
           {active.length} {tr.warnings.active.toLowerCase()} · {revoked.length} {tr.warnings.revoked.toLowerCase()}
         </p>
       </div>
 
-      <form action={createAction} className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5">
+      <form action={createAction} className="card p-5">
         <h2 className="font-semibold text-[var(--text)] mb-4">{tr.warnings.createManual}</h2>
         <div className="flex gap-3 flex-wrap sm:flex-nowrap">
           <select name="memberId" required
-            className="w-full sm:w-56 flex-shrink-0 bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[#eab308]">
+            className="w-full sm:w-56 flex-shrink-0 bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[#eab308]">
             <option value="">{tr.warnings.chooseMember}</option>
             {members.map((m) => (
               <option key={m.id} value={m.id}>{m.discordNickname ?? m.discordUsername}</option>
             ))}
           </select>
           <input name="reason" required placeholder={tr.warnings.reasonPlaceholder}
-            className="flex-1 min-w-0 bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] placeholder-[#383865] focus:outline-none focus:border-[#eab308]" />
+            className="flex-1 min-w-0 bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] placeholder-[var(--text-3)] focus:outline-none focus:border-[#eab308]" />
           <button type="submit"
             className="px-4 py-2 bg-[#eab308] text-black text-sm font-semibold rounded-lg hover:bg-[#f0c800] transition-colors whitespace-nowrap flex-shrink-0">
             {tr.warnings.warnBtn}
@@ -123,10 +123,10 @@ export default async function WarningsPage({ params }: { params: { guildId: stri
 
       {active.length > 0 && (
         <section>
-          <h2 className="text-xs font-semibold text-[#eab308] uppercase tracking-wider mb-3 flex items-center gap-2">
+          <h2 className="text-xs font-semibold text-[var(--warning)] uppercase tracking-wider mb-3 flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#eab308]" /> {tr.warnings.active} ({active.length})
           </h2>
-          <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] divide-y divide-[#1a1a40] overflow-hidden">
+          <div className="card divide-y divide-[var(--border)] overflow-hidden">
             {active.map((w) => {
               const revokeAction = revokeWarning.bind(null, guildId, w.id)
               const avatar = avatarUrl(w.member.discordUserId, w.member.discordAvatar)
@@ -136,7 +136,7 @@ export default async function WarningsPage({ params }: { params: { guildId: stri
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-medium text-[var(--text)]">{w.member.discordNickname ?? w.member.discordUsername}</span>
-                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${w.isAuto ? 'text-[#eab308] bg-[#eab30815]' : 'text-[var(--text-2)] bg-[#88888815]'}`}>
+                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${w.isAuto ? 'text-[var(--warning)] bg-[#eab30815]' : 'text-[var(--text-2)] bg-[#88888815]'}`}>
                         {w.isAuto ? tr.warnings.auto : tr.warnings.manual}
                       </span>
                     </div>
@@ -144,7 +144,7 @@ export default async function WarningsPage({ params }: { params: { guildId: stri
                     <p className="text-[11px] text-[var(--text-3)] mt-0.5">{formatDate(w.createdAt)}</p>
                   </div>
                   <form action={revokeAction} className="flex-shrink-0">
-                    <button type="submit" className="text-xs text-[#ef4444] hover:text-[#ff6b81] px-2 py-1 border border-[#ef444430] hover:border-[#ef444460] rounded-lg transition-colors">
+                    <button type="submit" className="text-xs text-[var(--danger)] hover:text-[#ff6b81] px-2 py-1 border border-[#ef444430] hover:border-[#ef444460] rounded-lg transition-colors">
                       {tr.warnings.revokeBtn}
                     </button>
                   </form>
@@ -158,9 +158,9 @@ export default async function WarningsPage({ params }: { params: { guildId: stri
       {revoked.length > 0 && (
         <section>
           <h2 className="text-xs font-semibold text-[var(--text-3)] uppercase tracking-wider mb-3 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#383865]" /> {tr.warnings.revoked} ({revoked.length})
+            <span className="w-2 h-2 rounded-full bg-[var(--text-3)]" /> {tr.warnings.revoked} ({revoked.length})
           </h2>
-          <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] divide-y divide-[#1a1a40] overflow-hidden opacity-60">
+          <div className="card divide-y divide-[var(--border)] overflow-hidden opacity-60">
             {revoked.map((w) => {
               const avatar = avatarUrl(w.member.discordUserId, w.member.discordAvatar)
               return (

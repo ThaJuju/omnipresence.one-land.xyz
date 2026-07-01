@@ -26,7 +26,7 @@ export default function PublishAbsenceButton({
         type="button"
         onClick={handleClick}
         disabled={disabled || isPending}
-        className="px-4 py-2 bg-[var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-80 hover:bg-[var(--accent)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        className="px-4 py-2 btn-primary text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
       >
         {isPending ? (
           <>
@@ -41,7 +41,7 @@ export default function PublishAbsenceButton({
         )}
       </button>
       {result && (
-        <span className={`text-xs font-medium ${result.success ? 'text-[#22c55e]' : 'text-[#ef4444]'}`}>
+        <span className={`text-xs font-medium ${result.success ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
           {result.success ? '✓ Embed publié !' : `✗ ${result.error}`}
         </span>
       )}

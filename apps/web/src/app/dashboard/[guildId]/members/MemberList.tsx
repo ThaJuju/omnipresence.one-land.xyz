@@ -9,10 +9,10 @@ import { getT, type Locale } from '@/i18n/translations'
 type MemberWithGrade = Member & { grade: Grade | null }
 
 const PANEL_ROLE_COLORS: Record<string, string> = {
-  ADMIN: 'text-[#ef4444]',
-  DIRECTION: 'text-[#eab308]',
+  ADMIN: 'text-[var(--danger)]',
+  DIRECTION: 'text-[var(--warning)]',
   RESPONSABLE: 'text-[var(--accent)]',
-  MODERATEUR: 'text-[#22c55e]',
+  MODERATEUR: 'text-[var(--success)]',
   MEMBRE: 'text-[var(--text-2)]',
 }
 
@@ -41,11 +41,11 @@ export default function MemberList({ members, guildId, locale }: { members: Memb
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={tr.members.searchPlaceholder}
-            className="w-full bg-[var(--surface)] border border-white/[0.07] rounded-lg pl-9 pr-3 py-2 text-sm text-[var(--text)] placeholder-[#383865] focus:outline-none focus:border-[var(--accent)]"
+            className="w-full input pl-9 pr-3 py-2 text-sm"
           />
         </div>
         <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}
-          className="bg-[var(--surface)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]">
+          className="bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]">
           <option value="all">{tr.members.allRoles}</option>
           <option value="ADMIN">Admin</option>
           <option value="DIRECTION">Direction</option>
@@ -54,7 +54,7 @@ export default function MemberList({ members, guildId, locale }: { members: Memb
           <option value="MEMBRE">Membre</option>
         </select>
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-          className="bg-[var(--surface)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]">
+          className="bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]">
           <option value="active">{tr.members.activeOnly}</option>
           <option value="inactive">{tr.members.inactiveOnly}</option>
           <option value="all">{tr.members.allStatuses}</option>
@@ -69,10 +69,10 @@ export default function MemberList({ members, guildId, locale }: { members: Memb
           <p className="text-sm">{tr.members.noResults}</p>
         </div>
       ) : (
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
+        <div className="card overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-white/[0.07]">
+              <tr className="border-b border-[var(--border)]">
                 <th className="text-left px-4 py-3 text-xs text-[var(--text-3)] uppercase tracking-wider">{tr.common.member}</th>
                 <th className="text-left px-4 py-3 text-xs text-[var(--text-3)] uppercase tracking-wider hidden md:table-cell">Grade</th>
                 <th className="text-left px-4 py-3 text-xs text-[var(--text-3)] uppercase tracking-wider hidden lg:table-cell">{tr.common.status}</th>
@@ -84,7 +84,7 @@ export default function MemberList({ members, guildId, locale }: { members: Memb
               {filtered.map((member) => {
                 const avatar = avatarUrl(member.discordUserId, member.discordAvatar)
                 return (
-                  <tr key={member.id} className="border-b border-white/[0.07] last:border-0 hover:bg-white/[0.03] transition-colors">
+                  <tr key={member.id} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--hover)] transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <img src={avatar} alt={member.discordUsername} className="w-8 h-8 rounded-full flex-shrink-0" />
@@ -94,7 +94,7 @@ export default function MemberList({ members, guildId, locale }: { members: Memb
                               {member.discordNickname ?? member.discordUsername}
                             </p>
                             {!member.isActive && (
-                              <span className="text-[10px] text-[var(--text-3)] bg-[#38386515] px-1.5 py-0.5 rounded">{tr.common.inactive}</span>
+                              <span className="text-[10px] text-[var(--text-3)] bg-[var(--hover)] px-1.5 py-0.5 rounded">{tr.common.inactive}</span>
                             )}
                           </div>
                           {member.discordNickname && (

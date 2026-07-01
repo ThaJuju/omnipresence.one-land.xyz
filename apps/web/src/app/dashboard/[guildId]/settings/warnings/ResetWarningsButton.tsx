@@ -69,7 +69,7 @@ export default function ResetWarningsButton({ guildId }: { guildId: string }) {
     return (
       <button
         onClick={() => setStep('confirm')}
-        className="px-4 py-2 bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/30 rounded-lg text-sm font-medium hover:bg-[#ef4444]/20 transition-colors"
+        className="px-4 py-2 bg-[#ef4444]/10 text-[var(--danger)] border border-[#ef4444]/30 rounded-lg text-sm font-medium hover:bg-[#ef4444]/20 transition-colors"
       >
         Réinitialiser tous les avertissements
       </button>
@@ -91,7 +91,7 @@ export default function ResetWarningsButton({ guildId }: { guildId: string }) {
         <p className="text-sm text-[var(--text-2)]">
           Retrait des rôles Discord… {progress.done}/{progress.total} membres
         </p>
-        <div className="w-full h-2 bg-[var(--bg)] rounded-full overflow-hidden border border-white/[0.07]">
+        <div className="w-full h-2 bg-[var(--bg)] rounded-full overflow-hidden border border-[var(--border)]">
           <div
             className="h-full bg-[#ef4444] rounded-full transition-all duration-300"
             style={{ width: `${pct}%` }}
@@ -105,11 +105,11 @@ export default function ResetWarningsButton({ guildId }: { guildId: string }) {
   // step === 'confirm'
   return (
     <div className="space-y-3">
-      <div className="bg-[#ef4444]/10 border border-[#ef4444]/30 rounded-md p-4 text-sm text-[#ef4444] space-y-1">
+      <div className="bg-[#ef4444]/10 border border-[#ef4444]/30 rounded-md p-4 text-sm text-[var(--danger)] space-y-1">
         <p className="font-semibold">⚠️ Action irréversible</p>
         <p>Tous les avertissements actifs seront révoqués et les rôles Discord associés retirés de chaque membre concerné.</p>
       </div>
-      {error && <p className="text-xs text-[#ef4444]">{error}</p>}
+      {error && <p className="text-xs text-[var(--danger)]">{error}</p>}
       <div className="flex gap-3">
         <button
           onClick={handleReset}
@@ -119,7 +119,7 @@ export default function ResetWarningsButton({ guildId }: { guildId: string }) {
         </button>
         <button
           onClick={() => { setStep('idle'); setError(null) }}
-          className="px-4 py-2 bg-[var(--surface)] border border-white/[0.07] text-[var(--text-2)] rounded-lg text-sm hover:text-[var(--text)] transition-colors"
+          className="px-4 py-2 bg-[var(--surface)] border border-[var(--border)] text-[var(--text-2)] rounded-lg text-sm hover:text-[var(--text)] transition-colors"
         >
           Annuler
         </button>

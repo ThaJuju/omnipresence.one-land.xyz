@@ -30,7 +30,7 @@ export default async function VdaPage({ params }: { params: { guildId: string } 
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text)]">VDA</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">VDA</h1>
           <p className="text-[var(--text-2)] text-sm mt-1">
             {cards.length} fiche(s) active(s) · {archived} archivée(s)
           </p>
@@ -42,7 +42,7 @@ export default async function VdaPage({ params }: { params: { guildId: string } 
           <h2 className="text-sm font-semibold text-[var(--text-2)] uppercase tracking-wider mb-3">{category}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {catCards.map((card) => (
-              <div key={card.id} className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4">
+              <div key={card.id} className="card p-4">
                 <h3 className="font-semibold text-[var(--text)] mb-2">{card.title}</h3>
                 <p className="text-xs text-[var(--text-3)]">Modifié le {formatDateTime(card.updatedAt)}</p>
               </div>

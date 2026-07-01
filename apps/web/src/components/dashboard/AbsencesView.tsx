@@ -225,13 +225,13 @@ export default function AbsencesView({
       {/* ── Header ── */}
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text)]">Absences</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">Absences</h1>
           <p className="text-[var(--text-2)] text-sm mt-1">
             {view === 'calendar' ? `${MONTH_NAMES[month - 1]} ${year}` : 'Toutes les absences'}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex gap-0.5 p-1 rounded-lg bg-[var(--surface)] border border-white/[0.07]">
+          <div className="flex gap-0.5 p-1 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
             {([
               { id: 'calendar' as const, Icon: CalendarDays, label: 'Calendrier' },
               { id: 'list'     as const, Icon: LayoutList,   label: 'Liste'      },
@@ -261,22 +261,22 @@ export default function AbsencesView({
         <div className="space-y-3">
           {/* Month nav */}
           <div className="flex items-center gap-2">
-            <button onClick={prevMonth} className="w-7 h-7 flex items-center justify-center rounded-lg bg-[var(--surface)] border border-white/[0.07] text-[var(--text-2)] hover:text-[var(--text)] transition-colors">
+            <button onClick={prevMonth} className="w-7 h-7 flex items-center justify-center rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text)] transition-colors">
               <ChevronLeft size={13} />
             </button>
             <span className="text-sm font-semibold text-[var(--text)] w-40 text-center">{MONTH_NAMES[month - 1]} {year}</span>
-            <button onClick={nextMonth} className="w-7 h-7 flex items-center justify-center rounded-lg bg-[var(--surface)] border border-white/[0.07] text-[var(--text-2)] hover:text-[var(--text)] transition-colors">
+            <button onClick={nextMonth} className="w-7 h-7 flex items-center justify-center rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text)] transition-colors">
               <ChevronRight size={13} />
             </button>
             <button
               onClick={() => { setSelectedDay(null); pushUrl({ month: `${now.getFullYear()}-${pad2(now.getMonth() + 1)}` }) }}
-              className="h-7 px-2.5 rounded-lg bg-[var(--surface)] border border-white/[0.07] text-xs text-[var(--text-2)] hover:text-[var(--text)] transition-colors"
+              className="h-7 px-2.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-xs text-[var(--text-2)] hover:text-[var(--text)] transition-colors"
             >
               Aujourd&apos;hui
             </button>
           </div>
 
-          <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-3">
+          <div className="card p-3">
             {/* Weekday headers */}
             <div className="grid grid-cols-7 mb-1">
               {WEEKDAYS.map(d => (
@@ -309,7 +309,7 @@ export default function AbsencesView({
                                 ? '1px solid rgba(88,101,242,0.22)'
                                 : '1px solid transparent',
                           }}
-                          onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.03)' }}
+                          onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = 'var(--hover)' }}
                           onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
                         >
                           {cell && (
@@ -317,7 +317,7 @@ export default function AbsencesView({
                               className="inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-semibold select-none"
                               style={{
                                 background: isToday ? 'var(--guild-accent)' : 'transparent',
-                                color: isToday ? '#fff' : isSelected ? 'var(--guild-accent)' : '#9898b8',
+                                color: isToday ? '#fff' : isSelected ? 'var(--guild-accent)' : 'var(--text-2)',
                               }}
                             >
                               {cell.n}
@@ -368,7 +368,7 @@ export default function AbsencesView({
 
           {/* Selected day panel */}
           {selectedDay !== null && (
-            <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4">
+            <div className="card p-4">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm font-semibold text-[var(--text)] capitalize">
                   {new Date(year, month - 1, selectedDay).toLocaleDateString('fr-FR', {
@@ -411,14 +411,14 @@ export default function AbsencesView({
             ))}
           </div>
 
-          <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
+          <div className="card overflow-hidden">
             {absences.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-[var(--text-3)]">
                 <UserX size={36} className="mb-3 opacity-30" />
                 <p className="text-sm">Aucune absence</p>
               </div>
             ) : (
-              <div className="divide-y divide-[#1a1a40]">
+              <div className="divide-y divide-[var(--border)]">
                 {absences.map(a => {
                   const s = STATUS_STYLE[a.status] ?? STATUS_STYLE.PENDING
                   return (
@@ -428,7 +428,7 @@ export default function AbsencesView({
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="text-sm font-medium text-[var(--text)]">{a.memberName}</span>
                           {a.memberGradeName && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded text-[var(--text-3)] bg-[var(--bg)] border border-white/[0.07]">{a.memberGradeName}</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded text-[var(--text-3)] bg-[var(--bg)] border border-[var(--border)]">{a.memberGradeName}</span>
                           )}
                         </div>
                         <p className="text-xs text-[var(--text-2)] truncate">{a.reason}</p>

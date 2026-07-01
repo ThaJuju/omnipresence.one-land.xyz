@@ -45,23 +45,23 @@ export default async function SuperAdminGroupsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--text)]">Groupes d&apos;accès</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">Groupes d&apos;accès</h1>
         <p className="text-[var(--text-2)] text-sm mt-1">
           Donne un accès superadmin en lecture seule, limité à certains serveurs, à d&apos;autres personnes.
         </p>
       </div>
 
-      <form action={createGroup} className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5 space-y-2">
+      <form action={createGroup} className="card p-5 space-y-2">
         <div className="flex gap-3">
           <input
             name="name"
             placeholder="Nom du groupe (ex: Omerta)"
             required
-            className="flex-1 bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] placeholder-[#383865] focus:outline-none focus:border-[var(--accent)]"
+            className="flex-1 input px-3 py-2 text-sm"
           />
           <button
             type="submit"
-            className="px-4 py-2 bg-[var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-80 transition-colors whitespace-nowrap"
+            className="px-4 py-2 btn-primary text-sm whitespace-nowrap"
           >
             + Créer un groupe
           </button>
@@ -71,13 +71,13 @@ export default async function SuperAdminGroupsPage() {
         </p>
       </form>
 
-      <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
+      <div className="card overflow-hidden">
         {groups.length === 0 ? (
           <div className="px-4 py-8 text-center text-sm text-[var(--text-3)]">Aucun groupe pour le moment.</div>
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b border-white/[0.07]">
+              <tr className="border-b border-[var(--border)]">
                 <th className="text-left px-4 py-3 text-xs text-[var(--text-3)] uppercase">Nom</th>
                 <th className="text-left px-4 py-3 text-xs text-[var(--text-3)] uppercase">Serveurs</th>
                 <th className="text-left px-4 py-3 text-xs text-[var(--text-3)] uppercase">Membres</th>
@@ -88,7 +88,7 @@ export default async function SuperAdminGroupsPage() {
               {groups.map((g) => {
                 const remove = deleteGroup.bind(null, g.id)
                 return (
-                  <tr key={g.id} className="border-b border-white/[0.07] last:border-0">
+                  <tr key={g.id} className="border-b border-[var(--border)] last:border-0">
                     <td className="px-4 py-3">
                       <Link href={`/superadmin/groups/${g.id}`} className="text-sm font-medium text-[var(--accent)] hover:underline">
                         {g.name}
@@ -100,7 +100,7 @@ export default async function SuperAdminGroupsPage() {
                       <form action={remove}>
                         <button
                           type="submit"
-                          className="text-xs text-[#ef4444] hover:text-[#ff6b81] transition-colors px-2 py-1"
+                          className="text-xs text-[var(--danger)] hover:text-[#ff6b81] transition-colors px-2 py-1"
                         >
                           Supprimer
                         </button>

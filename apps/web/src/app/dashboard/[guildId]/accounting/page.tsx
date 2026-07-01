@@ -76,39 +76,39 @@ export default async function AccountingPage({ params }: { params: { guildId: st
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text)]">{tr.accounting.title}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">{tr.accounting.title}</h1>
           <p className="text-[var(--text-2)] text-sm mt-1">{tr.common.year} {currentYear}</p>
         </div>
         <a href={`/api/export/${guildId}/accounting?year=${currentYear}`}
-          className="px-3 py-1.5 bg-[var(--surface-2)] border border-white/[0.07] text-[var(--text-2)] hover:text-[var(--text)] hover:border-white/[0.12] text-xs rounded-lg transition-colors flex items-center gap-1.5">
+          className="px-3 py-1.5 bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text)] hover:border-[var(--border-mid)] text-xs rounded-lg transition-colors flex items-center gap-1.5">
           ⬇ {tr.common.exportCsv}
         </a>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-[var(--surface)] rounded-md border border-[#22c55e30] p-4 text-center">
-          <p className="text-2xl font-bold text-[#22c55e]">+{totalIncome.toFixed(2)} €</p>
+          <p className="text-2xl font-bold text-[var(--success)]">+{totalIncome.toFixed(2)} €</p>
           <p className="text-xs text-[var(--text-2)] mt-1">{tr.accounting.income} {currentYear}</p>
         </div>
         <div className="bg-[var(--surface)] rounded-md border border-[#ef444430] p-4 text-center">
-          <p className="text-2xl font-bold text-[#ef4444]">-{totalExpense.toFixed(2)} €</p>
+          <p className="text-2xl font-bold text-[var(--danger)]">-{totalExpense.toFixed(2)} €</p>
           <p className="text-xs text-[var(--text-2)] mt-1">{tr.accounting.expense} {currentYear}</p>
         </div>
         <div className={`bg-[var(--surface)] rounded-md border p-4 text-center ${balance >= 0 ? 'border-[#22c55e30]' : 'border-[#ef444430]'}`}>
-          <p className={`text-2xl font-bold ${balance >= 0 ? 'text-[#22c55e]' : 'text-[#ef4444]'}`}>
+          <p className={`text-2xl font-bold ${balance >= 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
             {balance >= 0 ? '+' : ''}{balance.toFixed(2)} €
           </p>
           <p className="text-xs text-[var(--text-2)] mt-1">{tr.accounting.balance}</p>
         </div>
       </div>
 
-      <form action={addAction} className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5 space-y-4">
+      <form action={addAction} className="card p-5 space-y-4">
         <h2 className="font-semibold text-[var(--text)]">{tr.accounting.newEntry}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="col-span-2 sm:col-span-1">
             <label className="block text-xs text-[var(--text-2)] mb-1.5">{tr.accounting.typeLabel}</label>
             <select name="type" required
-              className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]">
+              className="w-full input px-3 py-2 text-sm">
               <option value="INCOME">{tr.accounting.incomeOption}</option>
               <option value="EXPENSE">{tr.accounting.expenseOption}</option>
             </select>
@@ -116,40 +116,40 @@ export default async function AccountingPage({ params }: { params: { guildId: st
           <div className="col-span-2 sm:col-span-1">
             <label className="block text-xs text-[var(--text-2)] mb-1.5">{tr.accounting.amountLabel}</label>
             <input type="number" name="amount" step="0.01" min="0" required placeholder="0.00"
-              className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] placeholder-[#383865] focus:outline-none focus:border-[var(--accent)]" />
+              className="w-full input px-3 py-2 text-sm" />
           </div>
           <div className="col-span-2">
             <label className="block text-xs text-[var(--text-2)] mb-1.5">{tr.accounting.entryLabel}</label>
             <input name="label" required placeholder={tr.accounting.entryPlaceholder}
-              className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] placeholder-[#383865] focus:outline-none focus:border-[var(--accent)]" />
+              className="w-full input px-3 py-2 text-sm" />
           </div>
           <div>
             <label className="block text-xs text-[var(--text-2)] mb-1.5">{tr.accounting.categoryLabel}</label>
             <select name="category"
-              className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]">
+              className="w-full input px-3 py-2 text-sm">
               {tr.accounting.categories.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
           <div>
             <label className="block text-xs text-[var(--text-2)] mb-1.5">{tr.accounting.dateLabel}</label>
             <input type="date" name="date" required defaultValue={today}
-              className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]" />
+              className="w-full input px-3 py-2 text-sm" />
           </div>
           <div className="col-span-2">
             <label className="block text-xs text-[var(--text-2)] mb-1.5">{tr.accounting.noteLabel}</label>
             <input name="note" placeholder={tr.accounting.notePlaceholder}
-              className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] placeholder-[#383865] focus:outline-none focus:border-[var(--accent)]" />
+              className="w-full input px-3 py-2 text-sm" />
           </div>
         </div>
         <div className="flex justify-end">
           <button type="submit"
-            className="px-4 py-2 bg-[var(--accent)] text-white text-sm font-medium rounded-lg hover:opacity-80 hover:bg-[var(--accent)] transition-colors">
+            className="px-4 py-2 btn-primary text-sm">
             {tr.accounting.addBtn}
           </button>
         </div>
       </form>
 
-      <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
+      <div className="card overflow-hidden">
         {entries.length === 0 ? (
           <div className="text-center py-16 text-[var(--text-2)]">
             <div className="text-4xl mb-3">📒</div>
@@ -159,7 +159,7 @@ export default async function AccountingPage({ params }: { params: { guildId: st
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b border-white/[0.07]">
+              <tr className="border-b border-[var(--border)]">
                 <th className="text-left px-4 py-3 text-xs text-[var(--text-3)] uppercase">{tr.accounting.colDate}</th>
                 <th className="text-left px-4 py-3 text-xs text-[var(--text-3)] uppercase">{tr.accounting.colLabel}</th>
                 <th className="text-left px-4 py-3 text-xs text-[var(--text-3)] uppercase hidden md:table-cell">{tr.accounting.colCategory}</th>
@@ -171,23 +171,23 @@ export default async function AccountingPage({ params }: { params: { guildId: st
               {entries.map((entry) => {
                 const deleteAction = deleteEntry.bind(null, guildId, entry.id)
                 return (
-                  <tr key={entry.id} className="border-b border-white/[0.07] last:border-0 hover:bg-[#131338] transition-colors group">
+                  <tr key={entry.id} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface-2)] transition-colors group">
                     <td className="px-4 py-3 text-xs text-[var(--text-3)] whitespace-nowrap">{formatDate(entry.date)}</td>
                     <td className="px-4 py-3">
                       <p className="text-sm text-[var(--text)]">{entry.label}</p>
                       {entry.note && <p className="text-xs text-[var(--text-3)] mt-0.5">{entry.note}</p>}
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
-                      <span className="text-xs text-[var(--text-2)] bg-[#1a1a40] px-2 py-0.5 rounded">{entry.category}</span>
+                      <span className="text-xs text-[var(--text-2)] bg-[var(--surface-2)] px-2 py-0.5 rounded">{entry.category}</span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <span className={`text-sm font-semibold ${entry.type === 'INCOME' ? 'text-[#22c55e]' : 'text-[#ef4444]'}`}>
+                      <span className={`text-sm font-semibold ${entry.type === 'INCOME' ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
                         {entry.type === 'INCOME' ? '+' : '-'}{entry.amount.toFixed(2)} {entry.currency}
                       </span>
                     </td>
                     <td className="px-2 py-3">
                       <form action={deleteAction}>
-                        <button type="submit" className="text-[var(--text-3)] hover:text-[#ef4444] opacity-0 group-hover:opacity-100 transition-all text-xs px-1">✕</button>
+                        <button type="submit" className="text-[var(--text-3)] hover:text-[var(--danger)] opacity-0 group-hover:opacity-100 transition-all text-xs px-1">✕</button>
                       </form>
                     </td>
                   </tr>

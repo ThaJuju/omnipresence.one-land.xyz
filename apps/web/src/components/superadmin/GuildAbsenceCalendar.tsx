@@ -166,14 +166,14 @@ export default function GuildAbsenceCalendar({
     <div className="space-y-3">
       {/* Month nav */}
       <div className="flex items-center gap-2">
-        <button onClick={prevMonth} className="w-7 h-7 flex items-center justify-center rounded-lg bg-[var(--bg)] border border-white/[0.07] text-[var(--text-2)] hover:text-[var(--text)] transition-colors">
+        <button onClick={prevMonth} className="w-7 h-7 flex items-center justify-center rounded-lg bg-[var(--bg)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text)] transition-colors">
           <ChevronLeft size={13} />
         </button>
         <span className="text-sm font-semibold text-[var(--text)] w-40 text-center">{MONTH_NAMES[month - 1]} {year}</span>
-        <button onClick={nextMonth} className="w-7 h-7 flex items-center justify-center rounded-lg bg-[var(--bg)] border border-white/[0.07] text-[var(--text-2)] hover:text-[var(--text)] transition-colors">
+        <button onClick={nextMonth} className="w-7 h-7 flex items-center justify-center rounded-lg bg-[var(--bg)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text)] transition-colors">
           <ChevronRight size={13} />
         </button>
-        <button onClick={goToday} className="h-7 px-2.5 rounded-lg bg-[var(--bg)] border border-white/[0.07] text-xs text-[var(--text-2)] hover:text-[var(--text)] transition-colors">
+        <button onClick={goToday} className="h-7 px-2.5 rounded-lg bg-[var(--bg)] border border-[var(--border)] text-xs text-[var(--text-2)] hover:text-[var(--text)] transition-colors">
           Aujourd&apos;hui
         </button>
         <span className="text-xs text-[var(--text-3)] ml-2">
@@ -181,7 +181,7 @@ export default function GuildAbsenceCalendar({
         </span>
       </div>
 
-      <div className="bg-[var(--bg)] rounded-md border border-white/[0.07] p-3">
+      <div className="bg-[var(--bg)] rounded-md border border-[var(--border)] p-3">
         {/* Weekday headers */}
         <div className="grid grid-cols-7 mb-1">
           {WEEKDAYS.map(d => (
@@ -212,7 +212,7 @@ export default function GuildAbsenceCalendar({
                             ? '1px solid rgba(88,101,242,0.22)'
                             : '1px solid transparent',
                       }}
-                      onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.03)' }}
+                      onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = 'var(--hover)' }}
                       onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
                     >
                       {cell && (
@@ -220,7 +220,7 @@ export default function GuildAbsenceCalendar({
                           className="inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-semibold select-none"
                           style={{
                             background: isToday ? 'var(--accent)' : 'transparent',
-                            color: isToday ? '#fff' : isSelected ? 'var(--accent)' : '#9898b8',
+                            color: isToday ? '#fff' : isSelected ? 'var(--accent)' : 'var(--text-2)',
                           }}
                         >
                           {cell.n}
@@ -270,7 +270,7 @@ export default function GuildAbsenceCalendar({
 
       {/* Selected day panel */}
       {selectedDay !== null && (
-        <div className="bg-[var(--bg)] rounded-md border border-white/[0.07] p-4">
+        <div className="bg-[var(--bg)] rounded-md border border-[var(--border)] p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-semibold text-[var(--text)] capitalize">
               {new Date(year, month - 1, selectedDay).toLocaleDateString('fr-FR', {
@@ -288,7 +288,7 @@ export default function GuildAbsenceCalendar({
               {selAbsences.map(a => {
                 const s = STATUS_STYLE[a.status]!
                 return (
-                  <div key={a.id} className="flex items-center gap-3 p-3 rounded-lg bg-[var(--bg)] border border-white/[0.07]">
+                  <div key={a.id} className="flex items-center gap-3 p-3 rounded-lg bg-[var(--bg)] border border-[var(--border)]">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className="text-sm font-medium text-[var(--text)]">{a.memberName}</span>

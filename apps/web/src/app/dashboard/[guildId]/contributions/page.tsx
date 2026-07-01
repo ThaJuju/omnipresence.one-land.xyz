@@ -238,7 +238,7 @@ export default async function ContributionsPage({ params }: { params: { guildId:
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text)]">{tr.contributions.title}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">{tr.contributions.title}</h1>
           <p className="text-[var(--text-2)] text-sm mt-1">
             {PERIOD_LABEL[period]} · {currentYear}
           </p>
@@ -247,23 +247,23 @@ export default async function ContributionsPage({ params }: { params: { guildId:
 
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4 text-center">
-          <p className="text-2xl font-bold text-[#22c55e]">{currentPeriodPaid.size}</p>
+        <div className="card p-4 text-center">
+          <p className="text-2xl font-bold text-[var(--success)]">{currentPeriodPaid.size}</p>
           <p className="text-xs text-[var(--text-2)] mt-1">{tr.contributions.paidThisPeriod}</p>
           <p className="text-[11px] text-[var(--text-3)] mt-0.5">{tr.contributions.outOf} {members.length} {tr.presences.members}</p>
         </div>
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4 text-center">
-          <p className="text-2xl font-bold text-[#ef4444]">{members.length - currentPeriodPaid.size}</p>
+        <div className="card p-4 text-center">
+          <p className="text-2xl font-bold text-[var(--danger)]">{members.length - currentPeriodPaid.size}</p>
           <p className="text-xs text-[var(--text-2)] mt-1">{tr.contributions.pending}</p>
         </div>
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4 text-center">
-          <p className="text-2xl font-bold text-[var(--text)]">{totalYear.toFixed(0)} {currency}</p>
+        <div className="card p-4 text-center">
+          <p className="text-2xl font-bold tracking-tight text-[var(--text)]">{totalYear.toFixed(0)} {currency}</p>
           <p className="text-xs text-[var(--text-2)] mt-1">{tr.common.total} {currentYear}</p>
         </div>
       </div>
 
       {/* Formulaire */}
-      <form action={addAction} className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5">
+      <form action={addAction} className="card p-5">
         <h2 className="font-semibold text-[var(--text)] mb-4">{tr.contributions.recordPayment}</h2>
         <div className="flex gap-3 flex-wrap sm:flex-nowrap items-end">
           {/* Membre */}
@@ -272,7 +272,7 @@ export default async function ContributionsPage({ params }: { params: { guildId:
             <select
               name="memberId"
               required
-              className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[#22c55e]"
+              className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[#22c55e]"
             >
               <option value="">{tr.contributions.chooseMember}</option>
               {members.map((m) => (
@@ -294,7 +294,7 @@ export default async function ContributionsPage({ params }: { params: { guildId:
               required
               defaultValue={defaultAmount ?? ''}
               placeholder="0.00"
-              className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[#22c55e]"
+              className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[#22c55e]"
             />
           </div>
 
@@ -306,7 +306,7 @@ export default async function ContributionsPage({ params }: { params: { guildId:
                 type="date"
                 name="date"
                 defaultValue={todayStr}
-                className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[#22c55e]"
+                className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[#22c55e]"
               />
             </div>
           )}
@@ -318,7 +318,7 @@ export default async function ContributionsPage({ params }: { params: { guildId:
                 type="week"
                 name="week"
                 defaultValue={weekInputDefault}
-                className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[#22c55e]"
+                className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[#22c55e]"
               />
             </div>
           )}
@@ -330,7 +330,7 @@ export default async function ContributionsPage({ params }: { params: { guildId:
                 <select
                   name="month"
                   defaultValue={currentMonth}
-                  className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[#22c55e]"
+                  className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[#22c55e]"
                 >
                   {MONTHS.map((m, i) => (
                     <option key={i + 1} value={i + 1}>{m}</option>
@@ -345,7 +345,7 @@ export default async function ContributionsPage({ params }: { params: { guildId:
                   defaultValue={currentYear}
                   min="2020"
                   max="2099"
-                  className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[#22c55e]"
+                  className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[#22c55e]"
                 />
               </div>
             </>
@@ -361,12 +361,12 @@ export default async function ContributionsPage({ params }: { params: { guildId:
       </form>
 
       {/* Tableau période en cours */}
-      <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
-        <div className="px-4 py-3 border-b border-white/[0.07] flex items-center justify-between">
+      <div className="card overflow-hidden">
+        <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
           <h2 className="font-semibold text-[var(--text)]">{currentPeriodLabel}</h2>
           <span className="text-xs text-[var(--text-3)]">{currentPeriodPaid.size}/{members.length}</span>
         </div>
-        <ul className="divide-y divide-[#1a1a40]">
+        <ul className="divide-y divide-[var(--border)]">
           {members.map((member) => {
             const contrib = contributions.find((c) => {
               if (c.memberId !== member.id) return false
@@ -382,17 +382,17 @@ export default async function ContributionsPage({ params }: { params: { guildId:
                 <span className="flex-1 text-sm text-[var(--text)]">{member.discordNickname ?? member.discordUsername}</span>
                 {contrib ? (
                   <>
-                    <span className="text-sm font-medium text-[#22c55e]">{contrib.amount} {contrib.currency}</span>
+                    <span className="text-sm font-medium text-[var(--success)]">{contrib.amount} {contrib.currency}</span>
                     {deleteAction && (
                       <form action={deleteAction}>
-                        <button type="submit" className="text-xs text-[var(--text-3)] hover:text-[#ef4444] px-1.5 py-0.5 transition-colors">
+                        <button type="submit" className="text-xs text-[var(--text-3)] hover:text-[var(--danger)] px-1.5 py-0.5 transition-colors">
                           ✕
                         </button>
                       </form>
                     )}
                   </>
                 ) : (
-                  <span className="text-xs text-[#ef4444]">{tr.contributions.notPaid}</span>
+                  <span className="text-xs text-[var(--danger)]">{tr.contributions.notPaid}</span>
                 )}
               </li>
             )
@@ -402,8 +402,8 @@ export default async function ContributionsPage({ params }: { params: { guildId:
 
       {/* Historique */}
       {historySlots.length > 1 && (
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
-          <div className="px-4 py-3 border-b border-white/[0.07]">
+        <div className="card overflow-hidden">
+          <div className="px-4 py-3 border-b border-[var(--border)]">
             <h2 className="font-semibold text-[var(--text)]">
               {tr.contributions.history} {currentYear}
               {period === 'daily' && ` — ${MONTHS[currentMonth - 1]}`}
@@ -412,7 +412,7 @@ export default async function ContributionsPage({ params }: { params: { guildId:
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-white/[0.07]">
+                <tr className="border-b border-[var(--border)]">
                   <th className="text-left px-4 py-2 text-[var(--text-3)] whitespace-nowrap">{tr.common.member}</th>
                   {historySlots.map((slot) => (
                     <th key={slot.key} className="px-2 py-2 text-center text-[var(--text-3)] min-w-[40px] whitespace-nowrap">
@@ -423,7 +423,7 @@ export default async function ContributionsPage({ params }: { params: { guildId:
               </thead>
               <tbody>
                 {members.map((member) => (
-                  <tr key={member.id} className="border-b border-white/[0.07] last:border-0">
+                  <tr key={member.id} className="border-b border-[var(--border)] last:border-0">
                     <td className="px-4 py-2 text-[var(--text)] font-medium whitespace-nowrap">
                       {member.discordNickname ?? member.discordUsername}
                     </td>
@@ -433,7 +433,7 @@ export default async function ContributionsPage({ params }: { params: { guildId:
                         <td key={slot.key} className="px-2 py-2 text-center">
                           <span
                             className={`w-5 h-5 rounded inline-flex items-center justify-center font-bold text-[10px] ${
-                              paid ? 'text-[#22c55e] bg-[#22c55e20]' : 'text-[var(--text-3)] bg-[#1a1a40]'
+                              paid ? 'text-[var(--success)] bg-[#22c55e20]' : 'text-[var(--text-3)] bg-[var(--surface-2)]'
                             }`}
                           >
                             {paid ? '✓' : '·'}

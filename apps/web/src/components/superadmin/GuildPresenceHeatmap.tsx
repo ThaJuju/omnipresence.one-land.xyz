@@ -24,7 +24,7 @@ function Avatar({ name, avatar }: { name: string; avatar: string | null }) {
     return <img src={`https://cdn.discordapp.com/avatars/${avatar}`} alt={name} className="w-6 h-6 rounded-full flex-shrink-0" onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
   }
   return (
-    <span className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold bg-[#1a1a40] text-[var(--text-2)]">
+    <span className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold bg-[var(--surface-2)] text-[var(--text-2)]">
       {initial}
     </span>
   )
@@ -83,7 +83,7 @@ export default function GuildPresenceHeatmap({
           const rate       = resolved > 0 ? present / resolved : null
           // Square color: no data → dark, all pending → orange, resolved → green/red scale
           const squareBg   = total === 0
-            ? '#0d1117'
+            ? 'var(--surface-2)'
             : rate === null
               ? '#eab308'          // all pending → orange
               : presenceColor(rate)
@@ -174,7 +174,7 @@ export default function GuildPresenceHeatmap({
 
       {/* Selected day detail panel */}
       {selectedDay && (
-        <div className="bg-[var(--bg)] rounded-md border border-white/[0.07] p-4">
+        <div className="bg-[var(--bg)] rounded-md border border-[var(--border)] p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-semibold text-[var(--text)] capitalize">{fmtDate(selectedDay)}</p>
             <button onClick={() => { setSelectedDay(null); setDetail(null) }} className="text-[var(--text-3)] hover:text-[var(--text-2)] transition-colors">
@@ -184,7 +184,7 @@ export default function GuildPresenceHeatmap({
 
           {loading && (
             <div className="flex items-center justify-center py-6 gap-2 text-xs text-[var(--text-3)]">
-              <div className="w-3 h-3 rounded-full border border-[#383865] border-t-transparent animate-spin" />
+              <div className="w-3 h-3 rounded-full border border-[var(--border-mid)] border-t-transparent animate-spin" />
               Chargement…
             </div>
           )}
@@ -195,7 +195,7 @@ export default function GuildPresenceHeatmap({
               <div>
                 <div className="flex items-center gap-1.5 mb-2">
                   <span className="w-2 h-2 rounded-full bg-[#22c55e]" />
-                  <span className="text-xs font-semibold text-[#22c55e]">Présents</span>
+                  <span className="text-xs font-semibold text-[var(--success)]">Présents</span>
                   <span className="text-xs text-[var(--text-3)] ml-auto">{detail.present.length}</span>
                 </div>
                 {detail.present.length === 0 ? (
@@ -216,7 +216,7 @@ export default function GuildPresenceHeatmap({
               <div>
                 <div className="flex items-center gap-1.5 mb-2">
                   <span className="w-2 h-2 rounded-full bg-[#ef4444]" />
-                  <span className="text-xs font-semibold text-[#ef4444]">Absents</span>
+                  <span className="text-xs font-semibold text-[var(--danger)]">Absents</span>
                   <span className="text-xs text-[var(--text-3)] ml-auto">{detail.absent.length}</span>
                 </div>
                 {detail.absent.length === 0 ? (
@@ -237,7 +237,7 @@ export default function GuildPresenceHeatmap({
               <div>
                 <div className="flex items-center gap-1.5 mb-2">
                   <span className="w-2 h-2 rounded-full bg-[#eab308]" />
-                  <span className="text-xs font-semibold text-[#eab308]">En attente</span>
+                  <span className="text-xs font-semibold text-[var(--warning)]">En attente</span>
                   <span className="text-xs text-[var(--text-3)] ml-auto">{detail.pending.length}</span>
                 </div>
                 {detail.pending.length === 0 ? (

@@ -59,23 +59,55 @@ export default function Sidebar({ guild, member, locale }: Props) {
   const iconUrl = guildIconUrl(guild.discordGuildId, guild.discordGuildIcon)
   const userAvatar = avatarUrl(member.discordUserId, member.discordAvatar)
 
+  const renderLink = (item: { href: string; label: string }, Icon: typeof LayoutDashboard) => {
+    const href = `${base}${item.href}`
+    const isActive = item.href === '' ? pathname === base : pathname.startsWith(href)
+
+    return (
+      <Link
+        key={item.href}
+        href={href}
+        className={cn(
+          'group flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 relative',
+          isActive ? '' : 'hover:bg-[var(--hover)] hover:translate-x-px'
+        )}
+        style={isActive
+          ? { background: 'var(--accent-dim)', color: 'var(--guild-accent)' }
+          : { color: 'var(--text-2)' }
+        }
+      >
+        {isActive && (
+          <span
+            className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r"
+            style={{ background: 'var(--guild-accent)', boxShadow: '0 0 10px var(--guild-accent)' }}
+          />
+        )}
+        <Icon size={16} className="flex-shrink-0" strokeWidth={isActive ? 2.2 : 1.8} />
+        <span>{item.label}</span>
+      </Link>
+    )
+  }
+
   return (
     <aside
-      className="hidden lg:flex w-[232px] flex-col"
-      style={{ background: 'var(--surface)', borderRight: '1px solid var(--border)' }}
+      className="hidden lg:flex w-[236px] flex-col"
+      style={{
+        background: 'linear-gradient(180deg, color-mix(in srgb, var(--guild-accent) 3%, var(--surface)), var(--surface) 220px)',
+        borderRight: '1px solid var(--border)',
+      }}
     >
       {/* Guild header */}
       <div className="px-4 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
         <div className="flex items-center gap-2.5">
           {iconUrl ? (
-            <img src={iconUrl} alt={guild.discordGuildName} className="w-8 h-8 rounded-md object-cover flex-shrink-0" style={{ outline: '1px solid var(--border)' }} />
+            <img src={iconUrl} alt={guild.discordGuildName} className="w-9 h-9 rounded-lg object-cover flex-shrink-0" style={{ outline: '1px solid var(--border-mid)', boxShadow: 'var(--shadow-sm)' }} />
           ) : (
-            <div className="w-8 h-8 rounded-md flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style={{ background: 'var(--accent)' }}>
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style={{ background: 'var(--accent-grad)', boxShadow: '0 4px 12px -4px var(--accent-soft)' }}>
               {guild.discordGuildName[0]}
             </div>
           )}
           <div className="min-w-0">
-            <p className="text-sm font-semibold truncate leading-tight" style={{ color: 'var(--text)' }}>
+            <p className="text-sm font-semibold truncate leading-tight tracking-tight" style={{ color: 'var(--text)' }}>
               {guild.config?.panelName ?? guild.discordGuildName}
             </p>
             <p className="text-[11px] truncate mt-0.5" style={{ color: 'var(--text-3)' }}>
@@ -86,65 +118,15 @@ export default function Sidebar({ guild, member, locale }: Props) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-2 py-3 overflow-y-auto space-y-0.5">
-        {filteredItems.map((item) => {
-          const href = `${base}${item.href}`
-          const isActive = item.href === '' ? pathname === base : pathname.startsWith(href)
-          const Icon = NAV_ICON_MAP[item.href as keyof typeof NAV_ICON_MAP] ?? LayoutDashboard
-
-          return (
-            <Link
-              key={item.href}
-              href={href}
-              className={cn(
-                'group flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 relative',
-                isActive ? '' : 'hover:bg-white/[0.04]'
-              )}
-              style={isActive
-                ? { background: 'color-mix(in srgb, var(--guild-accent) 12%, transparent)', color: 'var(--guild-accent)' }
-                : { color: 'var(--text-2)' }
-              }
-            >
-              {isActive && (
-                <span
-                  className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r"
-                  style={{ background: 'var(--guild-accent)' }}
-                />
-              )}
-              <Icon size={15} className="flex-shrink-0" />
-              <span>{item.label}</span>
-            </Link>
-          )
-        })}
+      <nav className="flex-1 px-2.5 py-3 overflow-y-auto space-y-0.5">
+        {filteredItems.map((item) =>
+          renderLink(item, NAV_ICON_MAP[item.href as keyof typeof NAV_ICON_MAP] ?? LayoutDashboard)
+        )}
 
         {hasPermission(member.panelRole as PanelRole, 'settings.view') && (
           <>
             <div className="mx-1 my-3" style={{ borderTop: '1px solid var(--border)' }} />
-            {(() => {
-              const isActive = pathname.startsWith(`${base}/settings`)
-              return (
-                <Link
-                  href={`${base}/settings`}
-                  className={cn(
-                    'group flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 relative',
-                    isActive ? '' : 'hover:bg-white/[0.04]'
-                  )}
-                  style={isActive
-                    ? { background: 'color-mix(in srgb, var(--guild-accent) 12%, transparent)', color: 'var(--guild-accent)' }
-                    : { color: 'var(--text-2)' }
-                  }
-                >
-                  {isActive && (
-                    <span
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r"
-                      style={{ background: 'var(--guild-accent)' }}
-                    />
-                  )}
-                  <Settings size={15} className="flex-shrink-0" />
-                  <span>{tr.nav.settings}</span>
-                </Link>
-              )
-            })()}
+            {renderLink({ href: '/settings', label: tr.nav.settings }, Settings)}
           </>
         )}
       </nav>
@@ -153,7 +135,7 @@ export default function Sidebar({ guild, member, locale }: Props) {
       <div className="p-2" style={{ borderTop: '1px solid var(--border)' }}>
         <Link
           href="/dashboard"
-          className="flex items-center gap-2.5 px-2 py-2 rounded-md hover:bg-white/[0.04] transition-colors group"
+          className="flex items-center gap-2.5 px-2 py-2 rounded-md hover:bg-[var(--hover)] transition-colors group"
         >
           <img src={userAvatar} alt={member.discordUsername} className="w-7 h-7 rounded-full flex-shrink-0" style={{ outline: '1px solid var(--border)' }} />
           <div className="min-w-0 flex-1">

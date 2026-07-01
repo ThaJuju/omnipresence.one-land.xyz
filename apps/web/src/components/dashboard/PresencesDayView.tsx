@@ -68,12 +68,12 @@ export default function PresencesDayView({
       {/* Page header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text)]">Présences</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">Présences</h1>
           <p className="text-[var(--text-2)] text-sm mt-1">Suivi journalier des membres</p>
         </div>
         <a
           href={`/api/export/${guildId}/presences`}
-          className="px-3 py-1.5 bg-[var(--surface-2)] border border-white/[0.07] text-[var(--text-2)] hover:text-[var(--text)] hover:border-white/[0.12] text-xs rounded-lg transition-colors flex items-center gap-1.5"
+          className="px-3 py-1.5 bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text)] hover:border-[var(--border-mid)] text-xs rounded-lg transition-colors flex items-center gap-1.5"
         >
           ⬇ Export CSV
         </a>
@@ -83,7 +83,7 @@ export default function PresencesDayView({
       <div className="flex items-center gap-2">
         <button
           onClick={() => changeDate(-1)}
-          className="w-8 h-8 flex items-center justify-center rounded-lg bg-[var(--surface)] border border-white/[0.07] text-[var(--text-2)] hover:text-[var(--text)] hover:border-white/[0.12] transition-colors"
+          className="w-8 h-8 flex items-center justify-center rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text)] hover:border-[var(--border-mid)] transition-colors"
         >
           <ChevronLeft size={14} />
         </button>
@@ -92,19 +92,19 @@ export default function PresencesDayView({
           value={date}
           max={today}
           onChange={(e) => router.push(`/dashboard/${guildId}/presences?date=${e.target.value}`)}
-          className="h-8 bg-[var(--surface)] border border-white/[0.07] rounded-lg px-3 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)] [color-scheme:dark]"
+          className="h-8 bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)] [color-scheme:dark]"
         />
         <button
           onClick={() => changeDate(1)}
           disabled={isToday}
-          className="w-8 h-8 flex items-center justify-center rounded-lg bg-[var(--surface)] border border-white/[0.07] text-[var(--text-2)] hover:text-[var(--text)] hover:border-white/[0.12] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          className="w-8 h-8 flex items-center justify-center rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text)] hover:border-[var(--border-mid)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         >
           <ChevronRight size={14} />
         </button>
         {!isToday && (
           <button
             onClick={() => router.push(`/dashboard/${guildId}/presences`)}
-            className="h-8 px-3 bg-[var(--surface)] border border-white/[0.07] rounded-lg text-xs text-[var(--text-2)] hover:text-[var(--text)] hover:border-white/[0.12] transition-colors"
+            className="h-8 px-3 bg-[var(--surface)] border border-[var(--border)] rounded-lg text-xs text-[var(--text-2)] hover:text-[var(--text)] hover:border-[var(--border-mid)] transition-colors"
           >
             Aujourd'hui
           </button>
@@ -114,12 +114,12 @@ export default function PresencesDayView({
       {/* Stats cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {([
-          { label: 'Présents',    value: stats.present, Icon: CheckCircle2, color: 'text-[#22c55e]', bg: 'bg-[#22c55e]/10' },
-          { label: 'En retard',   value: stats.late,    Icon: Clock,        color: 'text-[#eab308]', bg: 'bg-[#eab308]/10' },
-          { label: 'Absents',     value: stats.absent,  Icon: XCircle,      color: 'text-[#ef4444]', bg: 'bg-[#ef4444]/10' },
-          { label: 'En attente',  value: stats.pending, Icon: Clock,        color: 'text-[var(--text-2)]', bg: 'bg-[#6868a8]/10' },
+          { label: 'Présents',    value: stats.present, Icon: CheckCircle2, color: 'text-[var(--success)]', bg: 'bg-[#22c55e]/10' },
+          { label: 'En retard',   value: stats.late,    Icon: Clock,        color: 'text-[var(--warning)]', bg: 'bg-[#eab308]/10' },
+          { label: 'Absents',     value: stats.absent,  Icon: XCircle,      color: 'text-[var(--danger)]', bg: 'bg-[#ef4444]/10' },
+          { label: 'En attente',  value: stats.pending, Icon: Clock,        color: 'text-[var(--text-2)]', bg: 'bg-[var(--hover)]' },
         ] as const).map(({ label, value, Icon, color, bg }) => (
-          <div key={label} className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4 flex items-center gap-3">
+          <div key={label} className="card p-4 flex items-center gap-3">
             <div className={`w-10 h-10 rounded-md ${bg} flex items-center justify-center flex-shrink-0`}>
               <Icon size={20} className={color} />
             </div>
@@ -133,20 +133,20 @@ export default function PresencesDayView({
 
       {/* My presence (today only) */}
       {isToday && (
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4">
+        <div className="card p-4">
           <p className="text-sm font-semibold text-[var(--text)] mb-3">Votre présence</p>
           {myPresence === 'PRESENT' ? (
-            <div className="flex items-center gap-2 text-[#22c55e] text-sm">
+            <div className="flex items-center gap-2 text-[var(--success)] text-sm">
               <CheckCircle2 size={15} />
               <span className="font-medium">Vous êtes marqué présent aujourd'hui</span>
             </div>
           ) : myPresence === 'LATE' ? (
-            <div className="flex items-center gap-2 text-[#eab308] text-sm">
+            <div className="flex items-center gap-2 text-[var(--warning)] text-sm">
               <Clock size={15} />
               <span className="font-medium">Retard déclaré</span>
             </div>
           ) : myPresence === 'ABSENT' ? (
-            <div className="flex items-center gap-2 text-[#ef4444] text-sm">
+            <div className="flex items-center gap-2 text-[var(--danger)] text-sm">
               <XCircle size={15} />
               <span className="font-medium">Absence déclarée</span>
             </div>
@@ -162,14 +162,14 @@ export default function PresencesDayView({
               </button>
               <button
                 onClick={() => setShowLateModal(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#eab30815] text-[#eab308] border border-[#eab30830] text-xs font-semibold rounded-lg hover:bg-[#eab30825] transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#eab30815] text-[var(--warning)] border border-[#eab30830] text-xs font-semibold rounded-lg hover:bg-[#eab30825] transition-colors"
               >
                 <Clock size={13} />
                 Je suis en retard
               </button>
               <button
                 onClick={() => setShowAbsenceModal(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#ef444415] text-[#ef4444] border border-[#ef444430] text-xs font-semibold rounded-lg hover:bg-[#ef444425] transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#ef444415] text-[var(--danger)] border border-[#ef444430] text-xs font-semibold rounded-lg hover:bg-[#ef444425] transition-colors"
               >
                 <UserX size={13} />
                 Déclarer une absence
@@ -180,20 +180,20 @@ export default function PresencesDayView({
       )}
 
       {/* Members table */}
-      <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
-        <div className="px-5 py-3 border-b border-white/[0.07]">
+      <div className="card overflow-hidden">
+        <div className="px-5 py-3 border-b border-[var(--border)]">
           <h2 className="text-sm font-semibold text-[var(--text)] capitalize">{dateLabel}</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-white/[0.07]">
+              <tr className="border-b border-[var(--border)]">
                 <th className="text-left px-5 py-2.5 text-[10px] font-semibold text-[var(--text-3)] uppercase tracking-wider">Membre</th>
                 <th className="text-left px-5 py-2.5 text-[10px] font-semibold text-[var(--text-3)] uppercase tracking-wider hidden sm:table-cell">Grade</th>
                 <th className="text-right px-5 py-2.5 text-[10px] font-semibold text-[var(--text-3)] uppercase tracking-wider">Statut</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1a1a40]">
+            <tbody className="divide-y divide-[var(--border)]">
               {members.length === 0 ? (
                 <tr>
                   <td colSpan={3} className="px-5 py-12 text-center text-sm text-[var(--text-3)]">Aucun membre actif</td>
@@ -227,16 +227,16 @@ export default function PresencesDayView({
                   </td>
                   <td className="px-5 py-3 text-right">
                     {m.status === 'PRESENT' ? (
-                      <span className="inline-flex items-center gap-1.5 text-xs text-[#22c55e]">
+                      <span className="inline-flex items-center gap-1.5 text-xs text-[var(--success)]">
                         <CheckCircle2 size={13} /> Présent
                       </span>
                     ) : m.status === 'LATE' ? (
-                      <span className="inline-flex items-center gap-1.5 text-xs text-[#eab308]">
+                      <span className="inline-flex items-center gap-1.5 text-xs text-[var(--warning)]">
                         <Clock size={13} />
                         En retard{m.delayMinutes ? ` (${m.delayMinutes} min)` : ''}
                       </span>
                     ) : m.status === 'ABSENT' ? (
-                      <span className="inline-flex items-center gap-1.5 text-xs text-[#ef4444]">
+                      <span className="inline-flex items-center gap-1.5 text-xs text-[var(--danger)]">
                         <XCircle size={13} /> Absent
                       </span>
                     ) : (

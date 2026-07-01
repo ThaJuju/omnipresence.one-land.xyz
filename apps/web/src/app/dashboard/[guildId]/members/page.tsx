@@ -25,12 +25,12 @@ export default async function MembersPage({ params }: { params: { guildId: strin
     <div className="space-y-5">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text)]">{tr.members.title}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">{tr.members.title}</h1>
           <p className="text-[var(--text-2)] text-sm mt-1">{activeCount} {tr.common.active.toLowerCase()} · {members.length} {tr.members.total}</p>
         </div>
         <a
           href={`/api/export/${guildId}/members`}
-          className="px-3 py-1.5 bg-[var(--surface-2)] border border-white/[0.07] text-[var(--text-2)] hover:text-[var(--text)] hover:border-white/[0.12] text-xs rounded-lg transition-colors flex items-center gap-1.5"
+          className="px-3 py-1.5 bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text)] hover:border-[var(--border-mid)] text-xs rounded-lg transition-colors flex items-center gap-1.5"
         >
           ⬇ {tr.common.exportCsv}
         </a>

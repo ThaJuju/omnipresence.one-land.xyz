@@ -88,8 +88,8 @@ async function revokeWarning(guildId: string, warningId: string, memberId: strin
 const PANEL_ROLES: PanelRole[] = ['ADMIN', 'DIRECTION', 'RESPONSABLE', 'MODERATEUR', 'MEMBRE']
 const STATUS_LABEL: Record<string, string> = { PENDING: 'En attente', APPROVED: 'Approuvée', REJECTED: 'Refusée', PRESENT: 'Présent', ABSENT: 'Absent' }
 const STATUS_COLOR: Record<string, string> = {
-  PENDING: 'text-[#eab308]', APPROVED: 'text-[#22c55e]', REJECTED: 'text-[#ef4444]',
-  PRESENT: 'text-[#22c55e]', ABSENT: 'text-[#ef4444]',
+  PENDING: 'text-[var(--warning)]', APPROVED: 'text-[var(--success)]', REJECTED: 'text-[var(--danger)]',
+  PRESENT: 'text-[var(--success)]', ABSENT: 'text-[var(--danger)]',
 }
 
 export default async function MemberDetailPage({ params }: { params: { guildId: string; memberId: string } }) {
@@ -134,7 +134,7 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
   return (
     <div className="space-y-6">
       {/* En-tête membre */}
-      <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-5">
+      <div className="card p-5">
         <div className="flex items-start gap-4 flex-wrap">
           <img src={avatar} alt={member.discordUsername} className="w-16 h-16 rounded-full flex-shrink-0" />
           <div className="flex-1 min-w-0">
@@ -146,7 +146,7 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
                   {member.grade.name}
                 </span>
               )}
-              <span className={`text-xs font-medium px-2 py-0.5 rounded-md ${member.isActive ? 'text-[#22c55e] bg-[#22c55e15]' : 'text-[var(--text-3)] bg-[#38386515]'}`}>
+              <span className={`text-xs font-medium px-2 py-0.5 rounded-md ${member.isActive ? 'text-[var(--success)] bg-[#22c55e15]' : 'text-[var(--text-3)] bg-[var(--hover)]'}`}>
                 {member.isActive ? 'Actif' : 'Inactif'}
               </span>
             </div>
@@ -161,8 +161,8 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
               <button type="submit"
                 className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
                   member.isActive
-                    ? 'text-[#ef4444] border-[#ef444430] hover:bg-[#ef444415]'
-                    : 'text-[#22c55e] border-[#22c55e30] hover:bg-[#22c55e15]'
+                    ? 'text-[var(--danger)] border-[#ef444430] hover:bg-[#ef444415]'
+                    : 'text-[var(--success)] border-[#22c55e30] hover:bg-[#22c55e15]'
                 }`}>
                 {member.isActive ? 'Désactiver' : 'Réactiver'}
               </button>
@@ -174,33 +174,33 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
       {/* Actions rapides */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Changer le grade */}
-        <form action={setGradeAction} className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4">
+        <form action={setGradeAction} className="card p-4">
           <label className="block text-xs font-semibold text-[var(--text-2)] uppercase tracking-wider mb-2">Grade</label>
           <div className="flex gap-2">
             <select name="gradeId" defaultValue={member.gradeId ?? ''}
-              className="flex-1 bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]">
+              className="flex-1 input px-3 py-2 text-sm">
               <option value="">— Aucun grade —</option>
               {grades.map((g) => (
                 <option key={g.id} value={g.id}>{g.name}</option>
               ))}
             </select>
             <button type="submit"
-              className="px-3 py-2 bg-[var(--accent)] text-white text-xs font-semibold rounded-lg hover:opacity-80 transition-colors">
+              className="px-3 py-2 btn-primary text-xs">
               Appliquer
             </button>
           </div>
         </form>
 
         {/* Changer le rôle panel */}
-        <form action={setRoleAction} className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4">
+        <form action={setRoleAction} className="card p-4">
           <label className="block text-xs font-semibold text-[var(--text-2)] uppercase tracking-wider mb-2">Rôle panel</label>
           <div className="flex gap-2">
             <select name="panelRole" defaultValue={member.panelRole}
-              className="flex-1 bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]">
+              className="flex-1 input px-3 py-2 text-sm">
               {PANEL_ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
             </select>
             <button type="submit"
-              className="px-3 py-2 bg-[var(--accent)] text-white text-xs font-semibold rounded-lg hover:opacity-80 transition-colors">
+              className="px-3 py-2 btn-primary text-xs">
               Appliquer
             </button>
           </div>
@@ -208,10 +208,10 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
       </div>
 
       {/* Notes */}
-      <form action={saveNoteAction} className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4">
+      <form action={saveNoteAction} className="card p-4">
         <div className="flex items-center justify-between mb-2">
           <label className="text-xs font-semibold text-[var(--text-2)] uppercase tracking-wider">Notes internes</label>
-          <button type="submit" className="text-xs font-semibold px-3 py-1 bg-[var(--accent)] text-white rounded-lg hover:opacity-80 transition-colors">
+          <button type="submit" className="btn-primary text-xs px-3 py-1">
             Sauvegarder
           </button>
         </div>
@@ -220,25 +220,25 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
           defaultValue={member.notes ?? ''}
           rows={3}
           placeholder="Ajouter une note visible uniquement par les admins…"
-          className="w-full bg-[var(--bg)] border border-white/[0.07] rounded-lg px-3 py-2 text-sm text-[var(--text)] placeholder-[#383865] focus:outline-none focus:border-[var(--accent)] resize-none transition-colors"
+          className="w-full input px-3 py-2 text-sm resize-none transition-colors"
         />
       </form>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4 text-center">
-          <p className="text-2xl font-bold text-[#22c55e]">{presenceStats.present}</p>
+        <div className="card p-4 text-center">
+          <p className="text-2xl font-bold text-[var(--success)]">{presenceStats.present}</p>
           <p className="text-xs text-[var(--text-2)] mt-1">Présences (30j)</p>
           {presenceRate !== null && (
             <p className="text-[11px] text-[var(--text-3)] mt-0.5">{presenceRate}% de taux</p>
           )}
         </div>
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4 text-center">
-          <p className="text-2xl font-bold text-[#ef4444]">{presenceStats.absent}</p>
+        <div className="card p-4 text-center">
+          <p className="text-2xl font-bold text-[var(--danger)]">{presenceStats.absent}</p>
           <p className="text-xs text-[var(--text-2)] mt-1">Absences (30j)</p>
         </div>
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] p-4 text-center">
-          <p className={`text-2xl font-bold ${activeWarnings.length > 0 ? 'text-[#eab308]' : 'text-[#22c55e]'}`}>
+        <div className="card p-4 text-center">
+          <p className={`text-2xl font-bold ${activeWarnings.length > 0 ? 'text-[var(--warning)]' : 'text-[var(--success)]'}`}>
             {activeWarnings.length}
           </p>
           <p className="text-xs text-[var(--text-2)] mt-1">Avertissements actifs</p>
@@ -247,14 +247,14 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Avertissements */}
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
-          <div className="px-4 py-3 border-b border-white/[0.07]">
+        <div className="card overflow-hidden">
+          <div className="px-4 py-3 border-b border-[var(--border)]">
             <h2 className="font-semibold text-[var(--text)] text-sm">Avertissements</h2>
           </div>
           {member.warnings.length === 0 ? (
             <p className="px-4 py-6 text-[var(--text-3)] text-sm">Aucun avertissement.</p>
           ) : (
-            <ul className="divide-y divide-[#1a1a40]">
+            <ul className="divide-y divide-[var(--border)]">
               {member.warnings.map((w) => {
                 const revokeAction = w.isActive ? revokeWarning.bind(null, guildId, w.id, memberId) : undefined
                 return (
@@ -268,7 +268,7 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
                     </div>
                     {w.isActive && revokeAction && (
                       <form action={revokeAction}>
-                        <button type="submit" className="text-[11px] text-[#ef4444] hover:text-[#ff6b81] px-2 py-0.5 border border-[#ef444430] rounded transition-colors flex-shrink-0">
+                        <button type="submit" className="text-[11px] text-[var(--danger)] hover:text-[#ff6b81] px-2 py-0.5 border border-[#ef444430] rounded transition-colors flex-shrink-0">
                           Révoquer
                         </button>
                       </form>
@@ -281,14 +281,14 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
         </div>
 
         {/* Absences récentes */}
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
-          <div className="px-4 py-3 border-b border-white/[0.07]">
+        <div className="card overflow-hidden">
+          <div className="px-4 py-3 border-b border-[var(--border)]">
             <h2 className="font-semibold text-[var(--text)] text-sm">Absences récentes</h2>
           </div>
           {member.absences.length === 0 ? (
             <p className="px-4 py-6 text-[var(--text-3)] text-sm">Aucune absence enregistrée.</p>
           ) : (
-            <ul className="divide-y divide-[#1a1a40]">
+            <ul className="divide-y divide-[var(--border)]">
               {member.absences.map((a) => (
                 <li key={a.id} className="px-4 py-3 flex items-center gap-3">
                   <div className="flex-1 min-w-0">
@@ -305,8 +305,8 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
         </div>
 
         {/* Présences récentes */}
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
-          <div className="px-4 py-3 border-b border-white/[0.07]">
+        <div className="card overflow-hidden">
+          <div className="px-4 py-3 border-b border-[var(--border)]">
             <h2 className="font-semibold text-[var(--text)] text-sm">Présences récentes (30j)</h2>
           </div>
           {member.presenceLogs.length === 0 ? (
@@ -316,9 +316,9 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
               {member.presenceLogs.map((p) => (
                 <span key={p.id} title={formatDate(p.date)}
                   className={`w-7 h-7 rounded-lg text-[10px] font-bold flex items-center justify-center ${
-                    p.status === 'PRESENT' ? 'bg-[#22c55e25] text-[#22c55e]' :
-                    p.status === 'ABSENT' ? 'bg-[#ef444425] text-[#ef4444]' :
-                    'bg-[#eab30815] text-[#eab308]'
+                    p.status === 'PRESENT' ? 'bg-[#22c55e25] text-[var(--success)]' :
+                    p.status === 'ABSENT' ? 'bg-[#ef444425] text-[var(--danger)]' :
+                    'bg-[#eab30815] text-[var(--warning)]'
                   }`}>
                   {new Date(p.date).getDate()}
                 </span>
@@ -328,14 +328,14 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
         </div>
 
         {/* Historique grades */}
-        <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden">
-          <div className="px-4 py-3 border-b border-white/[0.07]">
+        <div className="card overflow-hidden">
+          <div className="px-4 py-3 border-b border-[var(--border)]">
             <h2 className="font-semibold text-[var(--text)] text-sm">Historique des grades</h2>
           </div>
           {member.gradeHistory.length === 0 ? (
             <p className="px-4 py-6 text-[var(--text-3)] text-sm">Aucun changement de grade.</p>
           ) : (
-            <ul className="divide-y divide-[#1a1a40]">
+            <ul className="divide-y divide-[var(--border)]">
               {member.gradeHistory.map((gh) => (
                 <li key={gh.id} className="px-4 py-3 flex items-center gap-3">
                   <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: gh.grade.color }} />
@@ -349,13 +349,13 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
 
         {/* Cotisations */}
         {member.contributions.length > 0 && (
-          <div className="bg-[var(--surface)] rounded-md border border-white/[0.07] overflow-hidden lg:col-span-2">
-            <div className="px-4 py-3 border-b border-white/[0.07]">
+          <div className="card overflow-hidden lg:col-span-2">
+            <div className="px-4 py-3 border-b border-[var(--border)]">
               <h2 className="font-semibold text-[var(--text)] text-sm">Cotisations</h2>
             </div>
             <div className="px-4 py-3 flex flex-wrap gap-2">
               {member.contributions.map((c) => (
-                <span key={c.id} className="text-xs bg-[#22c55e15] text-[#22c55e] px-2.5 py-1 rounded-md">
+                <span key={c.id} className="text-xs bg-[#22c55e15] text-[var(--success)] px-2.5 py-1 rounded-md">
                   {String(c.month).padStart(2, '0')}/{c.year} — {c.amount} {c.currency}
                 </span>
               ))}
