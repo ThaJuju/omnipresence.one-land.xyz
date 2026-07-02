@@ -4,8 +4,8 @@ type DateLocale = 'fr-FR' | 'en-GB'
 const fr = {
   presence: {
     embedTitle: '✅ Confirmation de présence',
-    embedDesc: (date: string, count: number) =>
-      `Bonjour ! Veuillez confirmer votre présence pour aujourd'hui.\n\n**${date}**\n\n${count} membre(s) à confirmer.`,
+    embedDesc: (date: string, count: number, time?: string) =>
+      `Bonjour ! Veuillez confirmer votre présence pour aujourd'hui.\n\n**${date}**${time ? `\n🕐 ${time}` : ''}\n\n${count} membre(s) à confirmer.`,
     btnPresent: 'Présent',
     btnAbsent: 'Absent',
     btnLate: 'En retard',
@@ -16,7 +16,6 @@ const fr = {
     lateErrInvalid: '❌ Durée invalide. Entrez un nombre de minutes positif.',
     lateErrGeneral: "❌ Erreur lors de l'enregistrement.",
     dateLocale: 'fr-FR' as DateLocale,
-    timeSuffix: (time: string) => ` à ${time}`,
   },
   reminder: {
     message: (count: number, mentions: string) =>
@@ -85,8 +84,8 @@ const en: typeof fr = {
   },
   presence: {
     embedTitle: '✅ Presence confirmation',
-    embedDesc: (date: string, count: number) =>
-      `Hello! Please confirm your presence for today.\n\n**${date}**\n\n${count} member(s) to confirm.`,
+    embedDesc: (date: string, count: number, time?: string) =>
+      `Hello! Please confirm your presence for today.\n\n**${date}**${time ? `\n🕐 ${time}` : ''}\n\n${count} member(s) to confirm.`,
     btnPresent: 'Present',
     btnAbsent: 'Absent',
     btnLate: 'Late',
@@ -97,7 +96,6 @@ const en: typeof fr = {
     lateErrInvalid: '❌ Invalid duration. Enter a positive number of minutes.',
     lateErrGeneral: '❌ Error during registration.',
     dateLocale: 'en-GB' as DateLocale,
-    timeSuffix: (time: string) => ` at ${time}`,
   },
   reminder: {
     message: (count: number, mentions: string) =>

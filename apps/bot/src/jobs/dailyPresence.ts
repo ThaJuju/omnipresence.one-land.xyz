@@ -52,11 +52,13 @@ export async function runDailyPresence(guildId: string) {
     const channel = await client.channels.fetch(guild.config.presenceChannelId)
     if (!isSendableChannel(channel)) return
 
-    const baseDateStr = today.toLocaleDateString(t.presence.dateLocale, { weekday: 'long', day: 'numeric', month: 'long' })
+    const dateStr = today.toLocaleDateString(t.presence.dateLocale, { weekday: 'long', day: 'numeric', month: 'long' })
     const embedTime = guild.config.presenceEmbedTime || guild.config.presenceMessageTime
-    const dateStr = embedTime ? `${baseDateStr}${t.presence.timeSuffix(embedTime)}` : baseDateStr
-    const defaultDesc = t.presence.embedDesc(dateStr, membersToTrack.length)
-    const customDesc = guild.config.embedDescription?.replace('{date}', dateStr).replace('{count}', String(membersToTrack.length))
+    const defaultDesc = t.presence.embedDesc(dateStr, membersToTrack.length, embedTime)
+    const customDesc = guild.config.embedDescription
+      ?.replace('{date}', dateStr)
+      .replace('{count}', String(membersToTrack.length))
+      .replace('{time}', embedTime ?? '')
 
     const embedColorHex = guild.config.embedColor?.replace('#', '') ?? '5865F2'
     const embedColorNum = parseInt(embedColorHex, 16)

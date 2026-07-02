@@ -185,7 +185,7 @@ export default async function BotSettingsPage({ params }: { params: { guildId: s
 
   const presencePingRoleIds = config?.presencePingRoleIds ?? []
   const previewEmbedTime = config?.presenceEmbedTime || config?.presenceMessageTime || '08:00'
-  const previewDateStr = `lundi 24 juin à ${previewEmbedTime}`
+  const previewDateStr = 'lundi 24 juin'
 
   return (
     <div className="space-y-6">
@@ -286,7 +286,7 @@ export default async function BotSettingsPage({ params }: { params: { guildId: s
         <div>
           <h2 className="font-semibold text-[var(--text)] mb-1">Embed de présence</h2>
           <p className="text-xs text-[var(--text-3)]">
-            Personnalise le message Discord envoyé chaque jour. Dans la description, utilisez <code className="bg-[var(--bg)] px-1 rounded text-[var(--text-2)]">{'{date}'}</code> et <code className="bg-[var(--bg)] px-1 rounded text-[var(--text-2)]">{'{count}'}</code>.
+            Personnalise le message Discord envoyé chaque jour. Dans la description, utilisez <code className="bg-[var(--bg)] px-1 rounded text-[var(--text-2)]">{'{date}'}</code>, <code className="bg-[var(--bg)] px-1 rounded text-[var(--text-2)]">{'{time}'}</code> et <code className="bg-[var(--bg)] px-1 rounded text-[var(--text-2)]">{'{count}'}</code>.
           </p>
         </div>
 
@@ -303,8 +303,8 @@ export default async function BotSettingsPage({ params }: { params: { guildId: s
             <p className="text-sm font-semibold text-[var(--text)]">{config?.embedTitle || '✅ Confirmation de présence'}</p>
             <p className="text-xs text-[var(--text-2)] mt-1 leading-relaxed">
               {config?.embedDescription
-                ? config.embedDescription.replace('{date}', previewDateStr).replace('{count}', String(guild.members.length))
-                : `Bonjour ! Veuillez confirmer votre présence pour aujourd'hui.\n\n${previewDateStr}\n\n${guild.members.length} membre(s) à confirmer.`
+                ? config.embedDescription.replace('{date}', previewDateStr).replace('{time}', previewEmbedTime).replace('{count}', String(guild.members.length))
+                : `Bonjour ! Veuillez confirmer votre présence pour aujourd'hui.\n\n${previewDateStr}\n🕐 ${previewEmbedTime}\n\n${guild.members.length} membre(s) à confirmer.`
               }
             </p>
           </div>
@@ -336,7 +336,7 @@ export default async function BotSettingsPage({ params }: { params: { guildId: s
 
         <div>
           <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">Heure affichée dans l&apos;embed</label>
-          <p className="text-[11px] text-[var(--text-3)] mb-2">Affichée à côté du jour et de la date dans l&apos;embed (ex. « lundi 24 juin à 08:00 »). Laissez vide pour reprendre l&apos;heure d&apos;envoi programmée ({config?.presenceMessageTime ?? '08:00'}).</p>
+          <p className="text-[11px] text-[var(--text-3)] mb-2">Affichée sur sa propre ligne dans l&apos;embed, sous le jour et la date (ex. « 🕐 08:00 »). Laissez vide pour reprendre l&apos;heure d&apos;envoi programmée ({config?.presenceMessageTime ?? '08:00'}).</p>
           <input type="time" name="presenceEmbedTime" defaultValue={config?.presenceEmbedTime ?? ''}
             className="input px-3 py-2 text-sm" />
         </div>
@@ -344,7 +344,7 @@ export default async function BotSettingsPage({ params }: { params: { guildId: s
         <div>
           <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">Description personnalisée (optionnel)</label>
           <textarea name="embedDescription" defaultValue={config?.embedDescription ?? ''}
-            rows={3} placeholder={`Laissez vide pour la description par défaut.\nUtilisez {date} et {count} comme variables.`}
+            rows={3} placeholder={`Laissez vide pour la description par défaut.\nUtilisez {date}, {time} et {count} comme variables.`}
             className="w-full input px-3 py-2 text-sm resize-none" />
         </div>
 
