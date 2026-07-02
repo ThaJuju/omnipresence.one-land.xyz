@@ -52,7 +52,9 @@ export async function runDailyPresence(guildId: string) {
     const channel = await client.channels.fetch(guild.config.presenceChannelId)
     if (!isSendableChannel(channel)) return
 
-    const dateStr = today.toLocaleDateString(t.presence.dateLocale, { weekday: 'long', day: 'numeric', month: 'long' })
+    const baseDateStr = today.toLocaleDateString(t.presence.dateLocale, { weekday: 'long', day: 'numeric', month: 'long' })
+    const embedTime = guild.config.presenceEmbedTime || guild.config.presenceMessageTime
+    const dateStr = embedTime ? `${baseDateStr}${t.presence.timeSuffix(embedTime)}` : baseDateStr
     const defaultDesc = t.presence.embedDesc(dateStr, membersToTrack.length)
     const customDesc = guild.config.embedDescription?.replace('{date}', dateStr).replace('{count}', String(membersToTrack.length))
 
@@ -65,8 +67,8 @@ export async function runDailyPresence(guildId: string) {
       .setColor(isNaN(embedColorNum) ? 0x5865f2 : embedColorNum)
       .setTimestamp()
 
-    const pingRoleId = guild.config.presencePingRoleId
-    const pingContent = pingRoleId ? `<@&${pingRoleId}> ` : ''
+    const pingRoleIds = guild.config.presencePingRoleIds ?? []
+    const pingContent = pingRoleIds.length ? `${pingRoleIds.map((id) => `<@&${id}>`).join(' ')} ` : ''
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
@@ -86,15 +88,15 @@ export async function runDailyPresence(guildId: string) {
         .setStyle(ButtonStyle.Danger),
     )
 
-    // Rend le rôle temporairement mentionnable si nécessaire
-    let restoredMentionable = false
-    if (pingRoleId) {
+    // Rend les rôles temporairement mentionnables si nécessaire
+    const restoredMentionableRoleIds: string[] = []
+    for (const pingRoleId of pingRoleIds) {
       try {
         const discordGuild = await client.guilds.fetch(guild.discordGuildId, )
         const role = await discordGuild.roles.fetch(pingRoleId, )
         if (role && !role.mentionable) {
           await role.setMentionable(true)
-          restoredMentionable = true
+          restoredMentionableRoleIds.push(pingRoleId)
         }
       } catch (err) {
         logger.warn({ err, guildId, pingRoleId }, 'Could not set role mentionable — bot may lack Manage Roles or role is above bot in hierarchy')
@@ -105,10 +107,10 @@ export async function runDailyPresence(guildId: string) {
       content: pingContent || undefined,
       embeds: [embed],
       components: [row],
-      allowedMentions: pingRoleId ? { roles: [pingRoleId] } : undefined,
+      allowedMentions: pingRoleIds.length ? { roles: pingRoleIds } : undefined,
     })
 
-    if (restoredMentionable && pingRoleId) {
+    for (const pingRoleId of restoredMentionableRoleIds) {
       try {
         const discordGuild = await client.guilds.fetch(guild.discordGuildId, )
         const role = await discordGuild.roles.fetch(pingRoleId, )

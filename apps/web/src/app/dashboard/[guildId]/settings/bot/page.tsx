@@ -5,6 +5,7 @@ import { prisma } from '@repo/db'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { getGuildMember, requirePermission } from '@/lib/api'
+import MultiRolePicker from './MultiRolePicker'
 
 type DiscordRole = { id: string; name: string; color: number; position: number; managed: boolean }
 type DiscordChannel = { id: string; name: string; type: number; parent_id: string | null; position: number }
@@ -99,7 +100,8 @@ async function saveEmbedConfig(guildId: string, formData: FormData) {
     embedTitle: (formData.get('embedTitle') as string) || '✅ Confirmation de présence',
     embedDescription: (formData.get('embedDescription') as string) || null,
     embedColor: (formData.get('embedColor') as string) || '#6366f1',
-    presencePingRoleId: (formData.get('presencePingRoleId') as string) || null,
+    presencePingRoleIds: formData.getAll('presencePingRoleIds') as string[],
+    presenceEmbedTime: (formData.get('presenceEmbedTime') as string) || null,
   }
 
   await prisma.guildConfig.upsert({
@@ -135,27 +137,6 @@ async function sendMessage(guildId: string, formData: FormData) {
   } catch { /* bot offline or bad channel */ }
 
   revalidatePath(`/dashboard/${guildId}/settings/bot`)
-}
-
-function RoleSelect({ name, defaultValue, roles, placeholder = '— Aucun —' }: {
-  name: string; defaultValue?: string | null; roles: DiscordRole[]; placeholder?: string
-}) {
-  if (roles.length === 0) {
-    return (
-      <input name={name} defaultValue={defaultValue ?? ''} placeholder="ID du rôle Discord"
-        className="w-full input px-3 py-2 text-sm font-mono" />
-    )
-  }
-  return (
-    <select name={name} defaultValue={defaultValue ?? ''}
-      className="w-full input px-3 py-2 text-sm">
-      <option value="">{placeholder}</option>
-      {roles.map((r) => {
-        const color = r.color ? `#${r.color.toString(16).padStart(6, '0')}` : undefined
-        return <option key={r.id} value={r.id} style={color ? { color } : undefined}>{r.name}</option>
-      })}
-    </select>
-  )
 }
 
 function ChannelSelect({ name, defaultValue, channels }: {
@@ -202,7 +183,9 @@ export default async function BotSettingsPage({ params }: { params: { guildId: s
   const saveEmbedAction = saveEmbedConfig.bind(null, guildId)
   const sendMessageAction = sendMessage.bind(null, guildId)
 
-  const presencePingRoleName = discordRoles.find((r) => r.id === config?.presencePingRoleId)?.name
+  const presencePingRoleIds = config?.presencePingRoleIds ?? []
+  const previewEmbedTime = config?.presenceEmbedTime || config?.presenceMessageTime || '08:00'
+  const previewDateStr = `lundi 24 juin à ${previewEmbedTime}`
 
   return (
     <div className="space-y-6">
@@ -320,8 +303,8 @@ export default async function BotSettingsPage({ params }: { params: { guildId: s
             <p className="text-sm font-semibold text-[var(--text)]">{config?.embedTitle || '✅ Confirmation de présence'}</p>
             <p className="text-xs text-[var(--text-2)] mt-1 leading-relaxed">
               {config?.embedDescription
-                ? config.embedDescription.replace('{date}', 'lundi 24 juin').replace('{count}', String(guild.members.length))
-                : `Bonjour ! Veuillez confirmer votre présence pour aujourd'hui.\n\nlundi 24 juin\n\n${guild.members.length} membre(s) à confirmer.`
+                ? config.embedDescription.replace('{date}', previewDateStr).replace('{count}', String(guild.members.length))
+                : `Bonjour ! Veuillez confirmer votre présence pour aujourd'hui.\n\n${previewDateStr}\n\n${guild.members.length} membre(s) à confirmer.`
               }
             </p>
           </div>
@@ -352,6 +335,13 @@ export default async function BotSettingsPage({ params }: { params: { guildId: s
         </div>
 
         <div>
+          <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">Heure affichée dans l&apos;embed</label>
+          <p className="text-[11px] text-[var(--text-3)] mb-2">Affichée à côté du jour et de la date dans l&apos;embed (ex. « lundi 24 juin à 08:00 »). Laissez vide pour reprendre l&apos;heure d&apos;envoi programmée ({config?.presenceMessageTime ?? '08:00'}).</p>
+          <input type="time" name="presenceEmbedTime" defaultValue={config?.presenceEmbedTime ?? ''}
+            className="input px-3 py-2 text-sm" />
+        </div>
+
+        <div>
           <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">Description personnalisée (optionnel)</label>
           <textarea name="embedDescription" defaultValue={config?.embedDescription ?? ''}
             rows={3} placeholder={`Laissez vide pour la description par défaut.\nUtilisez {date} et {count} comme variables.`}
@@ -359,14 +349,9 @@ export default async function BotSettingsPage({ params }: { params: { guildId: s
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">
-            Rôle à mentionner
-            {presencePingRoleName && (
-              <span className="ml-2 text-[var(--accent)]">@{presencePingRoleName}</span>
-            )}
-          </label>
-          <p className="text-[11px] text-[var(--text-3)] mb-2">Rôle Discord pингé en tête du message de présence quotidien.</p>
-          <RoleSelect name="presencePingRoleId" defaultValue={config?.presencePingRoleId} roles={discordRoles} placeholder="— Pas de mention —" />
+          <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">Rôles à mentionner</label>
+          <p className="text-[11px] text-[var(--text-3)] mb-2">Rôles Discord pingés en tête du message de présence quotidien.</p>
+          <MultiRolePicker name="presencePingRoleIds" defaultValues={presencePingRoleIds} roles={discordRoles} />
         </div>
 
         <div className="flex justify-end">

@@ -16,6 +16,7 @@ const fr = {
     lateErrInvalid: '❌ Durée invalide. Entrez un nombre de minutes positif.',
     lateErrGeneral: "❌ Erreur lors de l'enregistrement.",
     dateLocale: 'fr-FR' as DateLocale,
+    timeSuffix: (time: string) => ` à ${time}`,
   },
   reminder: {
     message: (count: number, mentions: string) =>
@@ -96,6 +97,7 @@ const en: typeof fr = {
     lateErrInvalid: '❌ Invalid duration. Enter a positive number of minutes.',
     lateErrGeneral: '❌ Error during registration.',
     dateLocale: 'en-GB' as DateLocale,
+    timeSuffix: (time: string) => ` at ${time}`,
   },
   reminder: {
     message: (count: number, mentions: string) =>

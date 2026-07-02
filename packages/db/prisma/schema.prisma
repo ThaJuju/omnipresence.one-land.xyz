@@ -86,10 +86,11 @@ model GuildConfig {
 
   warningRoleId String?
 
-  presencePingRoleId String?
-  embedTitle         String  @default("✅ Confirmation de présence")
-  embedDescription   String?
-  embedColor         String  @default("#5865F2")
+  presencePingRoleIds String[] @default([])
+  embedTitle          String   @default("✅ Confirmation de présence")
+  embedDescription    String?
+  embedColor          String   @default("#5865F2")
+  presenceEmbedTime   String?
 
   presenceMessageTime String @default("08:00")
   reminderTime        String @default("18:00")
