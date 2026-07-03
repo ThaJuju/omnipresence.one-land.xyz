@@ -34,7 +34,7 @@ export default async function GuildDashboardPage({ params }: { params: { guildId
     accountingEntries,
     contributionsCount,
   ] = await Promise.all([
-    prisma.member.count({ where: { guildId, isActive: true } }),
+    prisma.member.count({ where: { guildId, isActive: true, gradeId: { not: null } } }),
     prisma.presenceLog.count({ where: { guildId, date: today, status: 'PRESENT' } }),
     prisma.presenceLog.count({ where: { guildId, date: today, status: 'PENDING' } }),
     prisma.absence.count({ where: { guildId, status: 'PENDING' } }),

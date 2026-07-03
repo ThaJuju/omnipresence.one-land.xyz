@@ -91,7 +91,7 @@ export default async function StatsPage({
       where: { guildId, createdAt: { gte: rangeStart } },
       select: { isActive: true, isAuto: true },
     }),
-    prisma.member.count({ where: { guildId, isActive: true } }),
+    prisma.member.count({ where: { guildId, isActive: true, gradeId: { not: null } } }),
   ])
 
   const totalPresent = presenceLogs.filter((l) => l.status === 'PRESENT').length
