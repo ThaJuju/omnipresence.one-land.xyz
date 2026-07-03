@@ -59,6 +59,7 @@ export const POST = withApiHandler(async (req) => {
   try {
     await botClient.notifyAbsence({
       guildId: guild.id,
+      absenceId: absence.id,
       memberName: member.discordNickname ?? member.discordUsername,
       memberAvatarUrl: avatarUrl(member.discordUserId, member.discordAvatar),
       reason,

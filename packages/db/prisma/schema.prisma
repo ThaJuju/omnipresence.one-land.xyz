@@ -270,6 +270,9 @@ model Absence {
   reviewedBy String?
   reviewedAt DateTime?
   createdAt  DateTime      @default(now())
+
+  notifChannelId String?
+  notifMessageId String?
 }
 
 enum AbsenceStatus {

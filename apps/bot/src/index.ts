@@ -11,6 +11,7 @@ import { onGuildMemberUpdate } from './events/guildMemberUpdate'
 import { handlePresenceButton } from './interactions/presenceButton'
 import { handleAbsenceModal } from './interactions/absenceModal'
 import { handleAbsenceButton } from './interactions/absenceButton'
+import { handleAbsenceReviewButton } from './interactions/absenceReview'
 import { handleLateModal } from './interactions/lateModal'
 import * as presenceCmd from './commands/presence'
 import * as absenceCmd from './commands/absence'
@@ -58,6 +59,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
     } else if (type === 'absence-btn' && action) {
       // action is the internal guildId (absence-btn:internalGuildId)
       await handleAbsenceButton(interaction, action)
+    } else if (type === 'absence-review' && (action === 'approve' || action === 'reject') && guildId) {
+      // guildId slot holds the absenceId here (absence-review:approve|reject:absenceId)
+      await handleAbsenceReviewButton(interaction, action, guildId)
     }
   }
 

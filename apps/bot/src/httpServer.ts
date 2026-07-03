@@ -200,6 +200,7 @@ app.post('/sync-guild', async (req, res) => {
 
 const notifyAbsenceSchema = z.object({
   guildId: z.string(),
+  absenceId: z.string(),
   memberName: z.string(),
   memberAvatarUrl: z.string().nullable().optional(),
   reason: z.string(),
@@ -267,10 +268,73 @@ app.post('/notify-absence', async (req, res) => {
     const channel = await client.channels.fetch(config.absenceNotifChannelId)
     if (!isSendableChannel(channel)) return res.json({ success: true, skipped: true })
 
-    await channel.send({ embeds: [embed] })
+    const approveBtn = new ButtonBuilder()
+      .setCustomId(`absence-review:approve:${data.absenceId}`)
+      .setLabel(config.botLanguage === 'en' ? 'Approve' : 'Accepter')
+      .setEmoji('✅')
+      .setStyle(ButtonStyle.Success)
+    const rejectBtn = new ButtonBuilder()
+      .setCustomId(`absence-review:reject:${data.absenceId}`)
+      .setLabel(config.botLanguage === 'en' ? 'Reject' : 'Refuser')
+      .setEmoji('❌')
+      .setStyle(ButtonStyle.Danger)
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(approveBtn, rejectBtn)
+
+    const message = await channel.send({ embeds: [embed], components: [row] })
+
+    await prisma.absence.update({
+      where: { id: data.absenceId },
+      data: { notifChannelId: channel.id, notifMessageId: message.id },
+    })
+
     res.json({ success: true })
   } catch (error) {
     logger.error({ error }, 'notify-absence failed')
+    res.status(500).json({ error: discordErrorMessage(error) })
+  }
+})
+
+const updateAbsenceStatusSchema = z.object({
+  absenceId: z.string(),
+  status: z.enum(['APPROVED', 'REJECTED']),
+  reviewerName: z.string().nullable().optional(),
+})
+
+app.post('/update-absence-status', async (req, res) => {
+  if (!verifySecret(req, res)) return
+  try {
+    const { absenceId, status, reviewerName } = updateAbsenceStatusSchema.parse(req.body)
+
+    const absence = await prisma.absence.findUnique({ where: { id: absenceId } })
+    if (!absence?.notifChannelId || !absence?.notifMessageId) {
+      return res.json({ success: true, skipped: true })
+    }
+
+    const channel = await client.channels.fetch(absence.notifChannelId)
+    if (!isSendableChannel(channel)) return res.json({ success: true, skipped: true })
+
+    let message
+    try {
+      message = await channel.messages.fetch(absence.notifMessageId)
+    } catch {
+      return res.json({ success: true, skipped: true })
+    }
+
+    const approved = status === 'APPROVED'
+    const existingEmbed = message.embeds[0]
+    const embed = existingEmbed ? EmbedBuilder.from(existingEmbed) : new EmbedBuilder()
+    embed.setColor(approved ? 0x22c55e : 0xef4444)
+    embed.addFields({
+      name: 'Statut',
+      value: approved
+        ? `✅ Approuvée${reviewerName ? ` par **${reviewerName}**` : ''}`
+        : `❌ Refusée${reviewerName ? ` par **${reviewerName}**` : ''}`,
+    })
+
+    await message.edit({ embeds: [embed], components: [] })
+    res.json({ success: true })
+  } catch (error) {
+    logger.error({ error }, 'update-absence-status failed')
     res.status(500).json({ error: discordErrorMessage(error) })
   }
 })

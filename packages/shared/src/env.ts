@@ -18,7 +18,7 @@ const envSchema = z.object({
 export type Env = z.infer<typeof envSchema>
 
 function parseEnv(): Env {
-  if (typeof window !== 'undefined') return {} as Env
+  if (typeof globalThis !== 'undefined' && 'window' in globalThis) return {} as Env
   const result = envSchema.safeParse(process.env)
   if (!result.success) {
     console.error('❌ Variables d\'environnement manquantes ou invalides:')

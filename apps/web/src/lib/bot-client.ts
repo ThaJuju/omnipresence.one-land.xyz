@@ -35,6 +35,7 @@ export const botClient = {
 
   notifyAbsence: (params: {
     guildId: string
+    absenceId: string
     memberName: string
     memberAvatarUrl?: string | null
     reason: string
@@ -42,4 +43,10 @@ export const botClient = {
     endDate: string
     source: 'discord' | 'panel'
   }) => callBot('/notify-absence', params),
+
+  updateAbsenceStatus: (params: {
+    absenceId: string
+    status: 'APPROVED' | 'REJECTED'
+    reviewerName?: string | null
+  }) => callBot('/update-absence-status', params),
 }

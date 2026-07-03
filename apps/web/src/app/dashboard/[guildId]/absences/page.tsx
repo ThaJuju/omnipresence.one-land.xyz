@@ -15,13 +15,21 @@ async function approveAbsence(guildId: string, absenceId: string) {
   if (!session?.user?.discordId) return
   const member = await getGuildMember(guildId, session.user.discordId)
   requirePermission(member.panelRole, 'absences.approve')
-  await prisma.absence.update({
-    where: { id: absenceId, guildId },
+  const result = await prisma.absence.updateMany({
+    where: { id: absenceId, guildId, status: 'PENDING' },
     data: { status: 'APPROVED', reviewedBy: member.id, reviewedAt: new Date() },
   })
+  if (result.count === 0) return
   await prisma.auditLog.create({
     data: { guildId, adminId: member.id, action: 'Absence approuvée', targetId: absenceId, targetType: 'Absence' },
   })
+  try {
+    await botClient.updateAbsenceStatus({
+      absenceId,
+      status: 'APPROVED',
+      reviewerName: member.discordNickname ?? member.discordUsername,
+    })
+  } catch { /* bot hors ligne */ }
   revalidatePath(`/dashboard/${guildId}/absences`)
 }
 
@@ -31,13 +39,21 @@ async function rejectAbsence(guildId: string, absenceId: string) {
   if (!session?.user?.discordId) return
   const member = await getGuildMember(guildId, session.user.discordId)
   requirePermission(member.panelRole, 'absences.approve')
-  await prisma.absence.update({
-    where: { id: absenceId, guildId },
+  const result = await prisma.absence.updateMany({
+    where: { id: absenceId, guildId, status: 'PENDING' },
     data: { status: 'REJECTED', reviewedBy: member.id, reviewedAt: new Date() },
   })
+  if (result.count === 0) return
   await prisma.auditLog.create({
     data: { guildId, adminId: member.id, action: 'Absence refusée', targetId: absenceId, targetType: 'Absence' },
   })
+  try {
+    await botClient.updateAbsenceStatus({
+      absenceId,
+      status: 'REJECTED',
+      reviewerName: member.discordNickname ?? member.discordUsername,
+    })
+  } catch { /* bot hors ligne */ }
   revalidatePath(`/dashboard/${guildId}/absences`)
 }
 
@@ -54,7 +70,7 @@ async function declareAbsence(guildId: string, formData: FormData) {
   const startDate = formData.get('startDate') as string
   const endDate = formData.get('endDate') as string
   if (!reason || !startDate || !endDate || endDate < startDate) return
-  await prisma.absence.create({
+  const absence = await prisma.absence.create({
     data: {
       guildId,
       memberId: member.id,
@@ -68,6 +84,7 @@ async function declareAbsence(guildId: string, formData: FormData) {
   try {
     await botClient.notifyAbsence({
       guildId,
+      absenceId: absence.id,
       memberName: member.discordNickname ?? member.discordUsername,
       memberAvatarUrl: avatarUrl(member.discordUserId, member.discordAvatar),
       reason,
