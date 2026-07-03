@@ -30,7 +30,7 @@ async function fetchDiscordChannels(discordGuildId: string): Promise<DiscordChan
     })
     if (!res.ok) return []
     const channels = await res.json() as DiscordChannel[]
-    return channels.filter((c) => c.type === 0 || c.type === 5).sort((a, b) => a.position - b.position)
+    return channels.filter((c) => c.type === 0 || c.type === 4 || c.type === 5).sort((a, b) => a.position - b.position)
   } catch { return [] }
 }
 
@@ -142,17 +142,35 @@ async function sendMessage(guildId: string, formData: FormData) {
 function ChannelSelect({ name, defaultValue, channels }: {
   name: string; defaultValue?: string | null; channels: DiscordChannel[]
 }) {
-  if (channels.length === 0) {
+  const textChannels = channels.filter((c) => c.type === 0 || c.type === 5)
+  if (textChannels.length === 0) {
     return (
       <input name={name} defaultValue={defaultValue ?? ''} placeholder="ID du canal Discord"
         className="w-full input px-3 py-2 text-sm font-mono" />
     )
   }
+  const categories = new Map(channels.filter((c) => c.type === 4).map((c) => [c.id, c]))
+  const uncategorized = textChannels
+    .filter((c) => !c.parent_id || !categories.has(c.parent_id))
+    .sort((a, b) => a.position - b.position)
+  const grouped = [...categories.values()]
+    .sort((a, b) => a.position - b.position)
+    .map((category) => ({
+      category,
+      channels: textChannels.filter((c) => c.parent_id === category.id).sort((a, b) => a.position - b.position),
+    }))
+    .filter((g) => g.channels.length > 0)
+
   return (
     <select name={name} defaultValue={defaultValue ?? ''}
       className="w-full input px-3 py-2 text-sm">
       <option value="">— Aucun —</option>
-      {channels.map((ch) => <option key={ch.id} value={ch.id}># {ch.name}</option>)}
+      {uncategorized.map((ch) => <option key={ch.id} value={ch.id}># {ch.name}</option>)}
+      {grouped.map(({ category, channels: chs }) => (
+        <optgroup key={category.id} label={category.name}>
+          {chs.map((ch) => <option key={ch.id} value={ch.id}># {ch.name}</option>)}
+        </optgroup>
+      ))}
     </select>
   )
 }
