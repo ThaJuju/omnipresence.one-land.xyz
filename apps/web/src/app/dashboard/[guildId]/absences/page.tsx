@@ -39,11 +39,19 @@ async function rejectAbsence(guildId: string, absenceId: string) {
   if (!session?.user?.discordId) return
   const member = await getGuildMember(guildId, session.user.discordId)
   requirePermission(member.panelRole, 'absences.approve')
+  const absence = await prisma.absence.findUnique({ where: { id: absenceId, guildId } })
+  if (!absence) return
   const result = await prisma.absence.updateMany({
     where: { id: absenceId, guildId, status: 'PENDING' },
     data: { status: 'REJECTED', reviewedBy: member.id, reviewedAt: new Date() },
   })
   if (result.count === 0) return
+  // La déclaration avait marqué le suivi journalier "Absent" : on le repasse en attente
+  // puisque la demande est refusée et n'est plus une absence valide.
+  await prisma.presenceLog.updateMany({
+    where: { memberId: absence.memberId, date: absence.startDate, status: 'ABSENT' },
+    data: { status: 'PENDING' },
+  })
   await prisma.auditLog.create({
     data: { guildId, adminId: member.id, action: 'Absence refusée', targetId: absenceId, targetType: 'Absence' },
   })

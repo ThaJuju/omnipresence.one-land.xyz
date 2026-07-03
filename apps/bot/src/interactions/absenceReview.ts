@@ -36,6 +36,15 @@ export async function handleAbsenceReviewButton(interaction: ButtonInteraction, 
     return
   }
 
+  if (status === 'REJECTED') {
+    // La déclaration avait marqué le suivi journalier "Absent" : on le repasse en attente
+    // puisque la demande est refusée et n'est plus une absence valide.
+    await prisma.presenceLog.updateMany({
+      where: { memberId: absence.memberId, date: absence.startDate, status: 'ABSENT' },
+      data: { status: 'PENDING' },
+    })
+  }
+
   try {
     await prisma.auditLog.create({
       data: {
