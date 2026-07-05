@@ -1,5 +1,7 @@
 import { prisma } from '@repo/db'
 import { ok, getSessionOrThrow, getGuildMember, requirePermission, withApiHandler, ApiError } from '@/lib/api'
+import { botClient } from '@/lib/bot-client'
+import { avatarUrl } from '@/lib/utils'
 import { z } from 'zod'
 
 const createSchema = z.object({
@@ -59,6 +61,19 @@ export const POST = withApiHandler(async (req, { params }) => {
     },
   })
 
+  // Notification Discord (silencieuse si canal non configuré ou bot hors ligne)
+  try {
+    await botClient.notifyWarning({
+      guildId: params['guildId']!,
+      action: 'ISSUED',
+      memberName: target.discordNickname ?? target.discordUsername,
+      memberAvatarUrl: avatarUrl(target.discordUserId, target.discordAvatar),
+      discordUserId: target.discordUserId,
+      reason,
+      actorName: member.discordNickname ?? member.discordUsername,
+    })
+  } catch { /* bot hors ligne ou canal non configuré */ }
+
   return ok(warning, 201)
 })
 
@@ -72,6 +87,7 @@ export const DELETE = withApiHandler(async (req, { params }) => {
 
   const warning = await prisma.warning.findFirst({
     where: { id: warningId, guildId: params['guildId'] },
+    include: { member: true },
   })
   if (!warning) throw new ApiError('Avertissement introuvable', 404)
 
@@ -89,6 +105,20 @@ export const DELETE = withApiHandler(async (req, { params }) => {
       targetType: 'Warning',
     },
   })
+
+  // Notification Discord (silencieuse si canal non configuré ou bot hors ligne)
+  try {
+    await botClient.notifyWarning({
+      guildId: params['guildId']!,
+      action: 'REVOKED',
+      memberName: warning.member.discordNickname ?? warning.member.discordUsername,
+      memberAvatarUrl: avatarUrl(warning.member.discordUserId, warning.member.discordAvatar),
+      discordUserId: warning.member.discordUserId,
+      reason: warning.reason,
+      actorName: member.discordNickname ?? member.discordUsername,
+      note: revokeNote ?? null,
+    })
+  } catch { /* bot hors ligne ou canal non configuré */ }
 
   return ok(updated)
 })

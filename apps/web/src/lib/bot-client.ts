@@ -44,6 +44,17 @@ export const botClient = {
     source: 'discord' | 'panel'
   }) => callBot('/notify-absence', params),
 
+  notifyWarning: (params: {
+    guildId: string
+    action: 'ISSUED' | 'REVOKED'
+    memberName: string
+    memberAvatarUrl?: string | null
+    discordUserId: string
+    reason: string
+    actorName?: string | null
+    note?: string | null
+  }) => callBot('/notify-warning', params),
+
   updateAbsenceStatus: (params: {
     absenceId: string
     status: 'APPROVED' | 'REJECTED'

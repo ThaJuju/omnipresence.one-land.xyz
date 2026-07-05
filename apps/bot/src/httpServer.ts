@@ -294,6 +294,74 @@ app.post('/notify-absence', async (req, res) => {
   }
 })
 
+const notifyWarningSchema = z.object({
+  guildId: z.string(),
+  action: z.enum(['ISSUED', 'REVOKED']),
+  memberName: z.string(),
+  memberAvatarUrl: z.string().nullable().optional(),
+  discordUserId: z.string(),
+  reason: z.string(),
+  actorName: z.string().nullable().optional(),
+  note: z.string().nullable().optional(),
+})
+
+app.post('/notify-warning', async (req, res) => {
+  if (!verifySecret(req, res)) return
+  try {
+    const data = notifyWarningSchema.parse(req.body)
+
+    const config = await prisma.guildConfig.findUnique({
+      where: { guildId: data.guildId },
+      select: { warningChannelId: true, notificationChannelId: true, panelName: true, botLanguage: true },
+    })
+
+    const channelId = config?.warningChannelId ?? config?.notificationChannelId
+    if (!channelId) return res.json({ success: true, skipped: true })
+
+    const channel = await client.channels.fetch(channelId)
+    if (!isSendableChannel(channel)) return res.json({ success: true, skipped: true })
+
+    const t = getBotT(config?.botLanguage ?? 'fr')
+    const issued = data.action === 'ISSUED'
+
+    const embed = new EmbedBuilder()
+      .setColor(issued ? 0xff3860 : 0x23d160)
+      .setTitle(issued ? t.warning.issuedTitle : t.warning.revokedTitle)
+      .addFields(
+        {
+          name: t.warning.memberField,
+          value: `<@${data.discordUserId}> (${data.memberName})`,
+          inline: true,
+        },
+        {
+          name: issued ? t.warning.issuedByField : t.warning.revokedByField,
+          value: data.actorName ?? 'SYSTEM',
+          inline: true,
+        },
+        {
+          name: t.warning.reasonField,
+          value: data.reason,
+          inline: false,
+        }
+      )
+      .setFooter({ text: config?.panelName ?? 'Gestion' })
+      .setTimestamp()
+
+    if (data.note) {
+      embed.addFields({ name: t.warning.noteField, value: data.note, inline: false })
+    }
+    if (data.memberAvatarUrl) {
+      embed.setThumbnail(data.memberAvatarUrl)
+    }
+
+    await channel.send({ embeds: [embed] })
+    res.json({ success: true })
+  } catch (error) {
+    logger.error({ error }, 'notify-warning failed')
+    res.status(500).json({ error: discordErrorMessage(error) })
+  }
+})
+
 const updateAbsenceStatusSchema = z.object({
   absenceId: z.string(),
   status: z.enum(['APPROVED', 'REJECTED']),
