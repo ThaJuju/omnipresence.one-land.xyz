@@ -2,6 +2,7 @@ import { Client, REST, Routes } from 'discord.js'
 import { prisma } from '@repo/db'
 import { logger } from '../logger'
 import { initScheduler } from '../jobs/scheduler'
+import { restoreBotProfile } from '../bot-profile'
 import { onGuildCreate } from './guildCreate'
 import * as presenceCmd from '../commands/presence'
 import * as absenceCmd from '../commands/absence'
@@ -49,6 +50,8 @@ export async function onReady(client: Client) {
   } catch (error) {
     logger.error({ error }, 'Failed to reconcile stale guilds on ready')
   }
+
+  await restoreBotProfile()
 
   await initScheduler()
 }

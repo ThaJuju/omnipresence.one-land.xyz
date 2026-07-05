@@ -486,6 +486,61 @@ app.post('/post-absence-embed', async (req, res) => {
   }
 })
 
+app.get('/bot-profile', async (req, res) => {
+  if (!verifySecret(req, res)) return
+  try {
+    const application = await client.application?.fetch()
+    const profile = await prisma.botProfile.findUnique({ where: { id: 'default' } })
+    res.json({
+      username: client.user?.username ?? null,
+      avatarUrl: client.user?.displayAvatarURL({ size: 128 }) ?? null,
+      description: application?.description ?? null,
+      customStatus: profile?.customStatus ?? null,
+    })
+  } catch (error) {
+    logger.error({ error }, 'get bot-profile failed')
+    res.status(500).json({ error: discordErrorMessage(error) })
+  }
+})
+
+const botProfileSchema = z.object({
+  description: z.string().max(400).nullable().optional(),
+  customStatus: z.string().max(128).nullable().optional(),
+})
+
+app.post('/bot-profile', async (req, res) => {
+  if (!verifySecret(req, res)) return
+  try {
+    const { description, customStatus } = botProfileSchema.parse(req.body)
+
+    if (description !== undefined) {
+      await client.application?.edit({ description: description ?? '' })
+    }
+    if (customStatus !== undefined) {
+      const { applyCustomStatus } = await import('./bot-profile')
+      applyCustomStatus(customStatus ?? null)
+    }
+
+    await prisma.botProfile.upsert({
+      where: { id: 'default' },
+      update: {
+        ...(description !== undefined ? { description } : {}),
+        ...(customStatus !== undefined ? { customStatus } : {}),
+      },
+      create: {
+        id: 'default',
+        description: description ?? null,
+        customStatus: customStatus ?? null,
+      },
+    })
+
+    res.json({ success: true })
+  } catch (error) {
+    logger.error({ error }, 'update bot-profile failed')
+    res.status(500).json({ error: discordErrorMessage(error) })
+  }
+})
+
 export function startHttpServer(port: number) {
   app.listen(port, () => {
     logger.info(`Bot HTTP server listening on port ${port}`)

@@ -17,6 +17,25 @@ async function callBot<T = unknown>(path: string, body: unknown): Promise<T> {
   return res.json() as Promise<T>
 }
 
+async function callBotGet<T = unknown>(path: string): Promise<T> {
+  const res = await fetch(`${BOT_URL}${path}`, {
+    headers: { 'x-internal-secret': SECRET },
+    cache: 'no-store',
+  })
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(`Bot error ${res.status}: ${text}`)
+  }
+  return res.json() as Promise<T>
+}
+
+export type BotProfile = {
+  username: string | null
+  avatarUrl: string | null
+  description: string | null
+  customStatus: string | null
+}
+
 export const botClient = {
   assignRole: (discordGuildId: string, discordUserId: string, discordRoleId: string) =>
     callBot('/assign-role', { discordGuildId, discordUserId, discordRoleId }),
@@ -43,6 +62,13 @@ export const botClient = {
     endDate: string
     source: 'discord' | 'panel'
   }) => callBot('/notify-absence', params),
+
+  getBotProfile: () => callBotGet<BotProfile>('/bot-profile'),
+
+  setBotProfile: (params: {
+    description?: string | null
+    customStatus?: string | null
+  }) => callBot('/bot-profile', params),
 
   notifyWarning: (params: {
     guildId: string

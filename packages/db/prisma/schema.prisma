@@ -412,3 +412,14 @@ model AuditLog {
   after      Json?
   createdAt  DateTime      @default(now())
 }
+
+// ─────────────────────────────────────────
+// PROFIL GLOBAL DU BOT (superadmin dev)
+// ─────────────────────────────────────────
+
+model BotProfile {
+  id           String   @id @default("default")
+  description  String?
+  customStatus String?
+  updatedAt    DateTime @updatedAt
+}

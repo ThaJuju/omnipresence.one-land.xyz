@@ -29,7 +29,10 @@ export default async function SuperadminLayout({ children }: { children: React.R
         <a href="/superadmin/instances" className="text-sm px-2.5 py-1.5 rounded-md text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--hover)] transition-colors">Instances</a>
         <a href="/superadmin/stats" className="text-sm px-2.5 py-1.5 rounded-md text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--hover)] transition-colors">Stats</a>
         {access.isDev && (
-          <a href="/superadmin/groups" className="text-sm px-2.5 py-1.5 rounded-md text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--hover)] transition-colors">Groupes</a>
+          <>
+            <a href="/superadmin/groups" className="text-sm px-2.5 py-1.5 rounded-md text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--hover)] transition-colors">Groupes</a>
+            <a href="/superadmin/bot" className="text-sm px-2.5 py-1.5 rounded-md text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--hover)] transition-colors">Bot</a>
+          </>
         )}
         {!access.isDev && (
           <span className="badge ml-2" style={{ background: 'color-mix(in srgb, var(--warning) 12%, transparent)', color: 'var(--warning)' }}>
