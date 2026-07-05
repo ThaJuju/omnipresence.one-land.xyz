@@ -23,6 +23,11 @@ const fr = {
   },
   warning: {
     autoReason: 'Absence non déclarée',
+    notifTitle: '⚠️ Avertissements automatiques',
+    notifDesc: (count: number, date: string) =>
+      `**${count} avertissement(s)** émis automatiquement pour absence non déclarée le **${date}**.`,
+    notifMembersField: 'Membres concernés',
+    notifMoreMembers: (n: number) => `… et ${n} autre(s)`,
   },
   absence: {
     embedTitle: "📋 Déclaration d'absence",
@@ -103,6 +108,11 @@ const en: typeof fr = {
   },
   warning: {
     autoReason: 'Undeclared absence',
+    notifTitle: '⚠️ Automatic warnings',
+    notifDesc: (count: number, date: string) =>
+      `**${count} warning(s)** automatically issued for undeclared absence on **${date}**.`,
+    notifMembersField: 'Affected members',
+    notifMoreMembers: (n: number) => `… and ${n} more`,
   },
   reports: {
     dailyTitle: '📊 Daily report',
