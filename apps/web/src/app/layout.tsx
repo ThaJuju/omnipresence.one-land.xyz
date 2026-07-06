@@ -32,6 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: { card: 'summary', title, description },
     robots: { index: true, follow: true },
+    verification: { google: 'O37YyLZ-sVxpJPkTPNw_w5CvPyNNokqDbUHkuZ9R6Og' },
   }
 }
 
