@@ -24,6 +24,7 @@ export default async function DashboardPage() {
 
   const isSuperAdmin = discordUserId === process.env['SUPERADMIN_DISCORD_ID']
   const sp = getT(getLocale()).serverPicker
+  const inviteHref = `https://discord.com/api/oauth2/authorize?client_id=${process.env['DISCORD_CLIENT_ID']}&permissions=268585984&scope=bot%20applications.commands`
 
   if (members.length === 1 && members[0]) {
     redirect(`/dashboard/${members[0].guild.id}`)
@@ -37,11 +38,22 @@ export default async function DashboardPage() {
             <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--text)' }}>{sp.title}</h1>
             <p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>{sp.subtitle}</p>
           </div>
-          {isSuperAdmin && (
-            <Link href="/superadmin" className="btn-ghost px-3 py-1.5 text-xs inline-block">
-              {sp.superadminPanel}
-            </Link>
-          )}
+          <div className="flex items-center gap-2">
+            {isSuperAdmin && (
+              <Link href="/superadmin" className="btn-ghost px-3 py-1.5 text-xs inline-block">
+                {sp.superadminPanel}
+              </Link>
+            )}
+            <a
+              href={inviteHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary px-3 py-1.5 text-xs inline-flex items-center gap-1.5"
+            >
+              <Bot size={13} strokeWidth={2} />
+              {sp.inviteBot}
+            </a>
+          </div>
         </div>
 
         {members.length === 0 ? (
@@ -57,7 +69,9 @@ export default async function DashboardPage() {
               {sp.noServersDesc}
             </p>
             <a
-              href={`https://discord.com/api/oauth2/authorize?client_id=${process.env['DISCORD_CLIENT_ID']}&permissions=268585984&scope=bot%20applications.commands`}
+              href={inviteHref}
+              target="_blank"
+              rel="noopener noreferrer"
               className="btn-primary px-5 py-2.5 text-sm inline-block"
             >
               {sp.inviteBot}

@@ -75,7 +75,7 @@ export default async function LandingPage() {
         </p>
 
         <div className="flex flex-wrap justify-center gap-3 mb-16">
-          <a href={inviteHref} className="btn-primary px-6 py-3 text-sm inline-flex items-center gap-2">
+          <a href={inviteHref} target="_blank" rel="noopener noreferrer" className="btn-primary px-6 py-3 text-sm inline-flex items-center gap-2">
             {l.inviteBot} <ArrowRight size={15} />
           </a>
           <Link href={primaryHref} className="btn-ghost px-6 py-3 text-sm inline-block">{primaryLabel}</Link>
@@ -231,6 +231,8 @@ export default async function LandingPage() {
           </p>
           <a
             href={inviteHref}
+            target="_blank"
+            rel="noopener noreferrer"
             className="relative inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold transition-transform hover:scale-[1.03]"
             style={{ background: 'white', color: 'var(--accent)' }}
           >
@@ -249,7 +251,7 @@ export default async function LandingPage() {
         </div>
         <div className="flex items-center gap-4">
           <Link href={primaryHref} className="text-xs transition-colors hover:opacity-80" style={{ color: 'var(--text-2)' }}>{primaryLabel}</Link>
-          <a href={inviteHref} className="text-xs transition-colors hover:opacity-80" style={{ color: 'var(--text-2)' }}>{l.inviteBot}</a>
+          <a href={inviteHref} target="_blank" rel="noopener noreferrer" className="text-xs transition-colors hover:opacity-80" style={{ color: 'var(--text-2)' }}>{l.inviteBot}</a>
         </div>
       </footer>
     </main>
