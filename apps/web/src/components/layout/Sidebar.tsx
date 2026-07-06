@@ -90,7 +90,7 @@ export default function Sidebar({ guild, member, locale }: Props) {
 
   return (
     <aside
-      className="hidden lg:flex w-[236px] flex-col"
+      className="hidden lg:flex w-[236px] flex-col sticky top-0 h-screen flex-shrink-0"
       style={{
         background: 'linear-gradient(180deg, color-mix(in srgb, var(--guild-accent) 3%, var(--surface)), var(--surface) 220px)',
         borderRight: '1px solid var(--border)',
