@@ -7,6 +7,8 @@ export default auth((req) => {
 
   const isPublic =
     pathname === '/' ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml' ||
     pathname === '/api/health' ||
     pathname.startsWith('/auth/') ||
     pathname.startsWith('/api/auth/') ||
