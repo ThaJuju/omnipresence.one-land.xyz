@@ -6,6 +6,8 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { getGuildMember, requirePermission } from '@/lib/api'
 import PublishAbsenceButton from './PublishAbsenceButton'
+import { getLocale } from '@/i18n/server'
+import { getT, type Translations } from '@/i18n/translations'
 
 type DiscordChannel = { id: string; name: string; type: number; parent_id: string | null; position: number }
 
@@ -53,7 +55,7 @@ async function saveConfig(guildId: string, formData: FormData) {
 async function publishEmbed(guildId: string): Promise<{ success: boolean; error?: string }> {
   'use server'
   const session = await auth()
-  if (!session?.user?.discordId) return { success: false, error: 'Non authentifié' }
+  if (!session?.user?.discordId) return { success: false, error: getT(getLocale()).settingsAbsenceEmbed.notAuthenticated }
   const member = await getGuildMember(guildId, session.user.discordId)
   requirePermission(member.panelRole, 'settings.edit')
 
@@ -67,12 +69,12 @@ async function publishEmbed(guildId: string): Promise<{ success: boolean; error?
     })
     if (!res.ok) {
       const body = await res.json().catch(() => ({})) as { error?: string }
-      return { success: false, error: body.error ?? 'Erreur inconnue' }
+      return { success: false, error: body.error ?? getT(getLocale()).settingsAbsenceEmbed.unknownError }
     }
     revalidatePath(`/dashboard/${guildId}/settings/absence-embed`)
     return { success: true }
   } catch {
-    return { success: false, error: 'Bot hors ligne' }
+    return { success: false, error: getT(getLocale()).settingsAbsenceEmbed.botOffline }
   }
 }
 
@@ -80,10 +82,12 @@ function ChannelSelect({
   name,
   defaultValue,
   channels,
+  t,
 }: {
   name: string
   defaultValue: string | null | undefined
   channels: DiscordChannel[]
+  t: Translations
 }) {
   const textChannels = channels.filter((c) => c.type === 0 || c.type === 5)
   if (textChannels.length === 0) {
@@ -91,7 +95,7 @@ function ChannelSelect({
       <input
         name={name}
         defaultValue={defaultValue ?? ''}
-        placeholder="ID du canal Discord"
+        placeholder={t.settingsDiscord.channelIdPlaceholder}
         className="w-full input px-3 py-2 text-sm font-mono"
       />
     )
@@ -114,7 +118,7 @@ function ChannelSelect({
       defaultValue={defaultValue ?? ''}
       className="w-full input px-3 py-2 text-sm"
     >
-      <option value="">— Aucun —</option>
+      <option value="">{t.settingsDiscord.noneOption}</option>
       {uncategorized.map((ch) => (
         <option key={ch.id} value={ch.id}>
           # {ch.name}
@@ -147,6 +151,9 @@ export default async function AbsenceEmbedPage({ params }: { params: { guildId: 
     fetchDiscordChannels(guild.discordGuildId),
   ])
 
+  const locale = getLocale()
+  const t = getT(locale)
+  const ae = t.settingsAbsenceEmbed
   const lang = config?.botLanguage ?? 'fr'
 
   const defaultTitle = lang === 'en' ? "📋 Absence Declaration" : "📋 Déclaration d'absence"
@@ -163,9 +170,9 @@ export default async function AbsenceEmbedPage({ params }: { params: { guildId: 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-[var(--text)]">Embed d&apos;absence</h2>
+        <h2 className="text-lg font-semibold text-[var(--text)]">{ae.title}</h2>
         <p className="text-[var(--text-2)] text-sm mt-1">
-          Publiez un embed permanent dans un canal Discord. Les membres cliquent sur le bouton pour déclarer une absence.
+          {ae.subtitle}
         </p>
       </div>
 
@@ -174,14 +181,14 @@ export default async function AbsenceEmbedPage({ params }: { params: { guildId: 
         <div className={`w-2 h-2 rounded-full flex-shrink-0 ${isPublished ? 'bg-[#22c55e]' : 'bg-[var(--text-3)]'}`} />
         <div>
           <p className="text-sm font-medium text-[var(--text)]">
-            {isPublished ? 'Embed publié' : 'Embed non publié'}
+            {isPublished ? ae.published : ae.notPublished}
           </p>
           {isPublished && (
             <p className="text-xs text-[var(--text-2)] mt-0.5 font-mono">{config.absenceEmbedMessageId}</p>
           )}
           {!isPublished && (
             <p className="text-xs text-[var(--text-3)] mt-0.5">
-              Configurez un canal et cliquez sur &quot;Publier dans Discord&quot;
+              {ae.notPublishedHint}
             </p>
           )}
         </div>
@@ -190,35 +197,35 @@ export default async function AbsenceEmbedPage({ params }: { params: { guildId: 
       <form action={saveAction} className="space-y-5">
         {/* Canaux */}
         <div className="card p-5 space-y-5">
-          <h3 className="font-semibold text-[var(--text)]">Canaux</h3>
+          <h3 className="font-semibold text-[var(--text)]">{ae.channels}</h3>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--text)] mb-0.5">Canal de l&apos;embed</label>
-            <p className="text-xs text-[var(--text-3)] mb-2">Canal où est posté l&apos;embed persistant avec le bouton (texte ou annonces)</p>
-            <ChannelSelect name="absenceChannelId" defaultValue={config?.absenceChannelId} channels={channels} />
+            <label className="block text-sm font-medium text-[var(--text)] mb-0.5">{ae.embedChannel}</label>
+            <p className="text-xs text-[var(--text-3)] mb-2">{ae.embedChannelDesc}</p>
+            <ChannelSelect name="absenceChannelId" defaultValue={config?.absenceChannelId} channels={channels} t={t} />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--text)] mb-0.5">Canal de notifications</label>
-            <p className="text-xs text-[var(--text-3)] mb-2">Canal où le bot envoie un embed à chaque nouvelle demande d&apos;absence (peut être un salon admin)</p>
-            <ChannelSelect name="absenceNotifChannelId" defaultValue={config?.absenceNotifChannelId} channels={channels} />
+            <label className="block text-sm font-medium text-[var(--text)] mb-0.5">{ae.notifChannel}</label>
+            <p className="text-xs text-[var(--text-3)] mb-2">{ae.notifChannelDesc}</p>
+            <ChannelSelect name="absenceNotifChannelId" defaultValue={config?.absenceNotifChannelId} channels={channels} t={t} />
           </div>
 
           <p className="text-xs text-[var(--text-3)]">
-            Langue : <span className="text-[var(--text-2)]">{lang === 'en' ? '🇬🇧 English' : '🇫🇷 Français'}</span> — modifiable dans{' '}
-            <a href={`/dashboard/${guildId}/settings`} className="text-[var(--accent)] hover:underline">Paramètres &gt; Apparence</a>
+            {ae.langLabel} <span className="text-[var(--text-2)]">{lang === 'en' ? '🇬🇧 English' : '🇫🇷 Français'}</span> — {ae.langEditable}{' '}
+            <a href={`/dashboard/${guildId}/settings`} className="text-[var(--accent)] hover:underline">{ae.langSettingsLink}</a>
           </p>
         </div>
 
         {/* Personnalisation */}
         <div className="card p-5 space-y-5">
           <div>
-            <h3 className="font-semibold text-[var(--text)]">Personnalisation</h3>
-            <p className="text-xs text-[var(--text-3)] mt-0.5">Laissez vide pour utiliser le texte par défaut selon la langue</p>
+            <h3 className="font-semibold text-[var(--text)]">{ae.customization}</h3>
+            <p className="text-xs text-[var(--text-3)] mt-0.5">{ae.customizationDesc}</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--text)] mb-1">Titre (optionnel)</label>
+            <label className="block text-sm font-medium text-[var(--text)] mb-1">{ae.titleOptional}</label>
             <input
               name="absenceEmbedTitle"
               defaultValue={config?.absenceEmbedTitle ?? ''}
@@ -228,7 +235,7 @@ export default async function AbsenceEmbedPage({ params }: { params: { guildId: 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--text)] mb-1">Description (optionnel)</label>
+            <label className="block text-sm font-medium text-[var(--text)] mb-1">{ae.descOptional}</label>
             <textarea
               name="absenceEmbedBody"
               defaultValue={config?.absenceEmbedBody ?? ''}
@@ -240,12 +247,12 @@ export default async function AbsenceEmbedPage({ params }: { params: { guildId: 
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <PublishAbsenceButton publishAction={publishAction} disabled={!hasChannel} />
+          <PublishAbsenceButton publishAction={publishAction} disabled={!hasChannel} locale={locale} />
           <button
             type="submit"
             className="px-4 py-2 bg-[var(--surface-2)] text-[var(--text)] rounded-lg text-sm font-medium hover:bg-[var(--hover)] transition-colors border border-[var(--border-mid)]"
           >
-            Sauvegarder
+            {t.common.save}
           </button>
         </div>
       </form>

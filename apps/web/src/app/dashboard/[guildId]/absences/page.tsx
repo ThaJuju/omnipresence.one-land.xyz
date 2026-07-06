@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache'
 import { avatarUrl } from '@/lib/utils'
 import { getGuildMember, requirePermission } from '@/lib/api'
 import { botClient } from '@/lib/bot-client'
+import { getLocale } from '@/i18n/server'
 import AbsencesView from '@/components/dashboard/AbsencesView'
 
 async function approveAbsence(guildId: string, absenceId: string) {
@@ -183,6 +184,7 @@ export default async function AbsencesPage({
 
   return (
     <AbsencesView
+      locale={getLocale()}
       guildId={guildId}
       view={view}
       year={year}

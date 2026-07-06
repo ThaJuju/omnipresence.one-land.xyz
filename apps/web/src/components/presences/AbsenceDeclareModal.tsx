@@ -2,16 +2,21 @@
 
 import { useState, useTransition } from 'react'
 import { X } from 'lucide-react'
+import { getT, type Locale } from '@/i18n/translations'
 
 export default function AbsenceDeclareModal({
   declareAction,
   onClose,
   onSuccess,
+  locale = 'fr',
 }: {
   declareAction: (fd: FormData) => Promise<void>
   onClose: () => void
   onSuccess: () => void
+  locale?: Locale
 }) {
+  const t = getT(locale)
+  const pd = t.presences
   const today = new Date().toISOString().split('T')[0]!
   const [isPending, startTransition] = useTransition()
   const [reason, setReason] = useState('')
@@ -21,8 +26,8 @@ export default function AbsenceDeclareModal({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!reason.trim()) { setError('Le motif est obligatoire'); return }
-    if (endDate < startDate) { setError('La date de fin ne peut pas être avant la date de début'); return }
+    if (!reason.trim()) { setError(pd.errReasonRequired); return }
+    if (endDate < startDate) { setError(pd.errEndBeforeStart); return }
     setError('')
     const fd = new FormData(e.currentTarget)
     startTransition(async () => {
@@ -36,7 +41,7 @@ export default function AbsenceDeclareModal({
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 w-full max-w-md shadow-2xl">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-bold text-[var(--text)]">Déclarer une absence</h2>
+          <h2 className="font-bold text-[var(--text)]">{pd.absenceModalTitle}</h2>
           <button onClick={onClose} className="text-[var(--text-3)] hover:text-[var(--text)] transition-colors">
             <X size={18} />
           </button>
@@ -44,20 +49,20 @@ export default function AbsenceDeclareModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">Motif *</label>
+            <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">{pd.reasonRequired}</label>
             <textarea
               name="reason"
               rows={3}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="Expliquez la raison de votre absence..."
+              placeholder={pd.reasonPlaceholder}
               className="w-full input px-3 py-2 text-sm resize-none transition-colors"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">Date de début *</label>
+              <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">{pd.startDateLabel}</label>
               <input
                 type="date"
                 name="startDate"
@@ -67,7 +72,7 @@ export default function AbsenceDeclareModal({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">Date de fin *</label>
+              <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">{pd.endDateLabel}</label>
               <input
                 type="date"
                 name="endDate"
@@ -87,14 +92,14 @@ export default function AbsenceDeclareModal({
               onClick={onClose}
               className="flex-1 px-4 py-2 text-sm font-medium text-[var(--text-2)] border border-[var(--border)] rounded-lg hover:bg-white/5 transition-colors"
             >
-              Annuler
+              {t.common.cancel}
             </button>
             <button
               type="submit"
               disabled={isPending}
               className="flex-1 px-4 py-2 btn-primary text-sm disabled:opacity-50"
             >
-              {isPending ? 'Enregistrement…' : "Déclarer l'absence"}
+              {isPending ? pd.saving : pd.submitAbsence}
             </button>
           </div>
         </form>

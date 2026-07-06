@@ -1,6 +1,8 @@
 import { Events } from 'discord.js'
 import { client } from './client'
 import { logger } from './logger'
+import { prisma } from '@repo/db'
+import { getBotT } from './i18n/botTranslations'
 import { startHttpServer } from './httpServer'
 import { onReady } from './events/ready'
 import { onGuildCreate } from './events/guildCreate'
@@ -43,7 +45,13 @@ client.on(Events.InteractionCreate, async (interaction) => {
       await command.execute(interaction)
     } catch (error) {
       logger.error({ error, command: interaction.commandName }, 'Command error')
-      const reply = { content: 'Une erreur est survenue.', ephemeral: true }
+      const config = interaction.guildId
+        ? await prisma.guildConfig.findFirst({
+            where: { guild: { discordGuildId: interaction.guildId } },
+            select: { botLanguage: true },
+          }).catch(() => null)
+        : null
+      const reply = { content: getBotT(config?.botLanguage ?? 'fr').common.errOccurred, ephemeral: true }
       if (interaction.replied || interaction.deferred) {
         await interaction.followUp(reply)
       } else {

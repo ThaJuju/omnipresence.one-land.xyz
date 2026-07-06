@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { getT, type Locale } from '@/i18n/translations'
 
 type DiscordRole = { id: string; name: string; color: number; position: number; managed: boolean }
 
@@ -8,9 +9,11 @@ function roleColor(r: DiscordRole) {
   return r.color ? `#${r.color.toString(16).padStart(6, '0')}` : undefined
 }
 
-export default function MultiRolePicker({ name, defaultValues, roles }: {
-  name: string; defaultValues: string[]; roles: DiscordRole[]
+export default function MultiRolePicker({ name, defaultValues, roles, locale = 'fr' }: {
+  name: string; defaultValues: string[]; roles: DiscordRole[]; locale?: Locale
 }) {
+  const w = getT(locale).settingsWarnings
+  const b = getT(locale).settingsBot
   const [selected, setSelected] = useState<string[]>(defaultValues)
   const [pending, setPending] = useState('')
 
@@ -39,7 +42,7 @@ export default function MultiRolePicker({ name, defaultValues, roles }: {
               {role ? `@${role.name}` : id}
             </span>
             <button type="button" onClick={() => removeRole(id)}
-              aria-label="Retirer ce rôle"
+              aria-label={locale === 'en' ? 'Remove this role' : 'Retirer ce rôle'}
               className="w-6 h-6 flex items-center justify-center rounded-md text-[var(--text-2)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 transition-colors">
               −
             </button>
@@ -52,13 +55,13 @@ export default function MultiRolePicker({ name, defaultValues, roles }: {
           <div className="flex gap-2">
             <select value={pending} onChange={(e) => setPending(e.target.value)}
               className="flex-1 input px-3 py-2 text-sm">
-              <option value="">— Choisir un rôle —</option>
+              <option value="">{w.chooseRole}</option>
               {available.map((r) => (
                 <option key={r.id} value={r.id} style={roleColor(r) ? { color: roleColor(r) } : undefined}>{r.name}</option>
               ))}
             </select>
             <button type="button" onClick={addRole} disabled={!pending}
-              aria-label="Ajouter ce rôle"
+              aria-label={locale === 'en' ? 'Add this role' : 'Ajouter ce rôle'}
               className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-lg bg-[var(--accent)] text-white disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-110 transition-all">
               +
             </button>
@@ -68,10 +71,10 @@ export default function MultiRolePicker({ name, defaultValues, roles }: {
         <div className="flex gap-2">
           <input value={pending} onChange={(e) => setPending(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addRole() } }}
-            placeholder="ID du rôle Discord"
+            placeholder={w.roleIdPlaceholder}
             className="flex-1 input px-3 py-2 text-sm font-mono" />
           <button type="button" onClick={addRole} disabled={!pending.trim()}
-            aria-label="Ajouter ce rôle"
+            aria-label={locale === 'en' ? 'Add this role' : 'Ajouter ce rôle'}
             className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-lg bg-[var(--accent)] text-white disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-110 transition-all">
             +
           </button>

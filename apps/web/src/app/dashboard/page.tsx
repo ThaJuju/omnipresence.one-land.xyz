@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { guildIconUrl } from '@/lib/utils'
 import { Bot, ChevronRight } from 'lucide-react'
+import { getLocale } from '@/i18n/server'
+import { getT } from '@/i18n/translations'
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -21,6 +23,7 @@ export default async function DashboardPage() {
   })
 
   const isSuperAdmin = discordUserId === process.env['SUPERADMIN_DISCORD_ID']
+  const sp = getT(getLocale()).serverPicker
 
   if (members.length === 1 && members[0]) {
     redirect(`/dashboard/${members[0].guild.id}`)
@@ -31,12 +34,12 @@ export default async function DashboardPage() {
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--text)' }}>Mes serveurs</h1>
-            <p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>Sélectionnez un serveur à gérer</p>
+            <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--text)' }}>{sp.title}</h1>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>{sp.subtitle}</p>
           </div>
           {isSuperAdmin && (
             <Link href="/superadmin" className="btn-ghost px-3 py-1.5 text-xs inline-block">
-              Panel Superadmin
+              {sp.superadminPanel}
             </Link>
           )}
         </div>
@@ -49,15 +52,15 @@ export default async function DashboardPage() {
             >
               <Bot size={24} strokeWidth={1.8} />
             </div>
-            <h2 className="text-base font-semibold mb-2 tracking-tight" style={{ color: 'var(--text)' }}>Aucun serveur accessible</h2>
+            <h2 className="text-base font-semibold mb-2 tracking-tight" style={{ color: 'var(--text)' }}>{sp.noServers}</h2>
             <p className="text-sm mb-6" style={{ color: 'var(--text-2)' }}>
-              Invitez le bot sur votre serveur Discord pour commencer.
+              {sp.noServersDesc}
             </p>
             <a
               href={`https://discord.com/api/oauth2/authorize?client_id=${process.env['DISCORD_CLIENT_ID']}&permissions=268585984&scope=bot%20applications.commands`}
               className="btn-primary px-5 py-2.5 text-sm inline-block"
             >
-              Inviter le bot
+              {sp.inviteBot}
             </a>
           </div>
         ) : (

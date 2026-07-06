@@ -163,15 +163,15 @@ export default async function SettingsPage({ params }: { params: { guildId: stri
 
       {/* Danger zone */}
       <div>
-        <h2 className="text-lg font-semibold text-[var(--danger)]">Zone dangereuse</h2>
-        <p className="text-sm text-[var(--text-2)] mt-0.5">Ces actions sont irréversibles. Procéder avec précaution.</p>
+        <h2 className="text-lg font-semibold text-[var(--danger)]">{tr.settings.dangerZone}</h2>
+        <p className="text-sm text-[var(--text-2)] mt-0.5">{tr.settings.dangerZoneDesc}</p>
       </div>
 
       <div className="bg-[var(--surface)] rounded-md border border-[#ef444430] p-5">
         <p className="text-sm text-[var(--text-2)] mb-4">
-          Réinitialise toutes les données opérationnelles de la guild. La configuration, les membres et les grades seront conservés.
+          {tr.settings.resetGuildDesc}
         </p>
-        <ResetGuildButton guildName={guild.discordGuildName} resetAction={resetGuild} />
+        <ResetGuildButton guildName={guild.discordGuildName} resetAction={resetGuild} locale={locale} />
       </div>
     </div>
   )

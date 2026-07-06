@@ -5,6 +5,12 @@ import { prisma } from '@repo/db'
 import { getBotT } from '../i18n/botTranslations'
 
 export async function handlePresenceButton(interaction: ButtonInteraction, action: string, guildId: string) {
+  const config = await prisma.guildConfig.findUnique({
+    where: { guildId },
+    select: { botLanguage: true },
+  })
+  const t = getBotT(config?.botLanguage ?? 'fr')
+
   if (action === 'present') {
     try {
       await callWeb('/api/internal/presence', {
@@ -12,18 +18,12 @@ export async function handlePresenceButton(interaction: ButtonInteraction, actio
         discordGuildId: interaction.guildId!,
         status: 'PRESENT',
       })
-      await interaction.reply({ content: '✅ Présence confirmée !', ephemeral: true })
+      await interaction.reply({ content: t.presence.confirmed, ephemeral: true })
     } catch (error) {
       logger.error({ error }, 'Failed to register presence')
-      await interaction.reply({ content: '❌ Erreur lors de l\'enregistrement.', ephemeral: true })
+      await interaction.reply({ content: t.common.errGeneral, ephemeral: true })
     }
   } else if (action === 'late') {
-    const config = await prisma.guildConfig.findUnique({
-      where: { guildId },
-      select: { botLanguage: true },
-    })
-    const t = getBotT(config?.botLanguage ?? 'fr')
-
     const modal = new ModalBuilder()
       .setCustomId(`late-modal:${guildId}`)
       .setTitle(t.presence.lateModalTitle)
@@ -47,25 +47,25 @@ export async function handlePresenceButton(interaction: ButtonInteraction, actio
 
     const modal = new ModalBuilder()
       .setCustomId(`absence-modal:${guildId}`)
-      .setTitle('Déclaration d\'absence')
+      .setTitle(t.absence.modalTitle)
 
     const reasonInput = new TextInputBuilder()
       .setCustomId('reason')
-      .setLabel('Motif de l\'absence')
+      .setLabel(t.absence.reasonLabel)
       .setStyle(TextInputStyle.Paragraph)
       .setRequired(true)
       .setMaxLength(500)
 
     const startInput = new TextInputBuilder()
       .setCustomId('startDate')
-      .setLabel('Date de début (JJ/MM/AAAA)')
+      .setLabel(t.absence.startLabel)
       .setStyle(TextInputStyle.Short)
       .setValue(todayStr)
       .setRequired(true)
 
     const endInput = new TextInputBuilder()
       .setCustomId('endDate')
-      .setLabel('Date de fin (JJ/MM/AAAA)')
+      .setLabel(t.absence.endLabel)
       .setStyle(TextInputStyle.Short)
       .setValue(todayStr)
       .setRequired(true)

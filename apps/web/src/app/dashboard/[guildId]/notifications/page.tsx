@@ -6,6 +6,8 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { getGuildMember } from '@/lib/api'
 import { AlertTriangle, Bell, CalendarX, CheckCircle2, Wallet } from 'lucide-react'
+import { getLocale } from '@/i18n/server'
+import { getT, type Translations } from '@/i18n/translations'
 
 async function markAllRead(guildId: string, userId: string) {
   'use server'
@@ -25,24 +27,26 @@ async function markRead(guildId: string, notifId: string) {
   revalidatePath(`/dashboard/${guildId}/notifications`)
 }
 
-const TYPE_LABELS: Record<string, { label: string; icon: typeof Bell; color: string }> = {
-  warning: { label: 'Avertissement', icon: AlertTriangle, color: 'var(--warning)' },
-  absence: { label: 'Absence', icon: CalendarX, color: 'var(--danger)' },
-  presence: { label: 'Présence', icon: CheckCircle2, color: 'var(--success)' },
-  contribution: { label: 'Cotisation', icon: Wallet, color: 'var(--accent)' },
-  system: { label: 'Système', icon: Bell, color: 'var(--text-2)' },
+function typeLabels(t: Translations): Record<string, { label: string; icon: typeof Bell; color: string }> {
+  return {
+    warning: { label: t.notifications.typeWarning, icon: AlertTriangle, color: 'var(--warning)' },
+    absence: { label: t.notifications.typeAbsence, icon: CalendarX, color: 'var(--danger)' },
+    presence: { label: t.notifications.typePresence, icon: CheckCircle2, color: 'var(--success)' },
+    contribution: { label: t.notifications.typeContribution, icon: Wallet, color: 'var(--accent)' },
+    system: { label: t.notifications.typeSystem, icon: Bell, color: 'var(--text-2)' },
+  }
 }
 
-function formatRelative(date: Date) {
+function formatRelative(date: Date, t: Translations) {
   const diff = Date.now() - date.getTime()
   const mins = Math.floor(diff / 60000)
-  if (mins < 1) return "À l'instant"
-  if (mins < 60) return `Il y a ${mins} min`
+  if (mins < 1) return t.time.justNow
+  if (mins < 60) return t.time.minAgo(mins)
   const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `Il y a ${hrs}h`
+  if (hrs < 24) return t.time.hoursAgo(hrs)
   const days = Math.floor(hrs / 24)
-  if (days < 7) return `Il y a ${days}j`
-  return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+  if (days < 7) return t.time.daysAgo(days)
+  return date.toLocaleDateString(t.notifications.dateLocale, { day: 'numeric', month: 'short' })
 }
 
 export default async function NotificationsPage({ params }: { params: { guildId: string } }) {
@@ -61,14 +65,17 @@ export default async function NotificationsPage({ params }: { params: { guildId:
   const unreadCount = notifications.filter((n) => !n.isRead).length
 
   const markAllReadAction = markAllRead.bind(null, guildId, member.discordUserId)
+  const t = getT(getLocale())
+  const nf = t.notifications
+  const TYPE_LABELS = typeLabels(t)
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">Notifications</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">{nf.title}</h1>
           <p className="text-[var(--text-2)] text-sm mt-1">
-            {unreadCount > 0 ? `${unreadCount} non lue${unreadCount > 1 ? 's' : ''}` : 'Tout est à jour'}
+            {unreadCount > 0 ? nf.unread(unreadCount) : nf.allRead}
           </p>
         </div>
         {unreadCount > 0 && (
@@ -77,7 +84,7 @@ export default async function NotificationsPage({ params }: { params: { guildId:
               type="submit"
               className="px-3 py-1.5 text-xs font-medium text-[var(--text-2)] border border-[var(--border)] rounded-lg hover:bg-[var(--hover)] hover:text-[var(--text)] transition-colors"
             >
-              Tout marquer comme lu
+              {nf.markAllRead}
             </button>
           </form>
         )}
@@ -91,8 +98,8 @@ export default async function NotificationsPage({ params }: { params: { guildId:
           >
             <Bell size={24} strokeWidth={1.8} />
           </div>
-          <p className="font-medium text-[var(--text)] mb-1">Aucune notification</p>
-          <p className="text-sm">Vous serez notifié ici des événements importants.</p>
+          <p className="font-medium text-[var(--text)] mb-1">{nf.noNotifications}</p>
+          <p className="text-sm">{nf.noNotificationsDesc}</p>
         </div>
       ) : (
         <div className="card divide-y divide-[var(--border)] overflow-hidden">
@@ -129,7 +136,7 @@ export default async function NotificationsPage({ params }: { params: { guildId:
                 </div>
                 <div className="flex-shrink-0 flex flex-col items-end gap-2">
                   <span className="text-[11px] text-[var(--text-3)] whitespace-nowrap">
-                    {formatRelative(new Date(notif.createdAt))}
+                    {formatRelative(new Date(notif.createdAt), t)}
                   </span>
                   {!notif.isRead && (
                     <form action={markReadAction}>
@@ -137,7 +144,7 @@ export default async function NotificationsPage({ params }: { params: { guildId:
                         type="submit"
                         className="text-[10px] text-[var(--text-3)] hover:text-[var(--text-2)] transition-colors"
                       >
-                        Marquer lu
+                        {nf.markRead}
                       </button>
                     </form>
                   )}

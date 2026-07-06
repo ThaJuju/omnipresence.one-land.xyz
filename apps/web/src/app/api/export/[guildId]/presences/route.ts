@@ -1,6 +1,8 @@
 import { prisma } from '@repo/db'
 import { getSessionOrThrow, getGuildMember, requirePermission, withApiHandler } from '@/lib/api'
 import { NextResponse } from 'next/server'
+import { getLocale } from '@/i18n/server'
+import { getT } from '@/i18n/translations'
 
 export const GET = withApiHandler(async (req, { params }) => {
   const session = await getSessionOrThrow()
@@ -18,15 +20,15 @@ export const GET = withApiHandler(async (req, { params }) => {
     orderBy: [{ date: 'desc' }, { memberId: 'asc' }],
   })
 
-  const STATUS_FR: Record<string, string> = { PRESENT: 'Présent', ABSENT: 'Absent', PENDING: 'En attente' }
+  const csvT = getT(getLocale()).csv
 
   const rows = [
-    ['Date', 'Nom Discord', 'Surnom', 'Statut'],
+    csvT.presenceHeaders,
     ...logs.map((l) => [
       l.date.toISOString().split('T')[0]!,
       l.member.discordUsername,
       l.member.discordNickname ?? '',
-      STATUS_FR[l.status] ?? l.status,
+      csvT.presenceStatus[l.status] ?? l.status,
     ]),
   ]
 

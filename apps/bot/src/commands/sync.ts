@@ -3,14 +3,25 @@ import { prisma } from '@repo/db'
 import { callWeb } from '../web-client'
 import { logger } from '../logger'
 import { resolvePanelRole } from './helpers'
+import { getBotT } from '../i18n/botTranslations'
 
 export const data = new SlashCommandBuilder()
   .setName('sync')
   .setDescription('Resynchroniser les membres du serveur')
+  .setDescriptionLocalizations({
+    'en-US': 'Resync server members',
+    'en-GB': 'Resync server members',
+  })
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   await interaction.deferReply({ ephemeral: true })
+
+  const config = await prisma.guildConfig.findFirst({
+    where: { guild: { discordGuildId: interaction.guildId! } },
+    select: { botLanguage: true },
+  })
+  const t = getBotT(config?.botLanguage ?? 'fr')
 
   try {
     const discordGuild = await interaction.guild!.fetch()
@@ -32,9 +43,9 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       synced++
     }
 
-    await interaction.editReply(`✅ ${synced} membre(s) synchronisé(s).`)
+    await interaction.editReply(t.sync.done(synced))
   } catch (error) {
     logger.error({ error }, 'sync command failed')
-    await interaction.editReply('❌ Erreur lors de la synchronisation.')
+    await interaction.editReply(t.sync.error)
   }
 }

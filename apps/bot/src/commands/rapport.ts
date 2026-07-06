@@ -2,13 +2,24 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, Permiss
 import { prisma } from '@repo/db'
 import { logger } from '../logger'
 import { isSendableChannel } from '../channel-utils'
+import { getBotT } from '../i18n/botTranslations'
 
 export const data = new SlashCommandBuilder()
   .setName('rapport')
   .setDescription('Envoyer un rapport de présences dans le canal log')
+  .setDescriptionLocalizations({
+    'en-US': 'Send a presence report to the log channel',
+    'en-GB': 'Send a presence report to the log channel',
+  })
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
   .addStringOption((o) =>
-    o.setName('date').setDescription('Date du rapport (JJ/MM/AAAA, défaut : aujourd\'hui)').setRequired(false)
+    o.setName('date')
+      .setDescription('Date du rapport (JJ/MM/AAAA, défaut : aujourd\'hui)')
+      .setDescriptionLocalizations({
+        'en-US': 'Report date (DD/MM/YYYY, default: today)',
+        'en-GB': 'Report date (DD/MM/YYYY, default: today)',
+      })
+      .setRequired(false)
   )
 
 function parseDate(str: string): Date | null {
@@ -23,26 +34,28 @@ function parseDate(str: string): Date | null {
 export async function execute(interaction: ChatInputCommandInteraction) {
   await interaction.deferReply({ ephemeral: true })
 
-  const dateStr = interaction.options.getString('date')
-  let targetDate = new Date()
-  if (dateStr) {
-    const parsed = parseDate(dateStr)
-    if (!parsed) {
-      await interaction.editReply('Format de date invalide. Utilisez JJ/MM/AAAA.')
-      return
-    }
-    targetDate = parsed
-  }
-  targetDate.setUTCHours(0, 0, 0, 0)
-
+  let t = getBotT('fr')
   try {
     const guild = await prisma.guildInstance.findUnique({
       where: { discordGuildId: interaction.guildId! },
       include: { config: true },
     })
+    t = getBotT(guild?.config?.botLanguage ?? 'fr')
+
+    const dateStr = interaction.options.getString('date')
+    let targetDate = new Date()
+    if (dateStr) {
+      const parsed = parseDate(dateStr)
+      if (!parsed) {
+        await interaction.editReply(t.absence.errFormat)
+        return
+      }
+      targetDate = parsed
+    }
+    targetDate.setUTCHours(0, 0, 0, 0)
 
     if (!guild?.config?.logChannelId) {
-      await interaction.editReply('Le canal de log n\'est pas configuré.')
+      await interaction.editReply(t.report.logNotConfigured)
       return
     }
 
@@ -56,34 +69,34 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     const pending = logs.filter((l) => l.status === 'PENDING')
 
     const embed = new EmbedBuilder()
-      .setTitle(`Rapport de présences — ${targetDate.toLocaleDateString('fr-FR')}`)
+      .setTitle(t.report.title(targetDate.toLocaleDateString(t.presence.dateLocale)))
       .setColor(present.length > absent.length ? 0x23d160 : 0xff3860)
       .addFields(
         {
-          name: `✅ Présents (${present.length})`,
-          value: present.map((l) => l.member.discordNickname ?? l.member.discordUsername).join(', ') || 'Aucun',
+          name: t.report.presentField(present.length),
+          value: present.map((l) => l.member.discordNickname ?? l.member.discordUsername).join(', ') || t.common.none,
         },
         {
-          name: `❌ Absents (${absent.length})`,
-          value: absent.map((l) => l.member.discordNickname ?? l.member.discordUsername).join(', ') || 'Aucun',
+          name: t.report.absentField(absent.length),
+          value: absent.map((l) => l.member.discordNickname ?? l.member.discordUsername).join(', ') || t.common.none,
         },
         {
-          name: `⏳ En attente (${pending.length})`,
-          value: pending.map((l) => l.member.discordNickname ?? l.member.discordUsername).join(', ') || 'Aucun',
+          name: t.report.pendingField(pending.length),
+          value: pending.map((l) => l.member.discordNickname ?? l.member.discordUsername).join(', ') || t.common.none,
         }
       )
       .setTimestamp()
 
     const logChannel = await interaction.client.channels.fetch(guild.config.logChannelId)
     if (!isSendableChannel(logChannel)) {
-      await interaction.editReply('Le canal de log est invalide.')
+      await interaction.editReply(t.report.logInvalid)
       return
     }
 
     await logChannel.send({ embeds: [embed] })
-    await interaction.editReply('✅ Rapport envoyé dans le canal de log.')
+    await interaction.editReply(t.report.sent)
   } catch (error) {
     logger.error({ error }, 'rapport command failed')
-    await interaction.editReply('❌ Erreur lors de la génération du rapport.')
+    await interaction.editReply(t.report.error)
   }
 }

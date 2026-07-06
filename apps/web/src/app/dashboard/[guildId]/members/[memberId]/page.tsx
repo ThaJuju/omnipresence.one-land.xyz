@@ -7,6 +7,8 @@ import { revalidatePath } from 'next/cache'
 import { avatarUrl, formatDate } from '@/lib/utils'
 import { getGuildMember, requirePermission } from '@/lib/api'
 import type { PanelRole } from '@repo/shared'
+import { getLocale } from '@/i18n/server'
+import { getT } from '@/i18n/translations'
 
 async function setMemberGrade(guildId: string, memberId: string, formData: FormData) {
   'use server'
@@ -86,7 +88,6 @@ async function revokeWarning(guildId: string, warningId: string, memberId: strin
 }
 
 const PANEL_ROLES: PanelRole[] = ['ADMIN', 'DIRECTION', 'RESPONSABLE', 'MODERATEUR', 'MEMBRE']
-const STATUS_LABEL: Record<string, string> = { PENDING: 'En attente', APPROVED: 'Approuvée', REJECTED: 'Refusée', PRESENT: 'Présent', ABSENT: 'Absent' }
 const STATUS_COLOR: Record<string, string> = {
   PENDING: 'text-[var(--warning)]', APPROVED: 'text-[var(--success)]', REJECTED: 'text-[var(--danger)]',
   PRESENT: 'text-[var(--success)]', ABSENT: 'text-[var(--danger)]',
@@ -126,6 +127,9 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
     ? Math.round((presenceStats.present / presenceStats.total) * 100)
     : null
 
+  const t = getT(getLocale())
+  const md = t.memberDetail
+  const STATUS_LABEL = md.statusLabels
   const setGradeAction = setMemberGrade.bind(null, guildId, memberId)
   const setRoleAction = setMemberPanelRole.bind(null, guildId, memberId)
   const toggleActiveAction = toggleMemberActive.bind(null, guildId, memberId, member.isActive)
@@ -147,13 +151,13 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
                 </span>
               )}
               <span className={`text-xs font-medium px-2 py-0.5 rounded-md ${member.isActive ? 'text-[var(--success)] bg-[#22c55e15]' : 'text-[var(--text-3)] bg-[var(--hover)]'}`}>
-                {member.isActive ? 'Actif' : 'Inactif'}
+                {member.isActive ? t.common.active : t.common.inactive}
               </span>
             </div>
             {member.discordNickname && <p className="text-[var(--text-2)] text-xs mt-1">{member.discordUsername}</p>}
             <p className="text-[var(--text-3)] text-xs mt-1.5">
-              Rôle : <span className="text-[var(--text-2)]">{member.panelRole}</span>
-              {' · '}Rejoint le <span className="text-[var(--text-2)]">{formatDate(member.joinedAt)}</span>
+              {md.roleLabel} <span className="text-[var(--text-2)]">{member.panelRole}</span>
+              {' · '}{md.joinedOn} <span className="text-[var(--text-2)]">{formatDate(member.joinedAt)}</span>
             </p>
           </div>
           <div className="flex gap-2 flex-shrink-0 flex-wrap">
@@ -164,7 +168,7 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
                     ? 'text-[var(--danger)] border-[#ef444430] hover:bg-[#ef444415]'
                     : 'text-[var(--success)] border-[#22c55e30] hover:bg-[#22c55e15]'
                 }`}>
-                {member.isActive ? 'Désactiver' : 'Réactiver'}
+                {member.isActive ? md.deactivate : md.reactivate}
               </button>
             </form>
           </div>
@@ -175,25 +179,25 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Changer le grade */}
         <form action={setGradeAction} className="card p-4">
-          <label className="block text-xs font-semibold text-[var(--text-2)] uppercase tracking-wider mb-2">Grade</label>
+          <label className="block text-xs font-semibold text-[var(--text-2)] uppercase tracking-wider mb-2">{md.gradeLabel}</label>
           <div className="flex gap-2">
             <select name="gradeId" defaultValue={member.gradeId ?? ''}
               className="flex-1 input px-3 py-2 text-sm">
-              <option value="">— Aucun grade —</option>
+              <option value="">{md.noGrade}</option>
               {grades.map((g) => (
                 <option key={g.id} value={g.id}>{g.name}</option>
               ))}
             </select>
             <button type="submit"
               className="px-3 py-2 btn-primary text-xs">
-              Appliquer
+              {md.apply}
             </button>
           </div>
         </form>
 
         {/* Changer le rôle panel */}
         <form action={setRoleAction} className="card p-4">
-          <label className="block text-xs font-semibold text-[var(--text-2)] uppercase tracking-wider mb-2">Rôle panel</label>
+          <label className="block text-xs font-semibold text-[var(--text-2)] uppercase tracking-wider mb-2">{md.panelRoleLabel}</label>
           <div className="flex gap-2">
             <select name="panelRole" defaultValue={member.panelRole}
               className="flex-1 input px-3 py-2 text-sm">
@@ -201,7 +205,7 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
             </select>
             <button type="submit"
               className="px-3 py-2 btn-primary text-xs">
-              Appliquer
+              {md.apply}
             </button>
           </div>
         </form>
@@ -210,16 +214,16 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
       {/* Notes */}
       <form action={saveNoteAction} className="card p-4">
         <div className="flex items-center justify-between mb-2">
-          <label className="text-xs font-semibold text-[var(--text-2)] uppercase tracking-wider">Notes internes</label>
+          <label className="text-xs font-semibold text-[var(--text-2)] uppercase tracking-wider">{md.internalNotes}</label>
           <button type="submit" className="btn-primary text-xs px-3 py-1">
-            Sauvegarder
+            {t.common.save}
           </button>
         </div>
         <textarea
           name="notes"
           defaultValue={member.notes ?? ''}
           rows={3}
-          placeholder="Ajouter une note visible uniquement par les admins…"
+          placeholder={md.notesPlaceholder}
           className="w-full input px-3 py-2 text-sm resize-none transition-colors"
         />
       </form>
@@ -228,20 +232,20 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
       <div className="grid grid-cols-3 gap-3">
         <div className="card p-4 text-center">
           <p className="text-2xl font-bold text-[var(--success)]">{presenceStats.present}</p>
-          <p className="text-xs text-[var(--text-2)] mt-1">Présences (30j)</p>
+          <p className="text-xs text-[var(--text-2)] mt-1">{md.presences30d}</p>
           {presenceRate !== null && (
-            <p className="text-[11px] text-[var(--text-3)] mt-0.5">{presenceRate}% de taux</p>
+            <p className="text-[11px] text-[var(--text-3)] mt-0.5">{presenceRate}{md.rateSuffix}</p>
           )}
         </div>
         <div className="card p-4 text-center">
           <p className="text-2xl font-bold text-[var(--danger)]">{presenceStats.absent}</p>
-          <p className="text-xs text-[var(--text-2)] mt-1">Absences (30j)</p>
+          <p className="text-xs text-[var(--text-2)] mt-1">{md.absences30d}</p>
         </div>
         <div className="card p-4 text-center">
           <p className={`text-2xl font-bold ${activeWarnings.length > 0 ? 'text-[var(--warning)]' : 'text-[var(--success)]'}`}>
             {activeWarnings.length}
           </p>
-          <p className="text-xs text-[var(--text-2)] mt-1">Avertissements actifs</p>
+          <p className="text-xs text-[var(--text-2)] mt-1">{md.activeWarnings}</p>
         </div>
       </div>
 
@@ -249,10 +253,10 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
         {/* Avertissements */}
         <div className="card overflow-hidden">
           <div className="px-4 py-3 border-b border-[var(--border)]">
-            <h2 className="font-semibold text-[var(--text)] text-sm">Avertissements</h2>
+            <h2 className="font-semibold text-[var(--text)] text-sm">{md.warnings}</h2>
           </div>
           {member.warnings.length === 0 ? (
-            <p className="px-4 py-6 text-[var(--text-3)] text-sm">Aucun avertissement.</p>
+            <p className="px-4 py-6 text-[var(--text-3)] text-sm">{md.noWarnings}</p>
           ) : (
             <ul className="divide-y divide-[var(--border)]">
               {member.warnings.map((w) => {
@@ -262,14 +266,14 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-[var(--text)] truncate">{w.reason}</p>
                       <p className="text-[11px] text-[var(--text-3)] mt-0.5">
-                        {w.isAuto ? 'Auto' : 'Manuel'} · {formatDate(w.createdAt)}
-                        {!w.isActive && ' · Révoqué'}
+                        {w.isAuto ? t.warnings.auto : t.warnings.manual} · {formatDate(w.createdAt)}
+                        {!w.isActive && ` · ${md.revoked}`}
                       </p>
                     </div>
                     {w.isActive && revokeAction && (
                       <form action={revokeAction}>
                         <button type="submit" className="text-[11px] text-[var(--danger)] hover:text-[#ff6b81] px-2 py-0.5 border border-[#ef444430] rounded transition-colors flex-shrink-0">
-                          Révoquer
+                          {md.revoke}
                         </button>
                       </form>
                     )}
@@ -283,10 +287,10 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
         {/* Absences récentes */}
         <div className="card overflow-hidden">
           <div className="px-4 py-3 border-b border-[var(--border)]">
-            <h2 className="font-semibold text-[var(--text)] text-sm">Absences récentes</h2>
+            <h2 className="font-semibold text-[var(--text)] text-sm">{md.recentAbsences}</h2>
           </div>
           {member.absences.length === 0 ? (
-            <p className="px-4 py-6 text-[var(--text-3)] text-sm">Aucune absence enregistrée.</p>
+            <p className="px-4 py-6 text-[var(--text-3)] text-sm">{md.noAbsences}</p>
           ) : (
             <ul className="divide-y divide-[var(--border)]">
               {member.absences.map((a) => (
@@ -307,10 +311,10 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
         {/* Présences récentes */}
         <div className="card overflow-hidden">
           <div className="px-4 py-3 border-b border-[var(--border)]">
-            <h2 className="font-semibold text-[var(--text)] text-sm">Présences récentes (30j)</h2>
+            <h2 className="font-semibold text-[var(--text)] text-sm">{md.recentPresences}</h2>
           </div>
           {member.presenceLogs.length === 0 ? (
-            <p className="px-4 py-6 text-[var(--text-3)] text-sm">Aucune présence enregistrée.</p>
+            <p className="px-4 py-6 text-[var(--text-3)] text-sm">{md.noPresences}</p>
           ) : (
             <div className="px-4 py-3 flex flex-wrap gap-1.5">
               {member.presenceLogs.map((p) => (
@@ -330,10 +334,10 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
         {/* Historique grades */}
         <div className="card overflow-hidden">
           <div className="px-4 py-3 border-b border-[var(--border)]">
-            <h2 className="font-semibold text-[var(--text)] text-sm">Historique des grades</h2>
+            <h2 className="font-semibold text-[var(--text)] text-sm">{md.gradeHistory}</h2>
           </div>
           {member.gradeHistory.length === 0 ? (
-            <p className="px-4 py-6 text-[var(--text-3)] text-sm">Aucun changement de grade.</p>
+            <p className="px-4 py-6 text-[var(--text-3)] text-sm">{md.noGradeChange}</p>
           ) : (
             <ul className="divide-y divide-[var(--border)]">
               {member.gradeHistory.map((gh) => (
@@ -351,7 +355,7 @@ export default async function MemberDetailPage({ params }: { params: { guildId: 
         {member.contributions.length > 0 && (
           <div className="card overflow-hidden lg:col-span-2">
             <div className="px-4 py-3 border-b border-[var(--border)]">
-              <h2 className="font-semibold text-[var(--text)] text-sm">Cotisations</h2>
+              <h2 className="font-semibold text-[var(--text)] text-sm">{md.contributions}</h2>
             </div>
             <div className="px-4 py-3 flex flex-wrap gap-2">
               {member.contributions.map((c) => (

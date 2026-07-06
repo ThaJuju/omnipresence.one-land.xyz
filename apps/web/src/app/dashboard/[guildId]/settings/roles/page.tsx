@@ -5,6 +5,8 @@ import { prisma } from '@repo/db'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { getGuildMember, requirePermission } from '@/lib/api'
+import { getLocale } from '@/i18n/server'
+import { getT } from '@/i18n/translations'
 
 type DiscordRole = { id: string; name: string; color: number; position: number; managed: boolean }
 
@@ -95,22 +97,23 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
   )
 
   const addBindingAction = addBinding.bind(null, guildId)
+  const t = getT(getLocale())
+  const r = t.settingsRoles
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-[var(--text)]">Binding des rôles</h2>
-        <p className="text-[var(--text-2)] text-sm mt-1">Lier les rôles Discord aux rôles panel</p>
+        <h2 className="text-lg font-semibold text-[var(--text)]">{r.title}</h2>
+        <p className="text-[var(--text-2)] text-sm mt-1">{r.subtitle}</p>
       </div>
 
       <div className="card p-4 text-sm text-[var(--text-2)]">
-        ℹ️ Le propriétaire du serveur Discord est automatiquement{' '}
-        <span className="font-semibold" style={{ color: 'var(--danger)' }}>ADMIN</span> sans binding.
-        Un membre peut avoir plusieurs rôles Discord — le rôle panel le plus élevé s&apos;applique.
+        {r.ownerInfoPrefix}{' '}
+        <span className="font-semibold" style={{ color: 'var(--danger)' }}>ADMIN</span> {r.ownerInfoSuffix}
       </div>
 
       <form action={addBindingAction} className="card p-5 space-y-4">
-        <h2 className="font-semibold text-[var(--text)]">Ajouter un binding</h2>
+        <h2 className="font-semibold text-[var(--text)]">{r.addBinding}</h2>
 
         {discordRoles.length > 0 ? (
           <div className="flex gap-3 flex-wrap sm:flex-nowrap">
@@ -119,7 +122,7 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
               required
               className="flex-1 input px-3 py-2 text-sm"
             >
-              <option value="">— Sélectionner un rôle Discord —</option>
+              <option value="">{r.selectRole}</option>
               {discordRoles.map((role) => {
                 const alreadyBound = bindings.find((b) => b.discordRoleId === role.id)
                 return (
@@ -142,14 +145,14 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
               type="submit"
               className="px-4 py-2 btn-primary text-sm whitespace-nowrap"
             >
-              + Ajouter
+              {r.addBtn}
             </button>
           </div>
         ) : (
           <div className="flex gap-3 flex-wrap sm:flex-nowrap">
             <input
               name="discordRoleId"
-              placeholder="ID du rôle Discord"
+              placeholder={r.roleIdPlaceholder}
               required
               pattern="\d+"
               className="flex-1 input px-3 py-2 text-sm font-mono"
@@ -167,7 +170,7 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
               type="submit"
               className="px-4 py-2 btn-primary text-sm whitespace-nowrap"
             >
-              + Ajouter
+              {r.addBtn}
             </button>
           </div>
         )}
@@ -175,7 +178,7 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
         {discordRoles.length > 0 && (
           <details className="text-xs text-[var(--text-3)]">
             <summary className="cursor-pointer hover:text-[var(--text-2)]">
-              Voir tous les rôles disponibles ({discordRoles.length})
+              {r.seeAllRoles(discordRoles.length)}
             </summary>
             <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
               {discordRoles.map((role) => (
@@ -201,7 +204,7 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
                 style={{ backgroundColor: panelRoleColors[panelRole] }}
               />
               <span className="font-semibold text-[var(--text)]">{panelRole}</span>
-              <span className="text-xs text-[var(--text-3)]">{byRole[panelRole]?.length ?? 0} binding(s)</span>
+              <span className="text-xs text-[var(--text-3)]">{r.bindingCount(byRole[panelRole]?.length ?? 0)}</span>
             </div>
             {byRole[panelRole] && byRole[panelRole]!.length > 0 ? (
               <ul className="divide-y divide-[var(--border)]">
@@ -229,7 +232,7 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
                           type="submit"
                           className="text-xs text-[var(--danger)] hover:text-[#ff6b81] transition-colors px-2 py-1"
                         >
-                          Supprimer
+                          {t.common.delete}
                         </button>
                       </form>
                     </li>
@@ -237,7 +240,7 @@ export default async function RolesSettingsPage({ params }: { params: { guildId:
                 })}
               </ul>
             ) : (
-              <p className="px-4 py-3 text-sm text-[var(--text-3)]">Aucun rôle Discord bindé.</p>
+              <p className="px-4 py-3 text-sm text-[var(--text-3)]">{r.noBinding}</p>
             )}
           </div>
         ))}

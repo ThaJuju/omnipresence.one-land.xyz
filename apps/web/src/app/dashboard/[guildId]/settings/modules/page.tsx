@@ -8,6 +8,8 @@ import Link from 'next/link'
 import { getGuildMember, requirePermission } from '@/lib/api'
 import { botClient } from '@/lib/bot-client'
 import type { GuildConfig } from '@repo/db'
+import { getLocale } from '@/i18n/server'
+import { getT } from '@/i18n/translations'
 import { AlertTriangle, BookOpen, CalendarX, CheckSquare, FolderKanban, Wallet } from 'lucide-react'
 
 async function toggleOption(guildId: string, key: keyof GuildConfig, currentValue: boolean) {
@@ -102,6 +104,8 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
 
   const { guildId } = params
 
+  const t = getT(getLocale())
+  const m = t.settingsModules
   const config = await prisma.guildConfig.findUnique({ where: { guildId } })
   const saveContribConfigAction = saveContribConfig.bind(null, guildId)
 
@@ -119,8 +123,8 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-[var(--text)]">Modules</h2>
-        <p className="text-[var(--text-2)] text-sm mt-1">Activez ou désactivez les fonctionnalités selon les besoins du serveur</p>
+        <h2 className="text-lg font-semibold text-[var(--text)]">{m.title}</h2>
+        <p className="text-[var(--text-2)] text-sm mt-1">{m.subtitle}</p>
       </div>
 
       <div className="space-y-3">
@@ -131,8 +135,8 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
             <div className="flex items-center gap-3">
               <span className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}><CheckSquare size={17} /></span>
               <div>
-                <p className="font-medium text-[var(--text)]">Présences</p>
-                <p className="text-sm text-[var(--text-2)]">Suivi quotidien via boutons Discord</p>
+                <p className="font-medium text-[var(--text)]">{m.presences}</p>
+                <p className="text-sm text-[var(--text-2)]">{m.presencesDesc}</p>
               </div>
             </div>
             <Toggle enabled={c.presenceEnabled} action={toggleOption.bind(null, guildId, 'presenceEnabled', c.presenceEnabled)} />
@@ -140,8 +144,8 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
           {c.presenceEnabled && (
             <div className="px-4 pb-3 space-y-1 border-t border-[var(--border)] pt-3">
               <SubOption
-                label="Rappel de présence"
-                desc="Mentionne les membres en attente à l'heure du rappel"
+                label={m.reminderLabel}
+                desc={m.reminderDesc}
                 enabled={c.reminderEnabled}
                 action={toggleOption.bind(null, guildId, 'reminderEnabled', c.reminderEnabled)}
               />
@@ -155,8 +159,8 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
             <div className="flex items-center gap-3">
               <span className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}><CalendarX size={17} /></span>
               <div>
-                <p className="font-medium text-[var(--text)]">Absences</p>
-                <p className="text-sm text-[var(--text-2)]">Déclaration et validation des absences</p>
+                <p className="font-medium text-[var(--text)]">{m.absences}</p>
+                <p className="text-sm text-[var(--text-2)]">{m.absencesDesc}</p>
               </div>
             </div>
             <Toggle enabled={c.absenceEnabled} action={toggleOption.bind(null, guildId, 'absenceEnabled', c.absenceEnabled)} />
@@ -169,8 +173,8 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
             <div className="flex items-center gap-3">
               <span className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}><AlertTriangle size={17} /></span>
               <div>
-                <p className="font-medium text-[var(--text)]">Avertissements</p>
-                <p className="text-sm text-[var(--text-2)]">Avertissements manuels et automatiques</p>
+                <p className="font-medium text-[var(--text)]">{m.warnings}</p>
+                <p className="text-sm text-[var(--text-2)]">{m.warningsDesc}</p>
               </div>
             </div>
             <Toggle enabled={c.warningEnabled} action={toggleOption.bind(null, guildId, 'warningEnabled', c.warningEnabled)} />
@@ -178,8 +182,8 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
           {c.warningEnabled && (
             <div className="px-4 pb-3 space-y-1 border-t border-[var(--border)] pt-3">
               <SubOption
-                label="Auto-avertissement sur absence"
-                desc="Génère automatiquement un avertissement si la présence n'est pas confirmée"
+                label={m.autoWarningLabel}
+                desc={m.autoWarningDesc}
                 enabled={c.autoWarningEnabled}
                 action={toggleOption.bind(null, guildId, 'autoWarningEnabled', c.autoWarningEnabled)}
                 disabled={!c.presenceEnabled}
@@ -193,7 +197,7 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  Configurer les seuils de rôles →
+                  {m.configureThresholds}
                 </Link>
               </div>
             </div>
@@ -206,8 +210,8 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
             <div className="flex items-center gap-3">
               <span className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}><Wallet size={17} /></span>
               <div>
-                <p className="font-medium text-[var(--text)]">Cotisations</p>
-                <p className="text-sm text-[var(--text-2)]">Suivi des paiements des membres</p>
+                <p className="font-medium text-[var(--text)]">{m.contributions}</p>
+                <p className="text-sm text-[var(--text-2)]">{m.contributionsDesc}</p>
               </div>
             </div>
             <Toggle enabled={c.contributionEnabled} action={toggleOption.bind(null, guildId, 'contributionEnabled', c.contributionEnabled)} />
@@ -216,32 +220,32 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
             <div className="px-4 pb-4 border-t border-[var(--border)] pt-4">
               <form action={saveContribConfigAction} className="space-y-3">
                 <div>
-                  <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">Périodicité</label>
+                  <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">{m.periodicity}</label>
                   <select
                     name="contributionPeriod"
                     defaultValue={config?.contributionPeriod ?? 'monthly'}
                     className="w-full input px-3 py-2 text-sm"
                   >
-                    <option value="daily">Quotidienne — 1 cotisation par jour</option>
-                    <option value="weekly">Hebdomadaire — 1 cotisation par semaine</option>
-                    <option value="monthly">Mensuelle — 1 cotisation par mois</option>
+                    <option value="daily">{m.periodDailyOpt}</option>
+                    <option value="weekly">{m.periodWeeklyOpt}</option>
+                    <option value="monthly">{m.periodMonthlyOpt}</option>
                   </select>
                 </div>
                 <div className="flex gap-3">
                   <div className="flex-1">
-                    <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">Montant par défaut</label>
+                    <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">{m.defaultAmount}</label>
                     <input
                       type="number"
                       name="contributionAmount"
                       step="0.01"
                       min="0"
                       defaultValue={config?.contributionAmount ?? ''}
-                      placeholder="Ex : 10.00"
+                      placeholder={m.amountPlaceholder}
                       className="w-full input px-3 py-2 text-sm"
                     />
                   </div>
                   <div className="w-24">
-                    <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">Devise</label>
+                    <label className="block text-xs font-medium text-[var(--text-2)] mb-1.5">{m.currency}</label>
                     <input
                       name="contributionCurrency"
                       defaultValue={config?.contributionCurrency ?? 'EUR'}
@@ -254,7 +258,7 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
                   type="submit"
                   className="px-3 py-1.5 btn-primary text-xs"
                 >
-                  Sauvegarder
+                  {t.common.save}
                 </button>
               </form>
             </div>
@@ -267,8 +271,8 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
             <div className="flex items-center gap-3">
               <span className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}><BookOpen size={17} /></span>
               <div>
-                <p className="font-medium text-[var(--text)]">Comptabilité</p>
-                <p className="text-sm text-[var(--text-2)]">Recettes, dépenses, balance</p>
+                <p className="font-medium text-[var(--text)]">{m.accounting}</p>
+                <p className="text-sm text-[var(--text-2)]">{m.accountingDesc}</p>
               </div>
             </div>
             <Toggle enabled={c.accountingEnabled} action={toggleOption.bind(null, guildId, 'accountingEnabled', c.accountingEnabled)} />
@@ -282,7 +286,7 @@ export default async function ModulesSettingsPage({ params }: { params: { guildI
               <span className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}><FolderKanban size={17} /></span>
               <div>
                 <p className="font-medium text-[var(--text)]">VDA</p>
-                <p className="text-sm text-[var(--text-2)]">Fiches VDA (désactivé par défaut)</p>
+                <p className="text-sm text-[var(--text-2)]">{m.vdaDesc}</p>
               </div>
             </div>
             <Toggle enabled={c.vdaEnabled} action={toggleOption.bind(null, guildId, 'vdaEnabled', c.vdaEnabled)} />

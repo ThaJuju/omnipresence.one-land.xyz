@@ -1,14 +1,18 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { getT, type Locale } from '@/i18n/translations'
 
 export default function PublishAbsenceButton({
   publishAction,
   disabled,
+  locale = 'fr',
 }: {
   publishAction: () => Promise<{ success: boolean; error?: string }>
   disabled: boolean
+  locale?: Locale
 }) {
+  const ae = getT(locale).settingsAbsenceEmbed
   const [isPending, startTransition] = useTransition()
   const [result, setResult] = useState<{ success: boolean; error?: string } | null>(null)
 
@@ -34,19 +38,19 @@ export default function PublishAbsenceButton({
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
             </svg>
-            Publication…
+            {ae.publishing}
           </>
         ) : (
-          'Publier dans Discord'
+          ae.publishBtn
         )}
       </button>
       {result && (
         <span className={`text-xs font-medium ${result.success ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
-          {result.success ? '✓ Embed publié !' : `✗ ${result.error}`}
+          {result.success ? ae.publishSuccess : `✗ ${result.error}`}
         </span>
       )}
       {disabled && !result && (
-        <span className="text-xs text-[var(--text-3)]">Sélectionnez un canal d&apos;abord</span>
+        <span className="text-xs text-[var(--text-3)]">{ae.selectChannelFirst}</span>
       )}
     </div>
   )

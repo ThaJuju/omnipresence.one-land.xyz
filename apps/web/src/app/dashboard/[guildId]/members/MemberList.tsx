@@ -47,11 +47,9 @@ export default function MemberList({ members, guildId, locale }: { members: Memb
         <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}
           className="bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]">
           <option value="all">{tr.members.allRoles}</option>
-          <option value="ADMIN">Admin</option>
-          <option value="DIRECTION">Direction</option>
-          <option value="RESPONSABLE">Responsable</option>
-          <option value="MODERATEUR">Modérateur</option>
-          <option value="MEMBRE">Membre</option>
+          {(['ADMIN', 'DIRECTION', 'RESPONSABLE', 'MODERATEUR', 'MEMBRE'] as const).map((r) => (
+            <option key={r} value={r}>{tr.members.roleLabels[r]}</option>
+          ))}
         </select>
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
           className="bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]">
@@ -61,7 +59,7 @@ export default function MemberList({ members, guildId, locale }: { members: Memb
         </select>
       </div>
 
-      <p className="text-xs text-[var(--text-3)]">{filtered.length} {tr.members.noResults.toLowerCase()}</p>
+      <p className="text-xs text-[var(--text-3)]">{filtered.length} {tr.members.total}</p>
 
       {filtered.length === 0 ? (
         <div className="text-center py-16 text-[var(--text-2)]">

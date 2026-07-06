@@ -6,6 +6,8 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { getGuildMember, requirePermission } from '@/lib/api'
 import { botClient } from '@/lib/bot-client'
+import { getLocale } from '@/i18n/server'
+import { getT, type Translations } from '@/i18n/translations'
 
 type DiscordChannel = { id: string; name: string; type: number; parent_id: string | null; position: number }
 
@@ -60,10 +62,12 @@ function ChannelSelect({
   name,
   defaultValue,
   channels,
+  t,
 }: {
   name: string
   defaultValue: string | null | undefined
   channels: DiscordChannel[]
+  t: Translations
 }) {
   const textChannels = channels.filter((c) => c.type === 0 || c.type === 5)
   if (textChannels.length === 0) {
@@ -71,7 +75,7 @@ function ChannelSelect({
       <input
         name={name}
         defaultValue={defaultValue ?? ''}
-        placeholder="ID du canal Discord"
+        placeholder={t.settingsDiscord.channelIdPlaceholder}
         className="w-full input px-3 py-2 text-sm font-mono"
       />
     )
@@ -94,7 +98,7 @@ function ChannelSelect({
       defaultValue={defaultValue ?? ''}
       className="w-full input px-3 py-2 text-sm"
     >
-      <option value="">— Aucun —</option>
+      <option value="">{t.settingsDiscord.noneOption}</option>
       {uncategorized.map((ch) => (
         <option key={ch.id} value={ch.id}>
           # {ch.name}
@@ -143,26 +147,28 @@ export default async function DiscordSettingsPage({ params }: { params: { guildI
   ])
 
   const saveConfig = saveDiscordConfig.bind(null, guildId)
+  const t = getT(getLocale())
+  const d = t.settingsDiscord
 
   const channelFields = [
-    { key: 'presenceChannelId', label: 'Canal de présences', desc: 'Où le bot envoie le message de présence quotidien' },
-    { key: 'warningChannelId', label: 'Canal des avertissements', desc: 'Où les avertissements sont publiés' },
-    { key: 'notificationChannelId', label: 'Canal de notifications', desc: 'Annonces générales du bot' },
-    { key: 'logChannelId', label: 'Canal de logs', desc: 'Journal des actions admin' },
-    { key: 'reportChannelId', label: 'Canal des rapports', desc: 'Où les rapports journaliers / hebdomadaires / mensuels sont envoyés (utilise les logs si vide)' },
+    { key: 'presenceChannelId', label: d.presenceChannel, desc: d.presenceChannelDesc },
+    { key: 'warningChannelId', label: d.warningChannel, desc: d.warningChannelDesc },
+    { key: 'notificationChannelId', label: d.notificationChannel, desc: d.notificationChannelDesc },
+    { key: 'logChannelId', label: d.logChannel, desc: d.logChannelDesc },
+    { key: 'reportChannelId', label: d.reportChannel, desc: d.reportChannelDesc },
   ]
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-[var(--text)]">Canaux &amp; Horaires</h2>
-        <p className="text-[var(--text-2)] text-sm mt-1">Canaux Discord du bot et horaires des envois automatiques</p>
+        <h2 className="text-lg font-semibold text-[var(--text)]">{d.title}</h2>
+        <p className="text-[var(--text-2)] text-sm mt-1">{d.subtitle}</p>
       </div>
 
       <form action={saveConfig} className="space-y-6">
         {/* Canaux */}
         <div className="card p-5 space-y-5">
-          <h3 className="font-semibold text-[var(--text)]">Canaux textuels</h3>
+          <h3 className="font-semibold text-[var(--text)]">{d.textChannels}</h3>
           <div className="space-y-4">
             {channelFields.map((field) => (
               <div key={field.key}>
@@ -172,6 +178,7 @@ export default async function DiscordSettingsPage({ params }: { params: { guildI
                   name={field.key}
                   defaultValue={config?.[field.key as keyof typeof config] as string}
                   channels={channels}
+                  t={t}
                 />
               </div>
             ))}
@@ -181,20 +188,20 @@ export default async function DiscordSettingsPage({ params }: { params: { guildI
         {/* Horaires de présence */}
         <div className="card p-5 space-y-4">
           <div>
-            <h3 className="font-semibold text-[var(--text)]">Horaires de présence</h3>
+            <h3 className="font-semibold text-[var(--text)]">{d.presenceSchedules}</h3>
             <p className="text-xs text-[var(--text-3)] mt-0.5">
-              Activez / désactivez ces fonctions dans{' '}
+              {d.schedulesHint}{' '}
               <a href={`/dashboard/${guildId}/settings/modules`} className="text-[var(--accent)] hover:underline">
                 Modules
               </a>
-              . Timezone : {config?.timezone ?? 'Europe/Paris'}
+              . {d.timezoneLabel} {config?.timezone ?? 'Europe/Paris'}
             </p>
           </div>
           <div className="space-y-3">
             {(
               [
-                { key: 'presenceMessageTime', label: 'Message de présence', defaultTime: '08:00' },
-                { key: 'reminderTime', label: 'Rappel de présence', defaultTime: '18:00' },
+                { key: 'presenceMessageTime', label: d.presenceMessage, defaultTime: '08:00' },
+                { key: 'reminderTime', label: d.presenceReminder, defaultTime: '18:00' },
               ] as const
             ).map(({ key, label, defaultTime }) => (
               <div
@@ -216,29 +223,29 @@ export default async function DiscordSettingsPage({ params }: { params: { guildI
         {/* Rapports automatiques */}
         <div className="card p-5 space-y-4">
           <div>
-            <h3 className="font-semibold text-[var(--text)]">Rapports automatiques</h3>
+            <h3 className="font-semibold text-[var(--text)]">{d.autoReports}</h3>
             <p className="text-xs text-[var(--text-3)] mt-0.5">
-              Le bot envoie des résumés embed dans le canal des rapports (ou logs si absent)
+              {d.autoReportsDesc}
             </p>
           </div>
           <div className="space-y-3">
             <Toggle
               name="dailyReportEnabled"
               checked={config?.dailyReportEnabled ?? false}
-              label="Rapport journalier"
-              desc="Envoyé chaque matin à 8h — présences du jour, absences en attente, avertissements actifs"
+              label={d.dailyReport}
+              desc={d.dailyReportDesc}
             />
             <Toggle
               name="weeklyReportEnabled"
               checked={config?.weeklyReportEnabled ?? false}
-              label="Rapport hebdomadaire"
-              desc="Envoyé chaque lundi à 8h — bilan de la semaine passée avec top présences"
+              label={d.weeklyReport}
+              desc={d.weeklyReportDesc}
             />
             <Toggle
               name="monthlyReportEnabled"
               checked={config?.monthlyReportEnabled ?? false}
-              label="Rapport mensuel"
-              desc="Envoyé le 1er du mois à 8h — bilan complet du mois (présences, finances, cotisations)"
+              label={d.monthlyReport}
+              desc={d.monthlyReportDesc}
             />
           </div>
         </div>
@@ -248,7 +255,7 @@ export default async function DiscordSettingsPage({ params }: { params: { guildI
             type="submit"
             className="px-4 py-2 btn-primary text-sm"
           >
-            Sauvegarder
+            {t.common.save}
           </button>
         </div>
       </form>

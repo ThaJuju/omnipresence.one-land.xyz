@@ -7,10 +7,15 @@ import {
   ActionRowBuilder,
 } from 'discord.js'
 import { prisma } from '@repo/db'
+import { getBotT } from '../i18n/botTranslations'
 
 export const data = new SlashCommandBuilder()
   .setName('absence')
   .setDescription("Déclarer une absence")
+  .setDescriptionLocalizations({
+    'en-US': 'Declare an absence',
+    'en-GB': 'Declare an absence',
+  })
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   const guildId = interaction.guildId!
@@ -18,8 +23,9 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   // Fetch guild accent color if configured
   const config = await prisma.guildConfig.findFirst({
     where: { guild: { discordGuildId: guildId } },
-    select: { accentColor: true, panelName: true },
+    select: { accentColor: true, panelName: true, botLanguage: true },
   })
+  const t = getBotT(config?.botLanguage ?? 'fr')
   const colorHex = (config?.accentColor ?? '#5865F2').replace('#', '')
   const color = parseInt(colorHex, 16)
 
@@ -30,22 +36,14 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
   const embed = new EmbedBuilder()
     .setColor(color)
-    .setTitle("📋 Déclaration d'absence")
-    .setDescription(
-      "Vous souhaitez déclarer une absence ?\n\n" +
-      "Cliquez sur le bouton ci-dessous pour ouvrir le formulaire. " +
-      "Votre demande sera soumise **en attente de validation** par un responsable.\n\n" +
-      "**Informations requises :**\n" +
-      "• Motif de l'absence\n" +
-      "• Date de début\n" +
-      "• Date de fin"
-    )
+    .setTitle(t.absence.embedTitle)
+    .setDescription(`${t.absence.embedBody}\n\n${t.absence.cmdRequiredInfo}`)
     .setFooter({ text: config?.panelName ?? interaction.guild?.name ?? 'Gestion' })
     .setTimestamp()
 
   const button = new ButtonBuilder()
     .setCustomId(`absence-btn:${dbGuild?.id ?? guildId}`)
-    .setLabel("Déclarer une absence")
+    .setLabel(t.absence.buttonLabel)
     .setStyle(ButtonStyle.Primary)
     .setEmoji('📝')
 

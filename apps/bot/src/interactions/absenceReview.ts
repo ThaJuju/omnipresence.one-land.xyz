@@ -2,16 +2,22 @@ import { ButtonInteraction, EmbedBuilder } from 'discord.js'
 import { prisma } from '@repo/db'
 import { hasPermission } from '@repo/shared'
 import { logger } from '../logger'
+import { getBotT } from '../i18n/botTranslations'
 
 export async function handleAbsenceReviewButton(interaction: ButtonInteraction, action: 'approve' | 'reject', absenceId: string) {
   const absence = await prisma.absence.findUnique({ where: { id: absenceId } })
+  const config = absence
+    ? await prisma.guildConfig.findUnique({ where: { guildId: absence.guildId }, select: { botLanguage: true } })
+    : null
+  const t = getBotT(config?.botLanguage ?? 'fr')
+
   if (!absence) {
-    await interaction.reply({ content: 'Demande introuvable (peut-être supprimée).', ephemeral: true })
+    await interaction.reply({ content: t.absence.reviewNotFound, ephemeral: true })
     return
   }
 
   if (absence.status !== 'PENDING') {
-    await interaction.reply({ content: 'Cette demande a déjà été traitée.', ephemeral: true })
+    await interaction.reply({ content: t.absence.reviewAlreadyDone, ephemeral: true })
     return
   }
 
@@ -20,7 +26,7 @@ export async function handleAbsenceReviewButton(interaction: ButtonInteraction, 
   })
 
   if (!reviewer || !hasPermission(reviewer.panelRole, 'absences.approve')) {
-    await interaction.reply({ content: "Tu n'as pas la permission de traiter les demandes d'absence.", ephemeral: true })
+    await interaction.reply({ content: t.absence.reviewNoPermission, ephemeral: true })
     return
   }
 
@@ -32,7 +38,7 @@ export async function handleAbsenceReviewButton(interaction: ButtonInteraction, 
   })
 
   if (result.count === 0) {
-    await interaction.reply({ content: 'Cette demande a déjà été traitée.', ephemeral: true })
+    await interaction.reply({ content: t.absence.reviewAlreadyDone, ephemeral: true })
     return
   }
 
@@ -64,10 +70,10 @@ export async function handleAbsenceReviewButton(interaction: ButtonInteraction, 
   const embed = existingEmbed ? EmbedBuilder.from(existingEmbed) : new EmbedBuilder()
   embed.setColor(approved ? 0x22c55e : 0xef4444)
   embed.addFields({
-    name: 'Statut',
+    name: t.absence.statusField,
     value: approved
-      ? `✅ Approuvée par **${interaction.user.username}**`
-      : `❌ Refusée par **${interaction.user.username}**`,
+      ? t.absence.reviewApproved(interaction.user.username)
+      : t.absence.reviewRejected(interaction.user.username),
   })
 
   await interaction.update({ embeds: [embed], components: [] })

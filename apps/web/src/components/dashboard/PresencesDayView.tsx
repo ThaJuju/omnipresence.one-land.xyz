@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight, CheckCircle2, XCircle, Clock, UserX } from 'lucide-react'
 import AbsenceDeclareModal from '@/components/presences/AbsenceDeclareModal'
 import LateDeclareModal from '@/components/presences/LateDeclareModal'
+import { getT, type Locale } from '@/i18n/translations'
 
 type MemberPresence = {
   id: string
@@ -27,6 +28,7 @@ export default function PresencesDayView({
   markPresentAction,
   markLateAction,
   declareAbsenceAction,
+  locale = 'fr',
 }: {
   guildId: string
   date: string
@@ -37,7 +39,10 @@ export default function PresencesDayView({
   markPresentAction: () => Promise<void>
   markLateAction: (fd: FormData) => Promise<void>
   declareAbsenceAction: (fd: FormData) => Promise<void>
+  locale?: Locale
 }) {
+  const t = getT(locale)
+  const pd = t.presences
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [showAbsenceModal, setShowAbsenceModal] = useState(false)
@@ -59,7 +64,7 @@ export default function PresencesDayView({
     })
   }
 
-  const dateLabel = new Date(date + 'T12:00:00').toLocaleDateString('fr-FR', {
+  const dateLabel = new Date(date + 'T12:00:00').toLocaleDateString(pd.dateLocale, {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   })
 
@@ -68,14 +73,14 @@ export default function PresencesDayView({
       {/* Page header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">Présences</h1>
-          <p className="text-[var(--text-2)] text-sm mt-1">Suivi journalier des membres</p>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">{pd.title}</h1>
+          <p className="text-[var(--text-2)] text-sm mt-1">{pd.daySubtitle}</p>
         </div>
         <a
           href={`/api/export/${guildId}/presences`}
           className="px-3 py-1.5 bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-2)] hover:text-[var(--text)] hover:border-[var(--border-mid)] text-xs rounded-lg transition-colors flex items-center gap-1.5"
         >
-          ⬇ Export CSV
+          {pd.exportCsv}
         </a>
       </div>
 
@@ -106,7 +111,7 @@ export default function PresencesDayView({
             onClick={() => router.push(`/dashboard/${guildId}/presences`)}
             className="h-8 px-3 bg-[var(--surface)] border border-[var(--border)] rounded-lg text-xs text-[var(--text-2)] hover:text-[var(--text)] hover:border-[var(--border-mid)] transition-colors"
           >
-            Aujourd'hui
+            {t.common.today}
           </button>
         )}
       </div>
@@ -114,11 +119,11 @@ export default function PresencesDayView({
       {/* Stats cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {([
-          { label: 'Présents',    value: stats.present, Icon: CheckCircle2, color: 'text-[var(--success)]', bg: 'bg-[#22c55e]/10' },
-          { label: 'En retard',   value: stats.late,    Icon: Clock,        color: 'text-[var(--warning)]', bg: 'bg-[#eab308]/10' },
-          { label: 'Absents',     value: stats.absent,  Icon: XCircle,      color: 'text-[var(--danger)]', bg: 'bg-[#ef4444]/10' },
-          { label: 'En attente',  value: stats.pending, Icon: Clock,        color: 'text-[var(--text-2)]', bg: 'bg-[var(--hover)]' },
-        ] as const).map(({ label, value, Icon, color, bg }) => (
+          { label: pd.statPresent, value: stats.present, Icon: CheckCircle2, color: 'text-[var(--success)]', bg: 'bg-[#22c55e]/10' },
+          { label: pd.statLate,    value: stats.late,    Icon: Clock,        color: 'text-[var(--warning)]', bg: 'bg-[#eab308]/10' },
+          { label: pd.statAbsent,  value: stats.absent,  Icon: XCircle,      color: 'text-[var(--danger)]', bg: 'bg-[#ef4444]/10' },
+          { label: pd.statPending, value: stats.pending, Icon: Clock,        color: 'text-[var(--text-2)]', bg: 'bg-[var(--hover)]' },
+        ]).map(({ label, value, Icon, color, bg }) => (
           <div key={label} className="card p-4 flex items-center gap-3">
             <div className={`w-10 h-10 rounded-md ${bg} flex items-center justify-center flex-shrink-0`}>
               <Icon size={20} className={color} />
@@ -134,21 +139,21 @@ export default function PresencesDayView({
       {/* My presence (today only) */}
       {isToday && (
         <div className="card p-4">
-          <p className="text-sm font-semibold text-[var(--text)] mb-3">Votre présence</p>
+          <p className="text-sm font-semibold text-[var(--text)] mb-3">{pd.myPresence}</p>
           {myPresence === 'PRESENT' ? (
             <div className="flex items-center gap-2 text-[var(--success)] text-sm">
               <CheckCircle2 size={15} />
-              <span className="font-medium">Vous êtes marqué présent aujourd'hui</span>
+              <span className="font-medium">{pd.markedPresent}</span>
             </div>
           ) : myPresence === 'LATE' ? (
             <div className="flex items-center gap-2 text-[var(--warning)] text-sm">
               <Clock size={15} />
-              <span className="font-medium">Retard déclaré</span>
+              <span className="font-medium">{pd.lateDeclared}</span>
             </div>
           ) : myPresence === 'ABSENT' ? (
             <div className="flex items-center gap-2 text-[var(--danger)] text-sm">
               <XCircle size={15} />
-              <span className="font-medium">Absence déclarée</span>
+              <span className="font-medium">{pd.absenceDeclared}</span>
             </div>
           ) : (
             <div className="flex gap-2 flex-wrap">
@@ -158,21 +163,21 @@ export default function PresencesDayView({
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-[#22c55e] text-black text-xs font-semibold rounded-lg hover:bg-[#16a34a] disabled:opacity-50 transition-colors"
               >
                 <CheckCircle2 size={13} />
-                Je suis présent
+                {pd.imPresent}
               </button>
               <button
                 onClick={() => setShowLateModal(true)}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-[#eab30815] text-[var(--warning)] border border-[#eab30830] text-xs font-semibold rounded-lg hover:bg-[#eab30825] transition-colors"
               >
                 <Clock size={13} />
-                Je suis en retard
+                {pd.imLate}
               </button>
               <button
                 onClick={() => setShowAbsenceModal(true)}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-[#ef444415] text-[var(--danger)] border border-[#ef444430] text-xs font-semibold rounded-lg hover:bg-[#ef444425] transition-colors"
               >
                 <UserX size={13} />
-                Déclarer une absence
+                {pd.declareAbsence}
               </button>
             </div>
           )}
@@ -188,15 +193,15 @@ export default function PresencesDayView({
           <table className="w-full">
             <thead>
               <tr className="border-b border-[var(--border)]">
-                <th className="text-left px-5 py-2.5 text-[10px] font-semibold text-[var(--text-3)] uppercase tracking-wider">Membre</th>
-                <th className="text-left px-5 py-2.5 text-[10px] font-semibold text-[var(--text-3)] uppercase tracking-wider hidden sm:table-cell">Grade</th>
-                <th className="text-right px-5 py-2.5 text-[10px] font-semibold text-[var(--text-3)] uppercase tracking-wider">Statut</th>
+                <th className="text-left px-5 py-2.5 text-[10px] font-semibold text-[var(--text-3)] uppercase tracking-wider">{pd.colMember}</th>
+                <th className="text-left px-5 py-2.5 text-[10px] font-semibold text-[var(--text-3)] uppercase tracking-wider hidden sm:table-cell">{pd.colGrade}</th>
+                <th className="text-right px-5 py-2.5 text-[10px] font-semibold text-[var(--text-3)] uppercase tracking-wider">{pd.colStatus}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
               {members.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-5 py-12 text-center text-sm text-[var(--text-3)]">Aucun membre actif</td>
+                  <td colSpan={3} className="px-5 py-12 text-center text-sm text-[var(--text-3)]">{pd.noActiveMembers}</td>
                 </tr>
               ) : members.map((m) => (
                 <tr key={m.id} className="hover:bg-[var(--bg)] transition-colors">
@@ -205,7 +210,7 @@ export default function PresencesDayView({
                       <img src={m.avatarUrl} alt={m.name} className="w-7 h-7 rounded-full flex-shrink-0" />
                       <span className="text-sm text-[var(--text)] font-medium">{m.name}</span>
                       {m.isMe && (
-                        <span className="text-[10px] px-1.5 py-0.5 bg-[var(--accent)]/20 text-[var(--accent)] rounded font-medium">Vous</span>
+                        <span className="text-[10px] px-1.5 py-0.5 bg-[var(--accent)]/20 text-[var(--accent)] rounded font-medium">{pd.youBadge}</span>
                       )}
                     </div>
                   </td>
@@ -228,20 +233,20 @@ export default function PresencesDayView({
                   <td className="px-5 py-3 text-right">
                     {m.status === 'PRESENT' ? (
                       <span className="inline-flex items-center gap-1.5 text-xs text-[var(--success)]">
-                        <CheckCircle2 size={13} /> Présent
+                        <CheckCircle2 size={13} /> {pd.present}
                       </span>
                     ) : m.status === 'LATE' ? (
                       <span className="inline-flex items-center gap-1.5 text-xs text-[var(--warning)]">
                         <Clock size={13} />
-                        En retard{m.delayMinutes ? ` (${m.delayMinutes} min)` : ''}
+                        {pd.late}{m.delayMinutes ? ` (${m.delayMinutes} min)` : ''}
                       </span>
                     ) : m.status === 'ABSENT' ? (
                       <span className="inline-flex items-center gap-1.5 text-xs text-[var(--danger)]">
-                        <XCircle size={13} /> Absent
+                        <XCircle size={13} /> {pd.absent}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1.5 text-xs text-[var(--text-2)]">
-                        <Clock size={13} /> En attente
+                        <Clock size={13} /> {pd.pending}
                       </span>
                     )}
                   </td>
@@ -254,6 +259,7 @@ export default function PresencesDayView({
 
       {showAbsenceModal && (
         <AbsenceDeclareModal
+          locale={locale}
           declareAction={declareAbsenceAction}
           onClose={() => setShowAbsenceModal(false)}
           onSuccess={() => { setShowAbsenceModal(false); router.refresh() }}
@@ -262,6 +268,7 @@ export default function PresencesDayView({
 
       {showLateModal && (
         <LateDeclareModal
+          locale={locale}
           markLateAction={markLateAction}
           onClose={() => setShowLateModal(false)}
           onSuccess={() => { setShowLateModal(false); router.refresh() }}

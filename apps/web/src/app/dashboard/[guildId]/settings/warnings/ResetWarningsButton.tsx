@@ -2,10 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { getT, type Locale } from '@/i18n/translations'
 
 type Step = 'idle' | 'confirm' | 'loading' | 'done'
 
-export default function ResetWarningsButton({ guildId }: { guildId: string }) {
+export default function ResetWarningsButton({ guildId, locale = 'fr' }: { guildId: string; locale?: Locale }) {
+  const t = getT(locale)
+  const w = t.settingsWarnings
   const [step, setStep] = useState<Step>('idle')
   const [progress, setProgress] = useState({ done: 0, total: 0 })
   const [error, setError] = useState<string | null>(null)
@@ -21,7 +24,7 @@ export default function ResetWarningsButton({ guildId }: { guildId: string }) {
 
       if (!res.ok || !res.body) {
         const data = await res.json() as { error?: string }
-        setError(data.error ?? 'Erreur inconnue')
+        setError(data.error ?? w.unknownError)
         setStep('confirm')
         return
       }
@@ -53,14 +56,14 @@ export default function ResetWarningsButton({ guildId }: { guildId: string }) {
               setStep('done')
               router.refresh()
             } else if (event.type === 'error') {
-              setError(event.message ?? 'Erreur inconnue')
+              setError(event.message ?? w.unknownError)
               setStep('confirm')
             }
           } catch { /* ligne SSE incomplète */ }
         }
       }
     } catch {
-      setError('Erreur réseau')
+      setError(w.networkError)
       setStep('confirm')
     }
   }
@@ -71,7 +74,7 @@ export default function ResetWarningsButton({ guildId }: { guildId: string }) {
         onClick={() => setStep('confirm')}
         className="px-4 py-2 bg-[#ef4444]/10 text-[var(--danger)] border border-[#ef4444]/30 rounded-lg text-sm font-medium hover:bg-[#ef4444]/20 transition-colors"
       >
-        Réinitialiser tous les avertissements
+        {w.resetBtn}
       </button>
     )
   }
@@ -79,7 +82,7 @@ export default function ResetWarningsButton({ guildId }: { guildId: string }) {
   if (step === 'done') {
     return (
       <p className="text-sm text-[var(--text-2)]">
-        ✅ Réinitialisation terminée — tous les avertissements ont été révoqués.
+        {w.resetDone}
       </p>
     )
   }
@@ -89,7 +92,7 @@ export default function ResetWarningsButton({ guildId }: { guildId: string }) {
     return (
       <div className="space-y-2">
         <p className="text-sm text-[var(--text-2)]">
-          Retrait des rôles Discord… {progress.done}/{progress.total} membres
+          {w.resetProgress(progress.done, progress.total)}
         </p>
         <div className="w-full h-2 bg-[var(--bg)] rounded-full overflow-hidden border border-[var(--border)]">
           <div
@@ -106,8 +109,8 @@ export default function ResetWarningsButton({ guildId }: { guildId: string }) {
   return (
     <div className="space-y-3">
       <div className="bg-[#ef4444]/10 border border-[#ef4444]/30 rounded-md p-4 text-sm text-[var(--danger)] space-y-1">
-        <p className="font-semibold">⚠️ Action irréversible</p>
-        <p>Tous les avertissements actifs seront révoqués et les rôles Discord associés retirés de chaque membre concerné.</p>
+        <p className="font-semibold">{w.irreversible}</p>
+        <p>{w.resetWarningText}</p>
       </div>
       {error && <p className="text-xs text-[var(--danger)]">{error}</p>}
       <div className="flex gap-3">
@@ -115,13 +118,13 @@ export default function ResetWarningsButton({ guildId }: { guildId: string }) {
           onClick={handleReset}
           className="px-4 py-2 bg-[#ef4444] text-white rounded-lg text-sm font-medium hover:bg-[#dc2626] transition-colors"
         >
-          Confirmer la réinitialisation
+          {w.confirmReset}
         </button>
         <button
           onClick={() => { setStep('idle'); setError(null) }}
           className="px-4 py-2 bg-[var(--surface)] border border-[var(--border)] text-[var(--text-2)] rounded-lg text-sm hover:text-[var(--text)] transition-colors"
         >
-          Annuler
+          {t.common.cancel}
         </button>
       </div>
     </div>

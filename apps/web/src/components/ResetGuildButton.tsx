@@ -2,14 +2,18 @@
 
 import { useState, useTransition } from 'react'
 import { AlertTriangle } from 'lucide-react'
+import { getT, type Locale } from '@/i18n/translations'
 
 export default function ResetGuildButton({
   guildName,
   resetAction,
+  locale = 'fr',
 }: {
   guildName: string
   resetAction: () => Promise<void>
+  locale?: Locale
 }) {
+  const st = getT(locale).settings
   const [open, setOpen] = useState(false)
   const [input, setInput] = useState('')
   const [isPending, startTransition] = useTransition()
@@ -29,7 +33,7 @@ export default function ResetGuildButton({
         className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[var(--danger)] border border-[#ef444430] rounded-lg hover:bg-[#ef444410] transition-colors"
       >
         <AlertTriangle size={14} />
-        Réinitialiser la guild
+        {st.resetGuildBtn}
       </button>
 
       {open && (
@@ -41,25 +45,25 @@ export default function ResetGuildButton({
                 <AlertTriangle size={20} className="text-[var(--danger)]" />
               </div>
               <div>
-                <h2 className="font-bold text-[var(--text)]">Réinitialiser la guild</h2>
-                <p className="text-xs text-[var(--text-2)] mt-0.5">Cette action est irréversible</p>
+                <h2 className="font-bold text-[var(--text)]">{st.resetGuildBtn}</h2>
+                <p className="text-xs text-[var(--text-2)] mt-0.5">{st.resetIrreversible}</p>
               </div>
             </div>
 
             <p className="text-sm text-[var(--text-2)] mb-3 leading-relaxed">
-              Toutes les données opérationnelles seront supprimées définitivement :
+              {st.resetDeleteList}
             </p>
             <ul className="text-xs text-[var(--text-2)] space-y-1 mb-5 pl-3 border-l border-[#ef444430]">
-              <li>Logs de présence, absences, avertissements</li>
-              <li>Cotisations, écritures comptables, VDA</li>
-              <li>Historique des grades, audit logs, notifications</li>
+              <li>{st.resetItemLogs}</li>
+              <li>{st.resetItemFinance}</li>
+              <li>{st.resetItemNotifs}</li>
             </ul>
             <p className="text-xs text-[var(--text-2)] mb-2">
-              La config, les membres et les grades seront <span className="text-[var(--text)]">conservés</span>.
+              {st.resetKeptPrefix} <span className="text-[var(--text)]">{st.resetKeptWord}</span>.
             </p>
 
             <p className="text-xs font-medium text-[var(--text)] mb-1.5 mt-4">
-              Tapez <span className="font-mono text-[var(--danger)]">RESET</span> pour confirmer
+              {locale === 'en' ? 'Type' : 'Tapez'} <span className="font-mono text-[var(--danger)]">RESET</span> {locale === 'en' ? 'to confirm' : 'pour confirmer'}
             </p>
             <input
               type="text"
@@ -75,14 +79,14 @@ export default function ResetGuildButton({
                 onClick={() => { setOpen(false); setInput('') }}
                 className="flex-1 px-4 py-2 text-sm font-medium text-[var(--text-2)] border border-[var(--border)] rounded-lg hover:bg-white/5 transition-colors"
               >
-                Annuler
+                {getT(locale).common.cancel}
               </button>
               <button
                 onClick={confirm}
                 disabled={input !== 'RESET' || isPending}
                 className="flex-1 px-4 py-2 text-sm font-medium text-white bg-[#ef4444] rounded-lg hover:bg-[#dc2626] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
-                {isPending ? 'Réinitialisation…' : 'Confirmer le reset'}
+                {isPending ? st.resetInProgress : st.resetConfirmBtn}
               </button>
             </div>
           </div>

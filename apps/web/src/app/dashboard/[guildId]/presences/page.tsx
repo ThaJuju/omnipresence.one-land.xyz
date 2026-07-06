@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache'
 import { avatarUrl } from '@/lib/utils'
 import { botClient } from '@/lib/bot-client'
 import PresencesDayView from '@/components/dashboard/PresencesDayView'
+import { getLocale } from '@/i18n/server'
 
 async function markPresent(guildId: string, date: string) {
   'use server'
@@ -150,6 +151,7 @@ export default async function PresencesPage({
 
   return (
     <PresencesDayView
+      locale={getLocale()}
       guildId={guildId}
       date={dateStr}
       today={todayStr}

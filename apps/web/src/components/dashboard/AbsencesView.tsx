@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight, CalendarDays, LayoutList, UserX, CheckCircle2, XCircle } from 'lucide-react'
 import AbsenceDeclareModal from '@/components/presences/AbsenceDeclareModal'
+import { getT, type Locale, type Translations } from '@/i18n/translations'
 
 export type AbsenceItem = {
   id: string
@@ -18,8 +19,8 @@ export type AbsenceItem = {
 
 type StatusKey = 'PENDING' | 'APPROVED' | 'REJECTED'
 
-const STATUS_LABELS: Record<string, string> = {
-  all: 'Toutes', PENDING: 'En attente', APPROVED: 'Approuvées', REJECTED: 'Refusées',
+function statusLabels(ab: Translations['absences']): Record<string, string> {
+  return { all: ab.filterAll, PENDING: ab.filterPending, APPROVED: ab.filterApproved, REJECTED: ab.filterRejected }
 }
 const STATUS_STYLE: Record<StatusKey, { bg: string; color: string; border: string }> = {
   PENDING:  { bg: 'rgba(234,179,8,0.15)',  color: '#eab308', border: 'rgba(234,179,8,0.35)'  },
@@ -27,8 +28,6 @@ const STATUS_STYLE: Record<StatusKey, { bg: string; color: string; border: strin
   REJECTED: { bg: 'rgba(239,68,68,0.12)',  color: '#ef4444', border: 'rgba(239,68,68,0.30)'  },
 }
 
-const MONTH_NAMES = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre']
-const WEEKDAYS    = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim']
 
 // ── Dimensions ─────────────────────────────────────────────────────────────
 // DAY_H  : vertical space reserved for the day-number badge in each cell
@@ -49,11 +48,11 @@ function pad2(n: number) { return String(n).padStart(2, '0') }
 function dateKey(y: number, m: number, d: number) { return `${y}-${pad2(m)}-${pad2(d)}` }
 function firstDayOffset(y: number, m: number) { return (new Date(y, m - 1, 1).getDay() + 6) % 7 }
 function daysInMonth(y: number, m: number) { return new Date(y, m, 0).getDate() }
-function getDuration(start: string, end: string) {
+function getDuration(start: string, end: string, ab: Translations['absences']) {
   const d = Math.ceil((new Date(end).getTime() - new Date(start).getTime()) / 86400000) + 1
-  return `${d} jour${d > 1 ? 's' : ''}`
+  return ab.duration(d)
 }
-function fmt(s: string) { return new Date(s + 'T12:00:00').toLocaleDateString('fr-FR') }
+function fmt(s: string, ab: Translations['absences']) { return new Date(s + 'T12:00:00').toLocaleDateString(ab.dateLocale) }
 
 // ── Calendar layout engine ──────────────────────────────────────────────────
 
@@ -180,7 +179,7 @@ function barStyle(c0: number, c1: number, lane: number, isStart: boolean, isEnd:
 
 export default function AbsencesView({
   guildId, view, year, month, absences, statusFilter, isAdmin,
-  approveAction, rejectAction, declareAbsenceAction,
+  approveAction, rejectAction, declareAbsenceAction, locale = 'fr',
 }: {
   guildId: string
   view: 'calendar' | 'list'
@@ -192,7 +191,13 @@ export default function AbsencesView({
   approveAction: (id: string) => Promise<void>
   rejectAction:  (id: string) => Promise<void>
   declareAbsenceAction: (fd: FormData) => Promise<void>
+  locale?: Locale
 }) {
+  const t = getT(locale)
+  const ab = t.absences
+  const STATUS_LABELS = statusLabels(ab)
+  const MONTH_NAMES = t.time.monthsFull
+  const WEEKDAYS = t.time.weekdays
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [selectedDay, setSelectedDay] = useState<number | null>(null)
@@ -225,16 +230,16 @@ export default function AbsencesView({
       {/* ── Header ── */}
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">Absences</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">{ab.title}</h1>
           <p className="text-[var(--text-2)] text-sm mt-1">
-            {view === 'calendar' ? `${MONTH_NAMES[month - 1]} ${year}` : 'Toutes les absences'}
+            {view === 'calendar' ? `${MONTH_NAMES[month - 1]} ${year}` : ab.allAbsences}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex gap-0.5 p-1 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
             {([
-              { id: 'calendar' as const, Icon: CalendarDays, label: 'Calendrier' },
-              { id: 'list'     as const, Icon: LayoutList,   label: 'Liste'      },
+              { id: 'calendar' as const, Icon: CalendarDays, label: ab.calendarBtn },
+              { id: 'list'     as const, Icon: LayoutList,   label: ab.listBtn },
             ]).map(({ id, Icon, label }) => (
               <button
                 key={id}
@@ -251,7 +256,7 @@ export default function AbsencesView({
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white"
             style={{ background: 'var(--guild-accent)' }}
           >
-            <UserX size={13} />Déclarer
+            <UserX size={13} />{ab.declareBtn}
           </button>
         </div>
       </div>
@@ -272,7 +277,7 @@ export default function AbsencesView({
               onClick={() => { setSelectedDay(null); pushUrl({ month: `${now.getFullYear()}-${pad2(now.getMonth() + 1)}` }) }}
               className="h-7 px-2.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-xs text-[var(--text-2)] hover:text-[var(--text)] transition-colors"
             >
-              Aujourd&apos;hui
+              {t.common.today}
             </button>
           </div>
 
@@ -371,20 +376,20 @@ export default function AbsencesView({
             <div className="card p-4">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm font-semibold text-[var(--text)] capitalize">
-                  {new Date(year, month - 1, selectedDay).toLocaleDateString('fr-FR', {
+                  {new Date(year, month - 1, selectedDay).toLocaleDateString(ab.dateLocale, {
                     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
                   })}
                 </p>
                 <span className="text-xs text-[var(--text-3)]">
-                  {selAbsences.length} absence{selAbsences.length !== 1 ? 's' : ''}
+                  {ab.absenceCount(selAbsences.length)}
                 </span>
               </div>
               {selAbsences.length === 0 ? (
-                <p className="text-xs text-center py-6 text-[var(--text-3)]">Aucune absence ce jour</p>
+                <p className="text-xs text-center py-6 text-[var(--text-3)]">{ab.noAbsenceThatDay}</p>
               ) : (
                 <div className="space-y-2">
                   {selAbsences.map(a => (
-                    <AbsenceCard key={a.id} absence={a} isAdmin={isAdmin} onApprove={handleApprove} onReject={handleReject} isPending={isPending} />
+                    <AbsenceCard key={a.id} absence={a} isAdmin={isAdmin} onApprove={handleApprove} onReject={handleReject} isPending={isPending} ab={ab} />
                   ))}
                 </div>
               )}
@@ -415,7 +420,7 @@ export default function AbsencesView({
             {absences.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-[var(--text-3)]">
                 <UserX size={36} className="mb-3 opacity-30" />
-                <p className="text-sm">Aucune absence</p>
+                <p className="text-sm">{ab.noAbsence}</p>
               </div>
             ) : (
               <div className="divide-y divide-[var(--border)]">
@@ -433,7 +438,7 @@ export default function AbsencesView({
                         </div>
                         <p className="text-xs text-[var(--text-2)] truncate">{a.reason}</p>
                         <p className="text-xs text-[var(--text-3)] mt-0.5">
-                          {fmt(a.startDate)} → {fmt(a.endDate)} · {getDuration(a.startDate, a.endDate)}
+                          {fmt(a.startDate, ab)} → {fmt(a.endDate, ab)} · {getDuration(a.startDate, a.endDate, ab)}
                         </p>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
@@ -443,10 +448,10 @@ export default function AbsencesView({
                         {isAdmin && a.status === 'PENDING' && (
                           <div className="flex gap-1.5">
                             <button onClick={() => handleApprove(a.id)} disabled={isPending} className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium disabled:opacity-50" style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.25)' }}>
-                              <CheckCircle2 size={11} /> Valider
+                              <CheckCircle2 size={11} /> {ab.validate}
                             </button>
                             <button onClick={() => handleReject(a.id)} disabled={isPending} className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium disabled:opacity-50" style={{ background: 'rgba(239,68,68,0.10)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.25)' }}>
-                              <XCircle size={11} /> Refuser
+                              <XCircle size={11} /> {ab.refuse}
                             </button>
                           </div>
                         )}
@@ -462,6 +467,7 @@ export default function AbsencesView({
 
       {showModal && (
         <AbsenceDeclareModal
+          locale={locale}
           declareAction={declareAbsenceAction}
           onClose={() => setShowModal(false)}
           onSuccess={() => { setShowModal(false); router.refresh() }}
@@ -471,14 +477,16 @@ export default function AbsencesView({
   )
 }
 
-function AbsenceCard({ absence, isAdmin, onApprove, onReject, isPending }: {
+function AbsenceCard({ absence, isAdmin, onApprove, onReject, isPending, ab }: {
   absence: AbsenceItem
   isAdmin: boolean
   onApprove: (id: string) => void
   onReject:  (id: string) => void
   isPending: boolean
+  ab: Translations['absences']
 }) {
   const s = STATUS_STYLE[absence.status] ?? STATUS_STYLE.PENDING
+  const STATUS_LABELS = statusLabels(ab)
   return (
     <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: 'var(--bg)', border: '1px solid var(--border)' }}>
       <img src={absence.memberAvatarUrl} alt={absence.memberName} className="w-8 h-8 rounded-full flex-shrink-0" />
@@ -491,16 +499,16 @@ function AbsenceCard({ absence, isAdmin, onApprove, onReject, isPending }: {
         </div>
         <p className="text-xs mt-0.5 truncate text-[var(--text-2)]">{absence.reason}</p>
         <p className="text-xs mt-0.5 text-[var(--text-3)]">
-          {fmt(absence.startDate)} → {fmt(absence.endDate)} · {getDuration(absence.startDate, absence.endDate)}
+          {fmt(absence.startDate, ab)} → {fmt(absence.endDate, ab)} · {getDuration(absence.startDate, absence.endDate, ab)}
         </p>
       </div>
       {isAdmin && absence.status === 'PENDING' && (
         <div className="flex gap-1.5 flex-shrink-0">
           <button onClick={() => onApprove(absence.id)} disabled={isPending} className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium disabled:opacity-50" style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.25)' }}>
-            <CheckCircle2 size={11} /> Valider
+            <CheckCircle2 size={11} /> {ab.validate}
           </button>
           <button onClick={() => onReject(absence.id)} disabled={isPending} className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium disabled:opacity-50" style={{ background: 'rgba(239,68,68,0.10)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.25)' }}>
-            <XCircle size={11} /> Refuser
+            <XCircle size={11} /> {ab.refuse}
           </button>
         </div>
       )}

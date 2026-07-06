@@ -5,25 +5,51 @@ import { z } from 'zod'
 import { isSendableChannel } from './channel-utils'
 import { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, DiscordAPIError } from 'discord.js'
 import { prisma } from '@repo/db'
-import { getBotT } from './i18n/botTranslations'
+import { getBotT, type BotTranslations } from './i18n/botTranslations'
 
-function discordErrorMessage(error: unknown): string {
+async function langForDiscordGuild(discordGuildId?: unknown): Promise<string> {
+  if (typeof discordGuildId !== 'string' || !discordGuildId) return 'fr'
+  try {
+    const config = await prisma.guildConfig.findFirst({
+      where: { guild: { discordGuildId } },
+      select: { botLanguage: true },
+    })
+    return config?.botLanguage ?? 'fr'
+  } catch {
+    return 'fr'
+  }
+}
+
+async function langForGuild(guildId?: unknown): Promise<string> {
+  if (typeof guildId !== 'string' || !guildId) return 'fr'
+  try {
+    const config = await prisma.guildConfig.findUnique({
+      where: { guildId },
+      select: { botLanguage: true },
+    })
+    return config?.botLanguage ?? 'fr'
+  } catch {
+    return 'fr'
+  }
+}
+
+function discordErrorMessage(error: unknown, t: BotTranslations = getBotT('fr')): string {
   if (error instanceof DiscordAPIError) {
     switch (error.code) {
       case 50001:
-        return "Le bot n'a pas accès à ce canal. Vérifiez qu'il est bien membre du serveur et que les permissions de lecture sont accordées."
+        return t.discordErrors.noAccess
       case 50013:
-        return "Le bot n'a pas les permissions suffisantes pour envoyer des messages dans ce canal (permission « Envoyer des messages » requise)."
+        return t.discordErrors.noPermission
       case 50007:
-        return "Impossible d'envoyer un message à cet utilisateur (messages privés désactivés)."
+        return t.discordErrors.dmClosed
       case 10003:
-        return "Canal introuvable. Vérifiez que l'identifiant du canal est correct et que le bot est dans le serveur."
+        return t.discordErrors.channelNotFound
       case 10008:
-        return "Message introuvable. Il a probablement été supprimé — un nouvel embed sera publié."
+        return t.discordErrors.messageNotFound
       case 50035:
-        return "Données invalides envoyées à Discord. Vérifiez le titre et la description de l'embed."
+        return t.discordErrors.invalidData
       default:
-        return `Erreur Discord ${error.code} : ${error.message}`
+        return t.discordErrors.generic(error.code, error.message)
     }
   }
   if (error instanceof Error) return error.message
@@ -62,7 +88,7 @@ app.post('/assign-role', async (req, res) => {
     res.json({ success: true })
   } catch (error) {
     logger.error({ error }, 'assign-role failed')
-    res.status(500).json({ error: discordErrorMessage(error) })
+    res.status(500).json({ error: discordErrorMessage(error, getBotT(await langForDiscordGuild(req.body?.discordGuildId))) })
   }
 })
 
@@ -76,7 +102,7 @@ app.post('/remove-role', async (req, res) => {
     res.json({ success: true })
   } catch (error) {
     logger.error({ error }, 'remove-role failed')
-    res.status(500).json({ error: discordErrorMessage(error) })
+    res.status(500).json({ error: discordErrorMessage(error, getBotT(await langForDiscordGuild(req.body?.discordGuildId))) })
   }
 })
 
@@ -92,13 +118,14 @@ app.post('/send-message', async (req, res) => {
     const { channelId, content } = sendMessageSchema.parse(req.body)
     const channel = await client.channels.fetch(channelId)
     if (!isSendableChannel(channel)) {
-      return res.status(400).json({ error: "Ce canal ne supporte pas l'envoi de messages." })
+      const t = getBotT(await langForDiscordGuild(req.body?.discordGuildId))
+      return res.status(400).json({ error: t.discordErrors.notSendable })
     }
     await channel.send(content)
     res.json({ success: true })
   } catch (error) {
     logger.error({ error }, 'send-message failed')
-    res.status(500).json({ error: discordErrorMessage(error) })
+    res.status(500).json({ error: discordErrorMessage(error, getBotT(await langForDiscordGuild(req.body?.discordGuildId))) })
   }
 })
 
@@ -115,14 +142,15 @@ app.post('/mention-members', async (req, res) => {
     const { channelId, discordUserIds, content } = mentionSchema.parse(req.body)
     const channel = await client.channels.fetch(channelId)
     if (!isSendableChannel(channel)) {
-      return res.status(400).json({ error: "Ce canal ne supporte pas l'envoi de messages." })
+      const t = getBotT(await langForDiscordGuild(req.body?.discordGuildId))
+      return res.status(400).json({ error: t.discordErrors.notSendable })
     }
     const mentions = discordUserIds.map((id) => `<@${id}>`).join(' ')
     await channel.send(`${mentions}${content ? ` — ${content}` : ''}`)
     res.json({ success: true })
   } catch (error) {
     logger.error({ error }, 'mention-members failed')
-    res.status(500).json({ error: discordErrorMessage(error) })
+    res.status(500).json({ error: discordErrorMessage(error, getBotT(await langForDiscordGuild(req.body?.discordGuildId))) })
   }
 })
 
@@ -230,27 +258,25 @@ app.post('/notify-absence', async (req, res) => {
       return `${day}/${m}/${y}`
     }
 
-    const sourceLabel = data.source === 'discord'
-      ? (config.botLanguage === 'en' ? 'Via Discord' : 'Via Discord')
-      : (config.botLanguage === 'en' ? 'Via Panel' : 'Via Panel')
+    const sourceLabel = data.source === 'discord' ? t.absence.viaDiscord : t.absence.viaPanel
 
     const embed = new EmbedBuilder()
       .setColor(color)
-      .setTitle(config.botLanguage === 'en' ? '📋 New absence request' : "📋 Nouvelle demande d'absence")
-      .setDescription(`**${data.memberName}** ${config.botLanguage === 'en' ? 'has submitted an absence request.' : 'a soumis une demande d\'absence.'}`)
+      .setTitle(t.absence.notifTitle)
+      .setDescription(t.absence.notifDesc(data.memberName))
       .addFields(
         {
-          name: config.botLanguage === 'en' ? 'Reason' : 'Motif',
+          name: t.absence.reasonLabel,
           value: data.reason,
           inline: false,
         },
         {
-          name: config.botLanguage === 'en' ? 'Period' : 'Période',
+          name: t.absence.periodField,
           value: `${fmt(data.startDate)} → ${fmt(data.endDate)}`,
           inline: true,
         },
         {
-          name: 'Source',
+          name: t.absence.sourceField,
           value: sourceLabel,
           inline: true,
         }
@@ -270,12 +296,12 @@ app.post('/notify-absence', async (req, res) => {
 
     const approveBtn = new ButtonBuilder()
       .setCustomId(`absence-review:approve:${data.absenceId}`)
-      .setLabel(config.botLanguage === 'en' ? 'Approve' : 'Accepter')
+      .setLabel(t.absence.approveBtn)
       .setEmoji('✅')
       .setStyle(ButtonStyle.Success)
     const rejectBtn = new ButtonBuilder()
       .setCustomId(`absence-review:reject:${data.absenceId}`)
-      .setLabel(config.botLanguage === 'en' ? 'Reject' : 'Refuser')
+      .setLabel(t.absence.rejectBtn)
       .setEmoji('❌')
       .setStyle(ButtonStyle.Danger)
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(approveBtn, rejectBtn)
@@ -290,7 +316,7 @@ app.post('/notify-absence', async (req, res) => {
     res.json({ success: true })
   } catch (error) {
     logger.error({ error }, 'notify-absence failed')
-    res.status(500).json({ error: discordErrorMessage(error) })
+    res.status(500).json({ error: discordErrorMessage(error, getBotT(await langForGuild(req.body?.guildId))) })
   }
 })
 
@@ -358,7 +384,7 @@ app.post('/notify-warning', async (req, res) => {
     res.json({ success: true })
   } catch (error) {
     logger.error({ error }, 'notify-warning failed')
-    res.status(500).json({ error: discordErrorMessage(error) })
+    res.status(500).json({ error: discordErrorMessage(error, getBotT(await langForGuild(req.body?.guildId))) })
   }
 })
 
@@ -388,15 +414,16 @@ app.post('/update-absence-status', async (req, res) => {
       return res.json({ success: true, skipped: true })
     }
 
+    const t = getBotT(await langForGuild(absence.guildId))
     const approved = status === 'APPROVED'
     const existingEmbed = message.embeds[0]
     const embed = existingEmbed ? EmbedBuilder.from(existingEmbed) : new EmbedBuilder()
     embed.setColor(approved ? 0x22c55e : 0xef4444)
     embed.addFields({
-      name: 'Statut',
+      name: t.absence.statusField,
       value: approved
-        ? `✅ Approuvée${reviewerName ? ` par **${reviewerName}**` : ''}`
-        : `❌ Refusée${reviewerName ? ` par **${reviewerName}**` : ''}`,
+        ? t.absence.reviewApproved(reviewerName)
+        : t.absence.reviewRejected(reviewerName),
     })
 
     await message.edit({ embeds: [embed], components: [] })
@@ -450,11 +477,11 @@ app.post('/post-absence-embed', async (req, res) => {
     try {
       channel = await client.channels.fetch(config.absenceChannelId!)
     } catch (error) {
-      return res.status(400).json({ error: discordErrorMessage(error) })
+      return res.status(400).json({ error: discordErrorMessage(error, t) })
     }
 
     if (!isSendableChannel(channel)) {
-      return res.status(400).json({ error: "Ce canal ne supporte pas l'envoi de messages (type invalide)." })
+      return res.status(400).json({ error: t.discordErrors.notSendableType })
     }
 
     let messageId: string
@@ -482,7 +509,7 @@ app.post('/post-absence-embed', async (req, res) => {
     res.json({ success: true, messageId })
   } catch (error) {
     logger.error({ error }, 'post-absence-embed failed')
-    res.status(500).json({ error: discordErrorMessage(error) })
+    res.status(500).json({ error: discordErrorMessage(error, getBotT(await langForGuild(req.body?.guildId))) })
   }
 })
 

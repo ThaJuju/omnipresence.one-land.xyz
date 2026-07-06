@@ -64,7 +64,8 @@ export async function runDailyPresence(guildId: string) {
     const embedColorNum = parseInt(embedColorHex, 16)
 
     const embed = new EmbedBuilder()
-      .setTitle(guild.config.embedTitle || t.presence.embedTitle)
+      // Le défaut FR du schéma est un sentinel « non personnalisé » : on applique la version localisée
+      .setTitle(!guild.config.embedTitle || guild.config.embedTitle === '✅ Confirmation de présence' ? t.presence.embedTitle : guild.config.embedTitle)
       .setDescription(customDesc || defaultDesc)
       .setColor(isNaN(embedColorNum) ? 0x5865f2 : embedColorNum)
       .setTimestamp()

@@ -1,6 +1,8 @@
 import { prisma } from '@repo/db'
 import { getSessionOrThrow, getGuildMember, requirePermission, withApiHandler } from '@/lib/api'
 import { NextResponse } from 'next/server'
+import { getLocale } from '@/i18n/server'
+import { getT } from '@/i18n/translations'
 
 export const GET = withApiHandler(async (req, { params }) => {
   const session = await getSessionOrThrow()
@@ -18,13 +20,13 @@ export const GET = withApiHandler(async (req, { params }) => {
     orderBy: { date: 'desc' },
   })
 
-  const TYPE_FR: Record<string, string> = { INCOME: 'Recette', EXPENSE: 'Dépense' }
+  const csvT = getT(getLocale()).csv
 
   const rows = [
-    ['Date', 'Type', 'Catégorie', 'Libellé', 'Montant (€)', 'Note'],
+    csvT.accountingHeaders,
     ...entries.map((e) => [
       e.date.toISOString().split('T')[0]!,
-      TYPE_FR[e.type] ?? e.type,
+      csvT.accountingType[e.type] ?? e.type,
       e.category,
       e.label,
       (e.type === 'EXPENSE' ? -e.amount : e.amount).toFixed(2),
