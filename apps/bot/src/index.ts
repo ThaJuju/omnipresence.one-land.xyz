@@ -6,6 +6,7 @@ import { getBotT } from './i18n/botTranslations'
 import { startHttpServer } from './httpServer'
 import { onReady } from './events/ready'
 import { onGuildCreate } from './events/guildCreate'
+import { onGuildUpdate } from './events/guildUpdate'
 import { onGuildDelete } from './events/guildDelete'
 import { onGuildMemberAdd } from './events/guildMemberAdd'
 import { onGuildMemberRemove } from './events/guildMemberRemove'
@@ -32,6 +33,7 @@ const commands = new Map([
 client.once(Events.ClientReady, (c) => onReady(c))
 
 client.on(Events.GuildCreate, onGuildCreate)
+client.on(Events.GuildUpdate, onGuildUpdate)
 client.on(Events.GuildDelete, onGuildDelete)
 client.on(Events.GuildMemberAdd, onGuildMemberAdd)
 client.on(Events.GuildMemberRemove, onGuildMemberRemove)
