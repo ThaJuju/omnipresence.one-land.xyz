@@ -1,6 +1,7 @@
 {
   "name": "blackmdt",
   "private": true,
+  "license": "MIT",
   "packageManager": "pnpm@10.34.4",
   "scripts": {
     "dev": "turbo dev",
