@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { getLocale } from '@/i18n/server'
-import { SITE_NAME, SITE_URL } from '@/lib/site'
+import { GOOGLE_SITE_VERIFICATION, SITE_NAME, SITE_URL } from '@/lib/site'
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = getLocale()
@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: { card: 'summary', title, description },
     robots: { index: true, follow: true },
-    verification: { google: 'O37YyLZ-sVxpJPkTPNw_w5CvPyNNokqDbUHkuZ9R6Og' },
+    ...(GOOGLE_SITE_VERIFICATION ? { verification: { google: GOOGLE_SITE_VERIFICATION } } : {}),
   }
 }
 
